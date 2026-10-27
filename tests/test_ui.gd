@@ -13,7 +13,7 @@ func run() -> void:
 	await process_frame
 	scene.show_page("setup")
 	game.rename_companions("Nova", "Quiet Horizon")
-	for page in ["ship", "shop", "stats", "settings", "menu"]:
+	for page in ["ship", "robot", "shop", "stats", "settings", "menu"]:
 		scene.show_page(page)
 		await process_frame
 		print("UI opened: ", page)

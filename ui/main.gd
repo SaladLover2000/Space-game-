@@ -16,6 +16,10 @@ var notice := ""
 var compact_window: Window
 var compact_label: Label
 var sound_player: AudioStreamPlayer
+var ship_view: Control
+var room_panel: VBoxContainer
+var selected_room: String = ""
+var robot_mood: Label
 
 func _ready() -> void:
 	var theme_resource := Theme.new()
@@ -50,7 +54,7 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HBoxContainer.new()
 	root.add_child(nav)
-	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
+	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
 		var target: String = entry[1]
 		button(nav, entry[0], func(): show_page(target))
 	var scroll := ScrollContainer.new()
@@ -103,6 +107,9 @@ func show_page(page: String) -> void:
 	start_button = null
 	pause_button = null
 	duration = null
+	ship_view = null
+	room_panel = null
+	robot_mood = null
 	match page:
 		"menu":
 			content.add_child(ShipView.new())
@@ -112,8 +119,6 @@ func show_page(page: String) -> void:
 		"setup":
 			names_form(true)
 		"ship":
-			content.add_child(ShipView.new())
-			paragraph("SHIP / " + ("Engine online · living quarters and cockpit await restoration" if "engine" in Game.state.owned else "Drifting · engine offline · hull weathered"))
 			var row := HBoxContainer.new()
 			content.add_child(row)
 			duration = SpinBox.new()
@@ -138,7 +143,7 @@ func show_page(page: String) -> void:
 			pause_button = button(controls, "Pause", func(): Game.toggle_pause())
 			button(controls, "Cancel session", confirm_cancel)
 			button(controls, "Compact timer", open_compact)
-			paragraph("Complete a session to recharge your companion. Take breaks whenever you need.")
+			build_ship_explorer()
 		"shop":
 			paragraph("RESTORATION BAY / Small repairs, lasting changes")
 			content.add_child(ShipView.new())
@@ -147,7 +152,21 @@ func show_page(page: String) -> void:
 				var item_id: String = item.id
 				var buy := button(content, "Restored" if item_id in Game.state.owned else "Purchase repair", func(): notice = Game.purchase(item_id); show_page("shop"))
 				buy.disabled = item_id in Game.state.owned
-			paragraph("Engine restoration is the first prototype's single upgrade. A completed 25-minute session earns its 50-credit price.")
+			paragraph("Each repair changes its room in both overview and close-up. Pick any room to begin; all three paths are available from the start.")
+		"robot":
+			ship_view = ShipView.new()
+			content.add_child(ship_view)
+			ship_view.focus_room("quarters")
+			paragraph("YOUR COMPANION / " + Game.state.robot)
+			robot_mood = label("")
+			content.add_child(robot_mood)
+			var battery := ProgressBar.new()
+			battery.value = Game.state.battery
+			battery.custom_minimum_size.y = 24
+			content.add_child(battery)
+			paragraph("Condition / weathered shell, functional study dock. A small companion finding its spark again.")
+			paragraph("During a session the dock pulses gently. Battery is awarded on completion; pausing or canceling never drains it.")
+			button(content, "Return to ship & study", func(): show_page("ship"))
 		"stats":
 			paragraph("YOUR STUDY LOG")
 			paragraph("%d completed sessions · %d minutes studied" % [Game.state.history.size(), int(Game.state.total_seconds / 60)])
@@ -183,10 +202,78 @@ func names_form(first: bool) -> void:
 
 func _process(_delta: float) -> void:
 	update_timer()
+	if is_instance_valid(robot_mood) and is_instance_valid(ship_view):
+		var descriptions := {"sad": "Resting · low battery", "idle": "At ease · watching the stars", "charging": "Charging dock active · studying alongside you", "happy": "Happy · a session well spent", "upgraded": "Delighted · another piece of home restored"}
+		robot_mood.text = descriptions[ship_view.expression()]
+
+func build_ship_explorer() -> void:
+	var room_nav := HBoxContainer.new()
+	content.add_child(room_nav)
+	button(room_nav, "Overview", func(): select_room(""))
+	for entry in [["cockpit", "Cockpit"], ["quarters", "Living quarters"], ["engine", "Engine room"]]:
+		var id: String = entry[0]
+		button(room_nav, entry[1], func(): select_room(id))
+	var explorer := HBoxContainer.new()
+	explorer.add_theme_constant_override("separation", 16)
+	content.add_child(explorer)
+	ship_view = ShipView.new()
+	ship_view.interactive = true
+	explorer.add_child(ship_view)
+	ship_view.custom_minimum_size = Vector2(500, 240)
+	ship_view.room_selected.connect(select_room)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.x = 250
+	explorer.add_child(panel)
+	room_panel = VBoxContainer.new()
+	room_panel.add_theme_constant_override("separation", 8)
+	panel.add_child(room_panel)
+	select_room(selected_room)
+
+func select_room(id: String) -> void:
+	selected_room = id
+	ship_view.focus_room(id)
+	update_room_panel()
+
+func room_text(text: String, font_size: int = 16) -> Label:
+	var result := label(text, font_size)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	room_panel.add_child(result)
+	return result
+
+func update_room_panel() -> void:
+	if not is_instance_valid(room_panel):
+		return
+	for child in room_panel.get_children():
+		room_panel.remove_child(child)
+		child.queue_free()
+	if selected_room.is_empty():
+		room_text("A HOME IN ORBIT", 20)
+		room_text("Click a room or use the room buttons to look closer.")
+		room_text("%d / 3 rooms restored" % Game.state.owned.filter(func(id: String): return id in ["cockpit", "quarters", "engine"]).size())
+		room_text("No rush. Every session leaves a little light behind.")
+		return
+	var room: Dictionary = ship_view.rooms[selected_room]
+	var restored: bool = selected_room in Game.state.owned
+	room_text(room.name, 20)
+	room_text("RESTORED" if restored else "AWAITING CARE", 14).modulate = Color("7de1d6" if restored else "e8cf87")
+	room_text(room.restored if restored else room.damaged)
+	var object_detail := room_text("Select an object to inspect it.", 14)
+	for i in range(room.objects.size()):
+		var description: String = room.restored_objects[i] if restored else room.damaged_objects[i]
+		button(room_panel, room.objects[i], func(): object_detail.text = description)
+	for item in Game.balance.repairs:
+		if item.id == selected_room and not restored:
+			button(room_panel, "Restore · %d credits" % item.price, purchase_room)
+	button(room_panel, "Back to overview", func(): select_room(""))
+
+func purchase_room() -> void:
+	notice = Game.purchase(selected_room)
+	refresh()
 
 func refresh() -> void:
 	status.text = "%s aboard %s   /   %d credits   /   %d research XP   /   Battery %d%%" % [Game.state.robot, Game.state.ship, Game.state.credits, Game.state.xp, Game.state.battery]
 	message.text = notice
+	update_room_panel()
 	if is_instance_valid(start_button):
 		var has_session := not Game.active.is_empty()
 		start_button.disabled = has_session

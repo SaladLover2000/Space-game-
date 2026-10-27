@@ -3,6 +3,7 @@ extends Node
 signal changed
 signal completed(credits: int, xp: int)
 signal storage_error(message: String)
+signal repaired(id: String)
 
 const SAVE_PATH = "user://orbit_v1.json"
 const VERSION = 1
@@ -95,7 +96,8 @@ func purchase(id: String) -> String:
 		state.owned.append(id)
 		save_progress()
 		changed.emit()
-		return "Engine restored. A little more like home."
+		repaired.emit(id)
+		return "%s complete. A little more like home." % item.name
 	return "Unknown component."
 
 func rename_companions(robot: String, ship: String) -> void:

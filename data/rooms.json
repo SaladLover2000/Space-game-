@@ -1,0 +1,26 @@
+{
+  "cockpit": {
+    "name": "Cockpit", "bounds": [33,56,60,46],
+    "damaged": "Dust dims the glass. The navigation console has only a little power.",
+    "restored": "Clean glass and steady instruments. A brighter view of the journey ahead.",
+    "objects": ["Navigation console", "Observation window", "Pilot seat"],
+    "damaged_objects": ["Burnt display pixels; guidance is offline.", "A film of dust catches the starlight.", "Worn padding, still a place to rest."],
+    "restored_objects": ["The repaired console traces a quiet star map.", "Freshly cleaned glass frames the stars.", "New teal padding makes a comfortable perch."]
+  },
+  "quarters": {
+    "name": "Living quarters", "bounds": [97,56,73,46],
+    "damaged": "A threadbare bunk and a dangling cable. There is room for a little warmth.",
+    "restored": "Fresh bedding, a repaired lamp and one small plant. This is becoming home.",
+    "objects": ["Sleeping nook", "Wall shelf", "Charging dock"],
+    "damaged_objects": ["A faded blanket covers the old bunk.", "A few abandoned containers gather dust.", "The dock is worn but safe to use during study sessions."],
+    "restored_objects": ["A soft blue blanket is ready for a break.", "A little green plant reaches toward the lamp.", "The tidy dock pulses gently while your companion studies with you."]
+  },
+  "engine": {
+    "name": "Engine room", "bounds": [174,56,62,46],
+    "damaged": "The old coils are burnt out. The ship drifts quietly without propulsion.",
+    "restored": "Coolant flows and the coils glow. The ship finally has a heartbeat.",
+    "objects": ["Main engine", "Coolant manifold", "Service panel"],
+    "damaged_objects": ["Burnt coils need a careful replacement.", "The coolant line is dark and silent.", "A loose cover and a few rusty fasteners."],
+    "restored_objects": ["Fresh coils produce a steady turquoise glow.", "A gentle pulse follows the repaired coolant line.", "Clean fasteners hold the panel securely in place."]
+  }
+}

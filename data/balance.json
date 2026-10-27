@@ -3,6 +3,8 @@
   "xp_per_minute": 1,
   "battery_per_minute": 1,
   "repairs": [
-    {"id":"engine", "name":"Wake the engine", "description":"Replace the burnt coils and restore the engine room's warm glow.", "price":50, "xp":0}
+    {"id":"engine", "name":"Wake the engine", "description":"Replace the burnt coils and restore the engine room's warm glow.", "price":50, "xp":0},
+    {"id":"cockpit", "name":"Bring the bridge online", "description":"Clean the windows, mend the console and restore the navigation lights.", "price":60, "xp":0},
+    {"id":"quarters", "name":"Make a cozy corner", "description":"Patch the loose wiring, renew the bunk and add a small living plant.", "price":40, "xp":0}
   ]
 }
