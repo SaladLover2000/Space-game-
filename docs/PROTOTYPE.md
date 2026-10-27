@@ -4,6 +4,12 @@ A native Godot 4 / GDScript single-player study game. No internet, assets, or ex
 
 ## Open and play on Windows
 
+For the larger standalone window on this PC, double-click `PLAY-GAME.cmd` in the project root. It uses the Godot executable already extracted in Downloads and starts the game maximized with a 1600×900 design canvas. This avoids the small embedded preview shown inside the editor. Stop any existing run before starting it. Godot's editor can still launch the project with F5.
+
+Names now autosave after a short typing pause, on leaving the form, and on clean exit. Enter or the form button saves and continues. New-game setup is marked complete only by continuing. A failed save is shown on the form rather than reporting success.
+
+Room framing now uses a wider 176×100 camera region instead of the previous 112×60 close-up. Selecting a room automatically moves the companion into it with a stepping animation. Hatches on the route open automatically; this requires no player movement input and changes no study rewards.
+
 1. Install Godot 4.4 or newer, standard edition (no .NET required).
 2. In the project manager choose **Import**, select `project.godot`, then **Import & Edit**.
 3. Press **F6** with `scenes/main.tscn` open, or **F5** to run the project.
@@ -48,6 +54,7 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 - `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
 - `tests/mutation_check.py`: verifies the suites reject five deliberately introduced regressions in isolated project copies; standard Python only.
 - `tests/run_checks.py`: runs import and the full regression suite; rejects GDScript errors even if Godot reports exit code zero. Use `--graphical` to capture current game screens and check native rendered-frame animation.
+- `tests/test_usability.gd`: actual file persistence for typed names, Enter/navigation save paths, window configuration, full-room framing, companion arrival/visibility, rapid room changes and timer continuity.
 
 The UI requests operations from Game and never grants study rewards. Catalog IDs link ownership to art. Future components/rooms can extend the catalog and visual layer; planetary discoveries can be added with a versioned save migration and deterministic seed field.
 

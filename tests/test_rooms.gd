@@ -43,7 +43,7 @@ func run() -> void:
 		view._gui_input(click)
 		check(scene.selected_room == id, "room click selects " + id)
 		await create_timer(0.55).timeout
-		check(view.camera.size.is_equal_approx(Vector2(112, 60)), "zoom reaches close-up for " + id)
+		check(view.camera.size.is_equal_approx(Vector2(176, 100)), "zoom reaches gentler room framing for " + id)
 		var zoomed_position: Vector2 = view.view_transform() * view.room_bounds(id).get_center()
 		check(view.room_at(zoomed_position) == id, "zoomed hit test for " + id)
 		# Inspect the first object through its actual button callback.
@@ -65,7 +65,7 @@ func run() -> void:
 	for id in ["cockpit", "engine", "quarters", "engine"]:
 		scene.select_room(id)
 	await create_timer(0.55).timeout
-	check(view.selected_room == "engine" and view.camera.size == Vector2(112, 60), "rapid navigation finishes at the last requested room")
+	check(view.selected_room == "engine" and view.camera.size == Vector2(176, 100), "rapid navigation finishes at the last requested room")
 	game.last_tick = 1000
 	game.advance(61000)
 	check(game.active.id == session_id and game.active.remaining_ms == remaining_before - 60000, "room navigation leaves study session and elapsed timing intact")

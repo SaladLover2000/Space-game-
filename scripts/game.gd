@@ -100,12 +100,17 @@ func purchase(id: String) -> String:
 		return "%s complete. A little more like home." % item.name
 	return "Unknown component."
 
-func rename_companions(robot: String, ship: String) -> void:
+func update_names(robot: String, ship: String, complete_setup: bool = false) -> bool:
 	state.robot = robot.strip_edges().left(24) if not robot.strip_edges().is_empty() else "Pip"
 	state.ship = ship.strip_edges().left(24) if not ship.strip_edges().is_empty() else "Little Orbit"
-	state.started = true
-	save_progress()
+	if complete_setup:
+		state.started = true
+	var saved := save_progress()
 	changed.emit()
+	return saved
+
+func rename_companions(robot: String, ship: String) -> bool:
+	return update_names(robot, ship, true)
 
 func valid_snapshot(value: Variant) -> bool:
 	if not value is Dictionary or value.get("version", 0) != VERSION:

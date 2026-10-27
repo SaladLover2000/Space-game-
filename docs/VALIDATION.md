@@ -1,5 +1,17 @@
 # Phases 1–2 validation
 
+## Larger window, name persistence and room-following fixes
+
+The full strict graphical run passed **121 assertions** and editor import with no GDScript compile/runtime diagnostics. Per-suite results are in `usability-check-results.json`. This includes the existing 101 assertions plus 20 usability checks.
+
+The new checks type names through the LineEdit text-change callbacks and read the actual isolated save file, then reload it. They cover autosave, setup completion, leaving Settings before the debounce fires, returning to Settings, and Enter-to-save. They also verify the 1600×900/maximized configuration, automatic robot arrival in every room, room/companion visibility inside the wider camera, latest-target behavior after rapid navigation, automatic hatch opening, and unchanged study timing.
+
+`room-following.png` is an actual native render of the larger scene with persisted test names and the companion in the cockpit. The direct launcher path was checked against the installed Godot executable. The launcher itself has not been exercised against the player's real save during validation; automated suites use isolated saves. The embedded editor preview's own zoom setting remains an editor preference; `PLAY-GAME.cmd` bypasses it.
+
+```powershell
+python tests/run_checks.py --godot C:/Tools/Godot.exe --graphical --report usability-check-results.json
+```
+
 Validated using Godot 4.4.1 stable on Windows, with app-data/cache paths redirected into the workspace for this restricted execution environment.
 
 - Headless editor import: passed; no GDScript parse errors.

@@ -23,6 +23,12 @@ var selected_room: String = ""
 var robot_mood: Label
 var drift_status: Label
 var inspection_label: Label
+var name_autosave: Timer
+var robot_name_edit: LineEdit
+var ship_name_edit: LineEdit
+var name_save_button: Button
+var name_hint: Label
+var names_dirty: bool = false
 
 func _ready() -> void:
 	var theme_resource := Theme.new()
@@ -76,6 +82,11 @@ func _ready() -> void:
 	Game.storage_error.connect(func(text: String): notice = text; refresh())
 	sound_player = AudioStreamPlayer.new()
 	add_child(sound_player)
+	name_autosave = Timer.new()
+	name_autosave.one_shot = true
+	name_autosave.wait_time = 0.45
+	name_autosave.timeout.connect(flush_name_edits)
+	add_child(name_autosave)
 	notice = Game.last_error
 	show_page("menu")
 	get_tree().auto_accept_quit = false
@@ -99,6 +110,7 @@ func button(parent: Node, text: String, action: Callable) -> Button:
 	return result
 
 func show_page(page: String) -> void:
+	flush_name_edits()
 	if not Game.state.started and page != "menu":
 		page = "setup"
 	current_page = page
@@ -115,6 +127,10 @@ func show_page(page: String) -> void:
 	robot_mood = null
 	drift_status = null
 	inspection_label = null
+	robot_name_edit = null
+	ship_name_edit = null
+	name_save_button = null
+	name_hint = null
 	match page:
 		"menu":
 			content.add_child(ShipView.new())
@@ -217,17 +233,47 @@ func show_page(page: String) -> void:
 func names_form(first: bool) -> void:
 	paragraph("A LITTLE HOME IN SPACE" if first else "COMPANION & SHIP")
 	paragraph("An exhausted robot waits aboard a weathered ship. Give this new beginning a name." if first else "You can change these names whenever you like.")
-	var robot := LineEdit.new()
-	robot.text = Game.state.robot
-	robot.max_length = 24
+	robot_name_edit = LineEdit.new()
+	robot_name_edit.text = Game.state.robot
+	robot_name_edit.max_length = 24
 	paragraph("Robot name")
-	content.add_child(robot)
-	var ship := LineEdit.new()
-	ship.text = Game.state.ship
-	ship.max_length = 24
+	content.add_child(robot_name_edit)
+	ship_name_edit = LineEdit.new()
+	ship_name_edit.text = Game.state.ship
+	ship_name_edit.max_length = 24
 	paragraph("Spaceship name")
-	content.add_child(ship)
-	button(content, "Make ourselves at home" if first else "Save names", func(): Game.rename_companions(robot.text, ship.text); show_page("ship"))
+	content.add_child(ship_name_edit)
+	for field in [robot_name_edit, ship_name_edit]:
+		field.text_changed.connect(func(_text: String): queue_name_save())
+		field.focus_exited.connect(flush_name_edits)
+		field.text_submitted.connect(func(_text: String): submit_names())
+	name_hint = label("Names save automatically. Press Enter or use the button to continue.", 15)
+	name_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(name_hint)
+	name_save_button = button(content, "Make ourselves at home" if first else "Save names", submit_names)
+
+func queue_name_save() -> void:
+	names_dirty = true
+	name_autosave.start()
+	if is_instance_valid(name_hint):
+		name_hint.text = "Saving names…"
+
+func flush_name_edits(complete_setup: bool = false) -> bool:
+	if not names_dirty and not complete_setup:
+		return true
+	if not is_instance_valid(robot_name_edit) or not is_instance_valid(ship_name_edit):
+		return false
+	name_autosave.stop()
+	var saved: bool = Game.update_names(robot_name_edit.text, ship_name_edit.text, complete_setup)
+	if saved:
+		names_dirty = false
+	if is_instance_valid(name_hint):
+		name_hint.text = "Names saved." if saved else "Could not save. Please try again."
+	return saved
+
+func submit_names() -> void:
+	if flush_name_edits(true):
+		show_page("ship")
 
 func _process(_delta: float) -> void:
 	update_timer()
@@ -403,6 +449,7 @@ func on_completed(credits: int, xp: int) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		flush_name_edits()
 		Game.advance(Time.get_ticks_msec())
 		Game.save_progress()
 		get_tree().quit()

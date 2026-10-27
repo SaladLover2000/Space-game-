@@ -25,6 +25,9 @@ const HullArt = preload("res://assets/hull_art.gd")
 const RobotArt = preload("res://assets/robot_art.gd")
 var hull_art := HullArt.new()
 var robot_art := RobotArt.new()
+var robot_position := Vector2(143, 103)
+var robot_tween: Tween
+const ROOM_CAMERA_SIZE = Vector2(176, 100)
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
@@ -84,11 +87,32 @@ func focus_room(id: String) -> void:
 	hovered_object = -1
 	var target := Rect2(0, 0, 280, 150)
 	if not id.is_empty():
-		target = Rect2(room_bounds(id).get_center() - Vector2(56, 30), Vector2(112, 60))
+		var top_left := room_bounds(id).get_center() - ROOM_CAMERA_SIZE / 2.0
+		top_left.x = clampf(top_left.x, 0, 280 - ROOM_CAMERA_SIZE.x)
+		top_left.y = clampf(top_left.y, 0, 150 - ROOM_CAMERA_SIZE.y)
+		target = Rect2(top_left, ROOM_CAMERA_SIZE)
+		follow_robot(id)
 	if camera_tween:
 		camera_tween.kill()
 	camera_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	camera_tween.tween_method(func(value: Rect2): camera = value; queue_redraw(), camera, target, 0.5)
+
+func follow_robot(id: String) -> void:
+	var anchors := {"cockpit": Vector2(80, 103), "quarters": Vector2(143, 103), "engine": Vector2(205, 103)}
+	if not anchors.has(id):
+		return
+	if robot_tween:
+		robot_tween.kill()
+	var destination: Vector2 = anchors[id]
+	# Keep automatic companion travel unobstructed; no movement input is needed.
+	for hatch in door_open:
+		var hatch_x: float = 95 if hatch == "bridge" else 172
+		if minf(robot_position.x, destination.x) < hatch_x and maxf(robot_position.x, destination.x) > hatch_x and not door_open[hatch]:
+			door_open[hatch] = true
+			door_toggled.emit(hatch, true)
+	var duration := clampf(robot_position.distance_to(destination) / 150.0, 0.2, 0.8)
+	robot_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	robot_tween.tween_property(self, "robot_position", destination, duration)
 
 func _gui_input(event: InputEvent) -> void:
 	if not interactive:
@@ -197,4 +221,4 @@ func draw_interior() -> void:
 	hull_art.draw(self, Game.state.owned, true)
 	interior_art.draw(self, rooms, Game.state.owned, clock, door_progress)
 	draw_interior_selection()
-	robot_art.draw(self, Vector2(143, 103), clock, expression())
+	robot_art.draw(self, robot_position, clock, expression(), robot_tween != null and robot_tween.is_running())

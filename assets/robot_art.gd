@@ -12,18 +12,21 @@ func plate(points: Array, color: String) -> void:
 		polygon.append(origin + Vector2(p[0], p[1]))
 	canvas.draw_colored_polygon(polygon, Color(color))
 
-func draw(target: CanvasItem, feet: Vector2, time: float, mood: String) -> void:
+func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false) -> void:
 	canvas = target
 	var excited := mood in ["happy", "upgraded"]
 	var hop := floorf(abs(sin(time * 7)) * 2) if excited else 0.0
 	origin = feet + Vector2(0, -hop)
+	if walking:
+		origin.y -= floorf(abs(sin(time * 12)))
+	var stride := floorf(sin(time * 12) * 2) if walking else 0.0
 	# Feet, articulated legs and the hip linkage retain distinct silhouettes.
-	box(-8, -2, 7, 3, "142a3d")
-	box(2, -2, 7, 3, "142a3d")
-	box(-7, -3, 6, 3, "a6b9ba")
-	box(2, -3, 6, 3, "a6b9ba")
-	box(-7, -2, 2, 1, "d1d7c7")
-	box(6, -2, 2, 1, "d1d7c7")
+	box(-8 + stride, -2, 7, 3, "142a3d")
+	box(2 - stride, -2, 7, 3, "142a3d")
+	box(-7 + stride, -3, 6, 3, "a6b9ba")
+	box(2 - stride, -3, 6, 3, "a6b9ba")
+	box(-7 + stride, -2, 2, 1, "d1d7c7")
+	box(6 - stride, -2, 2, 1, "d1d7c7")
 	for x in [-5, 3]:
 		box(x, -9, 3, 6, "263e52")
 		box(x + 1, -8, 1, 4, "a4b7b7")

@@ -17,17 +17,17 @@ def main():
     parser.add_argument("--graphical", action="store_true")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
-    suites = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift"]
+    suites = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift", "test_usability"]
     results = []
     for suite in ["import"] + suites:
-        cmd = [args.godot, "--path", str(args.project.resolve())]
+        cmd = [args.godot, "--windowed", "--path", str(args.project.resolve())]
         if suite == "import":
             cmd += ["--headless", "--editor", "--quit"]
         else:
             if not args.graphical or suite in ["test_game", "test_ui"]:
                 cmd += ["--headless"]
             cmd += ["--script", f"res://tests/{suite}.gd"]
-            if args.graphical and suite in ["test_rooms", "test_interior", "test_drift"]:
+            if args.graphical and suite in ["test_rooms", "test_interior", "test_drift", "test_usability"]:
                 cmd += ["--", "--capture"]
         try:
             run = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
