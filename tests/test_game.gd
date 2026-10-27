@@ -68,7 +68,7 @@ func run() -> void:
 	check(game.valid_snapshot({"version": 1}), "missing fields accept defaults")
 	game.state = game.defaults()
 	game.active = {}
-	game.state.battery = 99
+	game.state.battery = 100
 	game.start_session(1)
 	game.last_tick = 1000
 	game.advance(60999)
@@ -98,3 +98,4 @@ func run() -> void:
 			DirAccess.remove_absolute(game.save_path + suffix)
 	print("RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
+
