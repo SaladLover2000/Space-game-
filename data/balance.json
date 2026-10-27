@@ -1,0 +1,8 @@
+{
+  "credits_per_minute": 2,
+  "xp_per_minute": 1,
+  "battery_per_minute": 1,
+  "repairs": [
+    {"id":"engine", "name":"Wake the engine", "description":"Replace the burnt coils and restore the engine room's warm glow.", "price":50, "xp":0}
+  ]
+}

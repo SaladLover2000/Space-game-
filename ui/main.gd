@@ -1,0 +1,268 @@
+extends Control
+
+const ShipView = preload("res://assets/ship_view.gd")
+var root: VBoxContainer
+var content: VBoxContainer
+var timer_label: Label
+var reward_label: Label
+var status: Label
+var message: Label
+var pause_button: Button
+var start_button: Button
+var duration: SpinBox
+var presets: HBoxContainer
+var current_page := "menu"
+var notice := ""
+var compact_window: Window
+var compact_label: Label
+var sound_player: AudioStreamPlayer
+
+func _ready() -> void:
+	var theme_resource := Theme.new()
+	theme_resource.default_font_size = 17
+	for kind in ["Button", "LineEdit", "SpinBox", "PanelContainer"]:
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("18283f")
+		style.border_color = Color("38536c")
+		style.set_border_width_all(2)
+		style.content_margin_left = 14
+		style.content_margin_right = 14
+		style.content_margin_top = 10
+		style.content_margin_bottom = 10
+		theme_resource.set_stylebox("normal" if kind != "PanelContainer" else "panel", kind, style)
+		var hover := style.duplicate()
+		hover.bg_color = Color("25445b")
+		theme_resource.set_stylebox("hover", kind, hover)
+	theme = theme_resource
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for edge in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 24)
+	add_child(margin)
+	root = VBoxContainer.new()
+	root.add_theme_constant_override("separation", 12)
+	margin.add_child(root)
+	var title := label("L I T T L E   O R B I T", 28)
+	title.modulate = Color("7de1d6")
+	root.add_child(title)
+	status = label("", 15)
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(status)
+	var nav := HBoxContainer.new()
+	root.add_child(nav)
+	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
+		var target: String = entry[1]
+		button(nav, entry[0], func(): show_page(target))
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(scroll)
+	content = VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 12)
+	scroll.add_child(content)
+	message = label("", 15)
+	message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	message.modulate = Color("e8cf87")
+	root.add_child(message)
+	Game.changed.connect(refresh)
+	Game.completed.connect(on_completed)
+	Game.storage_error.connect(func(text: String): notice = text; refresh())
+	sound_player = AudioStreamPlayer.new()
+	add_child(sound_player)
+	notice = Game.last_error
+	show_page("menu")
+	get_tree().auto_accept_quit = false
+
+func label(text: String, font_size: int = 18) -> Label:
+	var result := Label.new()
+	result.text = text
+	result.add_theme_font_size_override("font_size", font_size)
+	return result
+
+func paragraph(text: String) -> void:
+	var result := label(text)
+	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(result)
+
+func button(parent: Node, text: String, action: Callable) -> Button:
+	var result := Button.new()
+	result.text = text
+	result.pressed.connect(action)
+	parent.add_child(result)
+	return result
+
+func show_page(page: String) -> void:
+	if not Game.state.started and page != "menu":
+		page = "setup"
+	current_page = page
+	for child in content.get_children():
+		content.remove_child(child)
+		child.queue_free()
+	timer_label = null
+	reward_label = null
+	start_button = null
+	pause_button = null
+	duration = null
+	match page:
+		"menu":
+			content.add_child(ShipView.new())
+			paragraph("A quiet corner of the universe. A small companion. One session at a time.")
+			button(content, "Continue your journey" if Game.state.started else "Begin your journey", func(): show_page("ship" if Game.state.started else "setup"))
+			paragraph("Your progress stays with you. Missing a day never hurts your robot.")
+		"setup":
+			names_form(true)
+		"ship":
+			content.add_child(ShipView.new())
+			paragraph("SHIP / " + ("Engine online · living quarters and cockpit await restoration" if "engine" in Game.state.owned else "Drifting · engine offline · hull weathered"))
+			var row := HBoxContainer.new()
+			content.add_child(row)
+			duration = SpinBox.new()
+			duration.min_value = 1
+			duration.max_value = 240
+			duration.value = 25
+			duration.suffix = " min"
+			row.add_child(duration)
+			presets = HBoxContainer.new()
+			row.add_child(presets)
+			for minutes in [25, 45, 60, 90, 120]:
+				var value: int = minutes
+				button(presets, str(minutes), func(): duration.value = value)
+			timer_label = label("", 36)
+			content.add_child(timer_label)
+			reward_label = label("", 17)
+			reward_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			content.add_child(reward_label)
+			var controls := HBoxContainer.new()
+			content.add_child(controls)
+			start_button = button(controls, "Start study", func(): Game.start_session(int(duration.value)))
+			pause_button = button(controls, "Pause", func(): Game.toggle_pause())
+			button(controls, "Cancel session", confirm_cancel)
+			button(controls, "Compact timer", open_compact)
+			paragraph("Complete a session to recharge your companion. Take breaks whenever you need.")
+		"shop":
+			paragraph("RESTORATION BAY / Small repairs, lasting changes")
+			content.add_child(ShipView.new())
+			for item in Game.balance.repairs:
+				paragraph("%s · %d credits\n%s" % [item.name, item.price, item.description])
+				var item_id: String = item.id
+				var buy := button(content, "Restored" if item_id in Game.state.owned else "Purchase repair", func(): notice = Game.purchase(item_id); show_page("shop"))
+				buy.disabled = item_id in Game.state.owned
+			paragraph("Engine restoration is the first prototype's single upgrade. A completed 25-minute session earns its 50-credit price.")
+		"stats":
+			paragraph("YOUR STUDY LOG")
+			paragraph("%d completed sessions · %d minutes studied" % [Game.state.history.size(), int(Game.state.total_seconds / 60)])
+			if Game.state.history.is_empty():
+				paragraph("A blank log is a beginning. Your first session can be a small one.")
+			for i in range(Game.state.history.size() - 1, -1, -1):
+				var entry: Dictionary = Game.state.history[i]
+				paragraph("%s  /  %d minutes  /  +%d credits" % [entry.date, entry.minutes, int(entry.get("credits", 0))])
+		"settings":
+			names_form(false)
+			var sound := CheckButton.new()
+			sound.text = "Play completion chime"
+			sound.button_pressed = Game.state.sound
+			sound.toggled.connect(func(enabled: bool): Game.state.sound = enabled; Game.save_progress())
+			content.add_child(sound)
+			paragraph("Saves are local and automatic. Closing pauses the saved session; reopening never grants time spent away. While running, minimizing keeps the timer counting.")
+	refresh()
+
+func names_form(first: bool) -> void:
+	paragraph("A LITTLE HOME IN SPACE" if first else "COMPANION & SHIP")
+	paragraph("An exhausted robot waits aboard a weathered ship. Give this new beginning a name." if first else "You can change these names whenever you like.")
+	var robot := LineEdit.new()
+	robot.text = Game.state.robot
+	robot.max_length = 24
+	paragraph("Robot name")
+	content.add_child(robot)
+	var ship := LineEdit.new()
+	ship.text = Game.state.ship
+	ship.max_length = 24
+	paragraph("Spaceship name")
+	content.add_child(ship)
+	button(content, "Make ourselves at home" if first else "Save names", func(): Game.rename_companions(robot.text, ship.text); show_page("ship"))
+
+func _process(_delta: float) -> void:
+	update_timer()
+
+func refresh() -> void:
+	status.text = "%s aboard %s   /   %d credits   /   %d research XP   /   Battery %d%%" % [Game.state.robot, Game.state.ship, Game.state.credits, Game.state.xp, Game.state.battery]
+	message.text = notice
+	if is_instance_valid(start_button):
+		var has_session := not Game.active.is_empty()
+		start_button.disabled = has_session
+		pause_button.disabled = not has_session
+		pause_button.text = "Resume" if has_session and Game.active.paused else "Pause"
+		duration.editable = not has_session
+		for preset in presets.get_children():
+			preset.disabled = has_session
+	update_timer()
+
+func time_text() -> String:
+	if Game.active.is_empty():
+		return "Ready when you are"
+	var seconds := int(ceil(float(Game.active.remaining_ms) / 1000.0))
+	return "%02d:%02d%s" % [int(seconds / 60), seconds % 60, " · paused" if Game.active.paused else ""]
+
+func update_timer() -> void:
+	if is_instance_valid(timer_label):
+		var minutes := int(duration.value) if Game.active.is_empty() else int(Game.active.minutes)
+		timer_label.text = time_text()
+		reward_label.text = "On completion / +%d credits · +%d research XP · +%d%% battery (up to 100%%)" % [minutes * int(Game.balance.credits_per_minute), minutes * int(Game.balance.xp_per_minute), minutes * int(Game.balance.battery_per_minute)]
+	if is_instance_valid(compact_label):
+		compact_label.text = "  %s\n  %s" % [Game.state.robot, time_text()]
+
+func confirm_cancel() -> void:
+	if Game.active.is_empty():
+		return
+	var dialog := ConfirmationDialog.new()
+	dialog.dialog_text = "Cancel this session? No completion rewards will be granted."
+	add_child(dialog)
+	dialog.confirmed.connect(func(): Game.cancel_session(); notice = "Session canceled. Begin again whenever you're ready."; refresh(); dialog.queue_free())
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.popup_centered()
+
+func open_compact() -> void:
+	if is_instance_valid(compact_window):
+		compact_window.show()
+		return
+	compact_window = Window.new()
+	compact_window.hide()
+	compact_window.title = "Little Orbit / Focus"
+	compact_window.size = Vector2i(340, 170)
+	compact_window.unresizable = true
+	compact_window.always_on_top = true
+	compact_window.force_native = true
+	add_child(compact_window)
+	var column := VBoxContainer.new()
+	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	compact_window.add_child(column)
+	compact_label = label("", 24)
+	column.add_child(compact_label)
+	button(column, "Pause / Resume", func(): Game.toggle_pause())
+	compact_window.close_requested.connect(compact_window.hide)
+	compact_window.show()
+	update_timer()
+
+func on_completed(credits: int, xp: int) -> void:
+	notice = "Session complete. +%d credits, +%d XP. Your companion feels brighter." % [credits, xp]
+	DisplayServer.window_request_attention()
+	if Game.state.sound:
+		var wave := AudioStreamWAV.new()
+		wave.format = AudioStreamWAV.FORMAT_16_BITS
+		wave.mix_rate = 22050
+		var samples := PackedByteArray()
+		samples.resize(22050)
+		for i in range(11025):
+			var t := float(i) / 22050.0
+			var value := int(sin(TAU * (660.0 if t < 0.25 else 880.0) * t) * 7000 * (1.0 - t * 2))
+			samples.encode_s16(i * 2, value)
+		wave.data = samples
+		sound_player.stream = wave
+		sound_player.play()
+	refresh()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		Game.advance(Time.get_ticks_msec())
+		Game.save_progress()
+		get_tree().quit()
