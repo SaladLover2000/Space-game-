@@ -87,12 +87,22 @@ Manual acceptance: launch and name companions; complete a one-minute timer while
 
 ## Scope and next task
 
-This delivery includes the Phase 1 core and Phase 2 visual-restoration pass. Component customization, wishlist, technology tree, weekly bonuses, achievements, planets and solar-system editor remain deferred. Research XP is stored but the three starter repairs have no research gate. Artwork is still procedural placeholder art rather than a finished commissioned sprite set. No Windows executable is bundled yet.
+This delivery includes the Phase 1 core and Phase 2 visual-restoration pass. A first ship workshop is included. Wishlist, technology tree, weekly bonuses, achievements, collectible planets and solar-system editor remain deferred. Research XP is stored but the three starter repairs have no research gate. Artwork is still procedural placeholder art rather than a finished commissioned sprite set. No Windows executable is bundled yet.
 
 The colorful planet fly-bys in Drift and room backgrounds are decorative scenery. Collectible discoveries, planet interaction and solar-system construction remain deferred. White exhaust is an atmospheric visual effect even before engine restoration; repaired engines emit a denser trail. Ship drift is cosmetic and never changes study rewards or battery use.
 
-Next: Phase 3 wishlist and a small set of visually distinct robot/ship components, followed by a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
+Next: wishlist and robot components, followed by a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
 
 ## Export
 
 In Godot install matching export templates via **Editor → Manage Export Templates**. Open **Project → Export**, add **Windows Desktop**, choose x86_64 and a destination outside source (for example `build/LittleOrbit.exe`). Export a debug build first and run the manual acceptance checks above. Signing and installer packaging are future release work.
+
+## Ship workshop and side-view themes
+
+Open **Shop** to select a ship component directly on the preview or choose a category. There are 21 designs across seven slots: engines, hull, fins/solar, paint, sensors, lighting and interior. Preview changes only the displayed ship. Buy & equip deducts credits once; owned designs can be swapped freely. Research XP gates some designs but is not spent. Equipped designs persist across restarts.
+
+The cutaway now has taller side walls and a narrow deck for a clearer side-on view. Industrial steel is the free original theme; Warm habitat adds bronze walls and amber lamps; Cyan laboratory adds cool panels and a glass tower. Select **Shop → Interior themes** to preview them. Room selection keeps the entire ship visible and the robot walks to the selected room.
+
+An engine patch costs 10 credits and restores 25 condition points, capped at 100%. A full overhaul costs 50 credits, restores 100%, and unlocks replacement engines. Patching does not grant overhaul ownership. Four patches can fill condition, after which an overhaul can still unlock replacements. Automatic asteroid damage is not implemented; condition never degrades as a study penalty. These components are cosmetic, not combat statistics.
+
+Old saves gain stock equipment automatically. Invalid, unowned or mismatched equipment IDs reset to the correct stock part. Workshop purchases and equipment changes roll back if saving fails. A successful retry clears the storage error notice. Test screenshots use isolated demonstration saves, not player progress.

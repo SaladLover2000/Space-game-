@@ -28,6 +28,29 @@ var robot_art := RobotArt.new()
 var robot_position := Vector2(143, 103)
 var robot_tween: Tween
 const ROOM_CAMERA_SIZE = Vector2(280, 150)
+const ShipComponents = preload("res://assets/ship_components.gd")
+var components := ShipComponents.new()
+signal part_selected(slot: String)
+var workshop_mode: bool = false
+var selected_slot: String = "engine"
+var hovered_slot: String = ""
+var preview_equipped: Dictionary = {}
+
+func equipment() -> Dictionary:
+	return preview_equipped if not preview_equipped.is_empty() else Game.state.equipped
+
+func part_regions() -> Dictionary:
+	return {"engine":[Rect2(232,60,33,47)], "wings":[Rect2(192,16,46,25), Rect2(190,119,49,24)], "antenna":[Rect2(157,16,28,28)], "hull":[Rect2(175,55,53,48)], "paint":[Rect2(103,61,50,35)], "lights":[Rect2(43,108,38,6)], "interior":[Rect2(35,62,54,35)]}
+
+func part_at(local_position: Vector2) -> String:
+	if not Rect2(Vector2.ZERO, size).has_point(local_position):
+		return ""
+	var world := view_transform().affine_inverse() * local_position
+	for slot in part_regions():
+		for region in part_regions()[slot]:
+			if region.has_point(world):
+				return slot
+	return ""
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
@@ -114,6 +137,16 @@ func follow_robot(id: String) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if not interactive:
 		return
+	if workshop_mode:
+		if event is InputEventMouseMotion:
+			hovered_slot = part_at(event.position)
+			queue_redraw()
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			var slot := part_at(event.position)
+			if not slot.is_empty():
+				part_selected.emit(slot)
+				accept_event()
+		return
 	if event is InputEventMouseMotion:
 		hovered_room = room_at(event.position)
 		hovered_object = object_at(event.position)
@@ -198,12 +231,17 @@ func _draw() -> void:
 		draw_exterior()
 	else:
 		draw_interior()
-	hull_art.draw_engines(self, "engine" in Game.state.owned, clock)
+	hull_art.draw_engines(self, Game.state.engine_condition >= 25, clock)
+	components.draw(self, equipment(), not exterior)
 	draw_smoke()
+	if workshop_mode:
+		var slot := hovered_slot if not hovered_slot.is_empty() else selected_slot
+		for region in part_regions().get(slot, []):
+			draw_rect(region.grow(1), Color("f4d18b"), false, 1)
 
 func draw_smoke() -> void:
 	# Soft white vent wisps remain visible even while the damaged ship drifts.
-	var count := 12 if "engine" in Game.state.owned else 7
+	var count := 12 if Game.state.engine_condition >= 25 else 7
 	for nozzle in range(2):
 		for i in range(count - 1, -1, -1):
 			var puff := smoke_particle(i, clock, nozzle)
@@ -214,9 +252,9 @@ func draw_smoke() -> void:
 			draw_rect(Rect2(p - Vector2(r - 1, r), Vector2(r * 2 - 1, r * 2 + 1)), color)
 
 func draw_exterior() -> void:
-	hull_art.draw(self, Game.state.owned, false)
+	hull_art.draw(self, Game.visual_repairs(), false)
 func draw_interior() -> void:
-	hull_art.draw(self, Game.state.owned, true)
-	interior_art.draw(self, rooms, Game.state.owned, clock, door_progress)
+	hull_art.draw(self, Game.visual_repairs(), true)
+	interior_art.draw(self, rooms, Game.visual_repairs(), clock, door_progress, equipment().get("interior", "interior_stock"))
 	draw_interior_selection()
 	robot_art.draw(self, robot_position, clock, expression(), robot_tween != null and robot_tween.is_running())

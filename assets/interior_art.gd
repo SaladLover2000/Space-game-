@@ -1,9 +1,10 @@
 extends RefCounted
 ## Original modular interior artwork; no reference sprites are embedded.
 var canvas: CanvasItem
+var theme_palette: Dictionary = {}
 
 func box(x: float, y: float, w: float, h: float, color: String) -> void:
-	canvas.draw_rect(Rect2(x, y, w, h), Color(color))
+	canvas.draw_rect(Rect2(x, y, w, h), Color(theme_palette.get(color, color)))
 
 func screen(x: float, y: float, w: float, h: float, online: bool) -> void:
 	box(x, y, w, h, "91abb6")
@@ -12,8 +13,13 @@ func screen(x: float, y: float, w: float, h: float, online: bool) -> void:
 	for i in range(3):
 		box(x + 2, y + 4 + i * 2, maxf(1, w - 6 - i * 2), 1, "308995" if online else "3e5261")
 
-func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, doors: Dictionary) -> void:
+func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, doors: Dictionary, interior_theme: String = "interior_stock") -> void:
 	canvas = target
+	theme_palette = {}
+	if interior_theme == "interior_habitat":
+		theme_palette = {"1b2e43":"2c2a38", "476275":"685853", "354755":"4d4044", "607d89":"8c7969", "415565":"63515a", "92a5a9":"c8b797", "586b75":"897873", "4a6371":"655552", "34434e":"3e3642", "304959":"433840", "3b5668":"675e58", "2d3c4d":"443a43", "69828b":"a49375", "43515e":"756366", "a8f4d5":"ffe3a2", "9db1b5":"c6b89d", "7994a1":"a8957d"}
+	elif interior_theme == "interior_lab":
+		theme_palette = {"1b2e43":"0c2037", "476275":"304861", "354755":"25334d", "607d89":"4a6580", "415565":"344665", "92a5a9":"91c3cf", "586b75":"5c8098", "4a6371":"354e69", "34434e":"20314b", "304959":"223b54", "3b5668":"324d68", "2d3c4d":"20314b", "69828b":"65a1b9", "a8f4d5":"81f2f0", "9db1b5":"accbd4", "7994a1":"608a9f"}
 	# Pressure-hull rim sits inside the shared shaped exterior chassis.
 	for frame in [Rect2(31, 51, 64, 56), Rect2(97, 54, 73, 53), Rect2(173, 50, 65, 58)]:
 		box(frame.position.x, frame.position.y, frame.size.x, frame.size.y, "1b2e43")
@@ -27,15 +33,17 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 		# Repeated wall modules and recessed steel floor tiles.
 		box(x, 55, width, 47, "476275" if fixed else "354755")
 		for px in range(x + 1, x + width - 2, 10):
-			box(px, 57, 9, 24, "607d89" if fixed else "415565")
+			box(px, 57, 9, 41, "607d89" if fixed else "415565")
 			box(px + 1, 58, 7, 1, "92a5a9" if fixed else "586b75")
-			box(px + 1, 61, 1, 18, "4a6371" if fixed else "34434e")
-			box(px + 2, 78, 6, 1, "304959")
-		for py in range(82, 103, 7):
+			box(px + 1, 61, 1, 34, "4a6371" if fixed else "34434e")
+			box(px + 2, 95, 6, 1, "304959")
+		# A thin horizontal deck, with tall walls rather than a top-down floor grid.
+		for py in range(99, 103, 4):
 			for px in range(x + 1, x + width - 2, 8):
-				box(px, py, 7, 6, "3b5668" if fixed else "2d3c4d")
+				box(px, py, 7, 4, "3b5668" if fixed else "2d3c4d")
 				box(px + 1, py, 5, 1, "69828b" if fixed else "43515e")
-				box(px + 6, py + 1, 1, 5, "1d3045")
+				box(px + 6, py + 1, 1, 3, "1d3045")
+		box(x + 1, 98, width - 3, 1, "92a5a9" if fixed else "586b75")
 		box(x + 7, 58, width - 15, 1, "a8f4d5" if fixed else "8c7257")
 		if not fixed:
 			for i in range(4):
@@ -118,6 +126,21 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 	box(180, 62, 36, 1, "76cbbc" if powered else "8a6b58")
 	for px in range(187, 218, 5):
 		box(px, 100, 3, 2, "ddba70")
+	# Theme-specific side-wall fittings; cosmetic layers do not grant repairs.
+	if interior_theme == "interior_lab":
+		box(157, 68, 9, 25, "1b344b")
+		box(159, 71, 5, 18, "4fabc4")
+		box(160, 72, 1, 15, "b7f7ed")
+		box(157, 68, 9, 3, "9abec7")
+		box(157, 90, 9, 3, "91aab8")
+		screen(130, 77, 12, 8, true)
+		for px in [106, 137, 178, 226]:
+			box(px, 97, 5, 1, "72e5df")
+	elif interior_theme == "interior_habitat":
+		box(136, 71, 7, 2, "ffe5a2")
+		box(137, 73, 5, 1, "c19a72")
+		for px in [105, 121, 154]:
+			box(px, 99, 4, 1, "e7c58d")
 	# Animated bulkhead shutters connect cockpit → quarters → engine.
 	for id in doors:
 		var x: int = 91 if id == "bridge" else 168

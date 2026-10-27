@@ -2,6 +2,8 @@ extends Control
 
 const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
+const Workshop = preload("res://ui/workshop.gd")
+var workshop: Control
 var root: VBoxContainer
 var content: VBoxContainer
 var timer_label: Label
@@ -63,7 +65,7 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HBoxContainer.new()
 	root.add_child(nav)
-	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Interior", "interior"], ["Drift", "drift"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
+	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Interior", "interior"], ["Drift", "drift"], ["Robot", "robot"], ["Shop", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
 		var target: String = entry[1]
 		button(nav, entry[0], func(): show_page(target))
 	var scroll := ScrollContainer.new()
@@ -80,6 +82,10 @@ func _ready() -> void:
 	Game.changed.connect(refresh)
 	Game.completed.connect(on_completed)
 	Game.storage_error.connect(func(text: String): notice = text; refresh())
+	Game.storage_recovered.connect(func(previous: String):
+		if notice == previous:
+			notice = ""
+			refresh())
 	sound_player = AudioStreamPlayer.new()
 	add_child(sound_player)
 	name_autosave = Timer.new()
@@ -127,6 +133,7 @@ func show_page(page: String) -> void:
 	robot_mood = null
 	drift_status = null
 	inspection_label = null
+	workshop = null
 	robot_name_edit = null
 	ship_name_edit = null
 	name_save_button = null
@@ -183,14 +190,8 @@ func show_page(page: String) -> void:
 			button(controls, "Compact timer", open_compact)
 			build_ship_explorer()
 		"shop":
-			paragraph("RESTORATION BAY / Small repairs, lasting changes")
-			content.add_child(ShipView.new())
-			for item in Game.balance.repairs:
-				paragraph("%s · %d credits\n%s" % [item.name, item.price, item.description])
-				var item_id: String = item.id
-				var buy := button(content, "Restored" if item_id in Game.state.owned else "Purchase repair", func(): notice = Game.purchase(item_id); show_page("shop"))
-				buy.disabled = item_id in Game.state.owned
-			paragraph("Each repair changes its room in both overview and close-up. Pick any room to begin; all three paths are available from the start.")
+			workshop = Workshop.new()
+			content.add_child(workshop)
 		"robot":
 			var companion_row := HBoxContainer.new()
 			companion_row.add_theme_constant_override("separation", 12)

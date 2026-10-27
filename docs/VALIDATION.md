@@ -87,3 +87,9 @@ python tests/mutation_check.py --godot $Godot --scratch C:/Temp/orbit-tests --re
 Environment caveat: Godot reports that this sandbox cannot read the Windows root-certificate store; the game uses no network calls. The intentionally corrupted JSON test also emits the expected parser diagnostic before successfully loading the backup.
 
 Not manually verified: audible output; topmost stacking against another application's window; suspend/resume; Windows export and launch of an exported executable. The real-time minimized test verifies the running countdown on this Windows environment; it does not replace those remaining manual acceptance checks.
+
+## Workshop and side-view theme validation
+
+The strict graphical runner passed **162 assertions** across seven suites plus editor import, with no GDScript compile/runtime errors. See `workshop-check-results.json` for current results. The workshop suite contributes 38 checks covering affordability, engine prerequisites, XP gates, one-time charges, free equipment swaps, disk reload, invalid equipment migration, failed-save rollback and recovery, actual component hotspot callbacks and Buy button actions, non-persistent previews, theme persistence, timer continuity and the narrow-window card layout.
+
+Actual runtime captures: `ship-workshop.png`, `shop-parts-catalog.png`, `interior-theme-preview.png`, `interior-lab-preview.png` and `side-view-habitat.png`. These use isolated demonstration saves. The checks exercise connected Godot signals and real state/save logic, not physical mouse automation. Original procedural artwork is used; no reference screenshot sprites were embedded. Automatic asteroid collisions and a finished exported Windows executable remain outside this delivery.

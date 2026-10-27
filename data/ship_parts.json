@@ -1,0 +1,172 @@
+[
+  {
+    "id": "engine_stock",
+    "slot": "engine",
+    "name": "Original twin engines",
+    "description": "Keep the familiar twin pods and soft white exhaust.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "engine_hauler",
+    "slot": "engine",
+    "name": "Hauler engine housings",
+    "description": "Wide reinforced engine collars and visible cooling fins. Requires a complete engine overhaul.",
+    "price": 80,
+    "xp": 0,
+    "requires": "engine"
+  },
+  {
+    "id": "engine_ion",
+    "slot": "engine",
+    "name": "Ion engine array",
+    "description": "Longer cyan-lit engine shrouds. Keeps the peaceful white exhaust effect.",
+    "price": 120,
+    "xp": 60,
+    "requires": "engine"
+  },
+  {
+    "id": "hull_stock",
+    "slot": "hull",
+    "name": "Original hull plates",
+    "description": "The ship's original chamfered pressure hull.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "hull_ribs",
+    "slot": "hull",
+    "name": "Ribbed cargo armor",
+    "description": "External structural ribs and reinforced belly panels.",
+    "price": 75,
+    "xp": 0
+  },
+  {
+    "id": "hull_shielded",
+    "slot": "hull",
+    "name": "Ceramic hull cladding",
+    "description": "Pale layered armor tiles and teal service strips. Visual equipment, with no combat statistics.",
+    "price": 140,
+    "xp": 80
+  },
+  {
+    "id": "wings_stock",
+    "slot": "wings",
+    "name": "Original stabilizers",
+    "description": "Keep the starter fins.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "wings_swept",
+    "slot": "wings",
+    "name": "Swept stabilizer kit",
+    "description": "Longer swept upper and lower fin extensions.",
+    "price": 70,
+    "xp": 0
+  },
+  {
+    "id": "wings_solar",
+    "slot": "wings",
+    "name": "Solar fin arrays",
+    "description": "Blue photovoltaic panels mounted along the stabilizers.",
+    "price": 120,
+    "xp": 60
+  },
+  {
+    "id": "paint_stock",
+    "slot": "paint",
+    "name": "Original steel & copper",
+    "description": "The starter steel hull with copper trim.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "paint_cobalt",
+    "slot": "paint",
+    "name": "Cobalt livery",
+    "description": "Deep blue hull accents and ice-blue stripes.",
+    "price": 25,
+    "xp": 0
+  },
+  {
+    "id": "paint_copper",
+    "slot": "paint",
+    "name": "Warm copper livery",
+    "description": "Warm copper panels with cream markings.",
+    "price": 25,
+    "xp": 0
+  },
+  {
+    "id": "antenna_stock",
+    "slot": "antenna",
+    "name": "Original communications dish",
+    "description": "Keep the starter dish and mast.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "antenna_dish",
+    "slot": "antenna",
+    "name": "Deep-space dish",
+    "description": "A larger articulated communications dish.",
+    "price": 50,
+    "xp": 0
+  },
+  {
+    "id": "antenna_sensor",
+    "slot": "antenna",
+    "name": "Sensor crown",
+    "description": "Twin sensor masts and violet-lit receiver bars.",
+    "price": 90,
+    "xp": 50
+  },
+  {
+    "id": "lights_stock",
+    "slot": "lights",
+    "name": "Original marker lamps",
+    "description": "The ship's original understated lamps.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "lights_teal",
+    "slot": "lights",
+    "name": "Teal running lights",
+    "description": "Bright teal guidance lights along the hull.",
+    "price": 30,
+    "xp": 0
+  },
+  {
+    "id": "lights_violet",
+    "slot": "lights",
+    "name": "Violet running lights",
+    "description": "Violet hull lights with warm gold markers.",
+    "price": 30,
+    "xp": 0
+  },
+  {
+    "id": "interior_stock",
+    "slot": "interior",
+    "name": "Industrial steel interior",
+    "description": "Original steel bulkheads and a clear side-on maintenance deck.",
+    "price": 0,
+    "xp": 0
+  },
+  {
+    "id": "interior_habitat",
+    "slot": "interior",
+    "name": "Warm habitat interior",
+    "description": "Warm bronze bulkheads, amber lamps and a cozy deck palette.",
+    "price": 60,
+    "xp": 0
+  },
+  {
+    "id": "interior_lab",
+    "slot": "interior",
+    "name": "Cyan laboratory interior",
+    "description": "Deep navy walls, cool silver equipment and cyan lighting.",
+    "price": 90,
+    "xp": 40
+  }
+]

@@ -3,6 +3,7 @@ extends Node
 signal changed
 signal completed(credits: int, xp: int)
 signal storage_error(message: String)
+signal storage_recovered(previous_message: String)
 signal repaired(id: String)
 
 const SAVE_PATH = "user://orbit_v1.json"
@@ -14,12 +15,17 @@ var last_tick: int = 0
 var checkpoint: float = 0.0
 var save_path: String = SAVE_PATH
 var last_error: String = ""
+var parts: Array = []
+
+func default_equipment() -> Dictionary:
+	return {"engine":"engine_stock", "hull":"hull_stock", "wings":"wings_stock", "paint":"paint_stock", "antenna":"antenna_stock", "lights":"lights_stock", "interior":"interior_stock"}
 
 func defaults() -> Dictionary:
-	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true}
+	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0}
 
 func _ready() -> void:
 	balance = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
+	parts = JSON.parse_string(FileAccess.get_file_as_string("res://data/ship_parts.json"))
 	load_progress()
 	last_tick = Time.get_ticks_msec()
 
@@ -94,11 +100,102 @@ func purchase(id: String) -> String:
 			return "Keep studying — you need %d more credits." % (item.price - state.credits)
 		state.credits -= int(item.price)
 		state.owned.append(id)
+		if id == "engine":
+			state.engine_condition = 100
 		save_progress()
 		changed.emit()
 		repaired.emit(id)
 		return "%s complete. A little more like home." % item.name
 	return "Unknown component."
+
+func part_by_id(id: String) -> Dictionary:
+	for item in parts:
+		if item.id == id:
+			return item
+	return {}
+
+func part_owned(id: String) -> bool:
+	var item := part_by_id(id)
+	return not item.is_empty() and (item.price == 0 or id in state.owned)
+
+func part_lock(item: Dictionary) -> String:
+	if item.is_empty():
+		return "Unknown part."
+	if state.xp < item.xp:
+		return "Requires %d research XP; you have %d." % [item.xp, state.xp]
+	if item.has("requires") and item.requires not in state.owned:
+		return "Complete the engine overhaul before fitting this engine."
+	return ""
+
+func commit_purchase(before: Dictionary) -> bool:
+	if save_progress():
+		changed.emit()
+		return true
+	state = before
+	changed.emit()
+	return false
+
+func buy_part(id: String) -> Dictionary:
+	var item := part_by_id(id)
+	if item.is_empty():
+		return {"ok": false, "message": "Unknown part."}
+	if part_owned(id):
+		return equip_part(id)
+	var lock := part_lock(item)
+	if not lock.is_empty():
+		return {"ok": false, "message": lock}
+	if state.credits < item.price:
+		return {"ok": false, "message": "Need %d more credits." % (item.price - state.credits)}
+	var before := state.duplicate(true)
+	state.credits -= int(item.price)
+	state.owned.append(id)
+	state.equipped[item.slot] = id
+	if not commit_purchase(before):
+		return {"ok": false, "message": last_error}
+	repaired.emit(id)
+	return {"ok": true, "message": item.name + " purchased and equipped."}
+
+func equip_part(id: String) -> Dictionary:
+	var item := part_by_id(id)
+	if item.is_empty() or not part_owned(id):
+		return {"ok": false, "message": "Buy this part before equipping it."}
+	if state.equipped.get(item.slot) == id:
+		return {"ok": true, "message": "Already equipped."}
+	var before := state.duplicate(true)
+	state.equipped[item.slot] = id
+	if not commit_purchase(before):
+		return {"ok": false, "message": last_error}
+	return {"ok": true, "message": item.name + " equipped. No charge."}
+
+func engine_overhaul_price() -> int:
+	for item in balance.repairs:
+		if item.id == "engine":
+			return int(item.price)
+	return 50
+
+func service_engine(full: bool = false) -> Dictionary:
+	if state.engine_condition >= 100 and (not full or "engine" in state.owned):
+		return {"ok": false, "message": "Engine is already in full condition."}
+	var price := engine_overhaul_price() if full else int(balance.engine_patch_price)
+	if state.credits < price:
+		return {"ok": false, "message": "Need %d more credits for this repair." % (price - state.credits)}
+	var before := state.duplicate(true)
+	state.credits -= price
+	state.engine_condition = 100 if full else mini(100, int(state.engine_condition) + int(balance.engine_patch_points))
+	if full and "engine" not in state.owned:
+		state.owned.append("engine")
+	if not commit_purchase(before):
+		return {"ok": false, "message": last_error}
+	repaired.emit("engine")
+	return {"ok": true, "message": "Engine overhauled." if full else "Engine patched: %d%% condition. A full overhaul unlocks replacement engines." % state.engine_condition}
+
+func visual_repairs() -> Array:
+	var result: Array = state.owned.duplicate()
+	if state.engine_condition >= 25 and "engine" not in result:
+		result.append("engine")
+	if state.engine_condition < 25:
+		result.erase("engine")
+	return result
 
 func update_names(robot: String, ship: String, complete_setup: bool = false) -> bool:
 	state.robot = robot.strip_edges().left(24) if not robot.strip_edges().is_empty() else "Pip"
@@ -127,6 +224,14 @@ func valid_snapshot(value: Variant) -> bool:
 	for key in ["owned", "history"]:
 		if value.has(key) and not value[key] is Array:
 			return false
+	if value.has("engine_condition") and (not (value.engine_condition is float or value.engine_condition is int) or value.engine_condition < 0 or value.engine_condition > 100):
+		return false
+	if value.has("equipped"):
+		if not value.equipped is Dictionary:
+			return false
+		for id in value.equipped.values():
+			if not id is String:
+				return false
 	for entry in value.get("history", []):
 		if not entry is Dictionary or not entry.get("id") is String or not entry.get("date") is String or not (entry.get("minutes") is float or entry.get("minutes") is int):
 			return false
@@ -144,6 +249,15 @@ func load_progress() -> void:
 			continue
 		state.merge(parsed, true)
 		state.battery = clampi(int(state.battery), 0, 100)
+		if not parsed.has("engine_condition"):
+			state.engine_condition = 100 if "engine" in state.owned else 0
+		var equipment := default_equipment()
+		for slot in state.get("equipped", {}):
+			var id: String = state.equipped[slot]
+			var item := part_by_id(id)
+			if equipment.has(slot) and not item.is_empty() and item.slot == slot and part_owned(id):
+				equipment[slot] = id
+		state.equipped = equipment
 		# Closed time never earns rewards. Resume a checkpoint paused.
 		var saved: Variant = state.get("session", {})
 		if saved is Dictionary and saved.get("id") is String and (saved.get("minutes") is float or saved.get("minutes") is int) and (saved.get("remaining_ms") is float or saved.get("remaining_ms") is int):
@@ -175,6 +289,10 @@ func save_progress() -> bool:
 				return fail_save()
 	if DirAccess.rename_absolute(save_path + ".tmp", save_path) != OK:
 		return fail_save()
+	if not last_error.is_empty():
+		var previous_error := last_error
+		last_error = ""
+		storage_recovered.emit(previous_error)
 	return true
 
 func fail_save() -> bool:
