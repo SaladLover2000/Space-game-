@@ -8,7 +8,7 @@ For the larger standalone window on this PC, double-click `PLAY-GAME.cmd` in the
 
 Names now autosave after a short typing pause, on leaving the form, and on clean exit. Enter or the form button saves and continues. New-game setup is marked complete only by continuing. A failed save is shown on the form rather than reporting success.
 
-Room framing now uses a wider 176×100 camera region instead of the previous 112×60 close-up. Selecting a room automatically moves the companion into it with a stepping animation. Hatches on the route open automatically; this requires no player movement input and changes no study rewards.
+Room selection keeps the complete 280×150 ship view at the same scale. The inspector no longer stretches the drawing area and enlarges the ship. A cyan outline identifies the selected room while its equipment appears in the inspector. Selecting a room automatically moves the companion into it with a stepping animation. Hatches on the route open automatically; this requires no player movement input and changes no study rewards.
 
 1. Install Godot 4.4 or newer, standard edition (no .NET required).
 2. In the project manager choose **Import**, select `project.godot`, then **Import & Edit**.
@@ -16,7 +16,7 @@ Room framing now uses a wider 176×100 camera region instead of the previous 112
 4. Choose **Begin your journey**, name your robot and ship, then start a session.
 5. Choose 25/45/60/90/120 minutes or type a custom whole-minute duration from 1–240. A completed 25-minute session earns 50 credits: open **Repairs** to restore the engine. The engine room and exhaust visibly light up.
 6. For a quick manual check use a custom **1 minute** session. Pause, resume, and try the compact window while studying in another application.
-7. Click a room in the ship or use the room buttons. The view smoothly zooms in; select object buttons to inspect the room. Scroll down if necessary to see the full room panel. Choose **Back to overview** to zoom out.
+7. Click a room in the ship or use the room buttons. The full ship remains visible and the room is highlighted; select equipment in the scene or its buttons to inspect it. Scroll down if necessary to see the full room panel. Choose **Back to overview** to clear the selection.
 8. Restore living quarters for 40 credits, the engine for 50, or the cockpit for 60. Each path is available immediately. View your companion's battery, expression and charging dock on **Robot**.
 9. Open **Drift** for a colorful exterior view: the hull gently rocks, soft white exhaust disperses, and shaded orange, turquoise and violet planets pass at different speeds. Your running study session continues and its status stays visible. Return to **Ship & study** to use the timer controls.
 10. Open **Interior** for the larger ship cutaway. Pick a room, then click the drawn equipment itself or its corresponding inspector button. Click either bulkhead hatch (or its sidebar button) to slide its shutters open/closed. Hatches are optional visual interactions and reset open when the view is recreated; purchased restoration states remain saved.
@@ -25,12 +25,12 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 
 ## Included
 
-- Main menu, first-run naming, overview/study screen, interactive room close-up, robot status, repair shop, study log, settings.
+- Main menu, first-run naming, overview/study screen, whole-ship room inspector, robot status, repair shop, study log, settings.
 - Countdown based on monotonic elapsed milliseconds, independent of frame rate and system date changes; keeps counting while minimized. Pause/resume/cancel, reward estimates, completion chime and window attention request.
 - Configurable credits (2/min), research XP (1/min), battery recharge (1%/min, capped at 100%). No passive depletion or missed-day penalties.
 - Three room repairs with centralized prices, requirements, ownership, insufficient-funds handling and linked visual states. Existing Phase 1 saves remain compatible without migration.
 - Original procedurally drawn pixel ship cutaway with three rooms, layered drifting stars and a dithered nebula. Rooms visibly lose rust and gain steady lighting as they are restored. The cockpit gains navigation lights and clean glass; quarters gain fresh bedding, a lamp and plant; the engine gains glowing coils and exhaust.
-- Clickable rooms, hover outlines, smooth interruptible zoom, overview return, keyboard-accessible room and object buttons, and nine object descriptions that change with restoration.
+- Clickable rooms, hover/selection outlines, stable overview framing, keyboard-accessible room and object buttons, and nine object descriptions that change with restoration.
 - Robot sad/idle expressions, blinking, charging-dock pulses during running study, a four-second completion celebration and a brief repair reaction. Artwork is isolated and replaceable. Charging animation is cosmetic: battery rewards remain completion-only.
 - Versioned JSON save, defaults, type validation, temporary-file replacement and validated previous-snapshot backup. Saves every ten seconds during sessions and on state changes/clean exit.
 

@@ -27,7 +27,7 @@ var hull_art := HullArt.new()
 var robot_art := RobotArt.new()
 var robot_position := Vector2(143, 103)
 var robot_tween: Tween
-const ROOM_CAMERA_SIZE = Vector2(176, 100)
+const ROOM_CAMERA_SIZE = Vector2(280, 150)
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
@@ -87,10 +87,7 @@ func focus_room(id: String) -> void:
 	hovered_object = -1
 	var target := Rect2(0, 0, 280, 150)
 	if not id.is_empty():
-		var top_left := room_bounds(id).get_center() - ROOM_CAMERA_SIZE / 2.0
-		top_left.x = clampf(top_left.x, 0, 280 - ROOM_CAMERA_SIZE.x)
-		top_left.y = clampf(top_left.y, 0, 150 - ROOM_CAMERA_SIZE.y)
-		target = Rect2(top_left, ROOM_CAMERA_SIZE)
+		# Selection changes the inspector and companion target, never the scale.
 		follow_robot(id)
 	if camera_tween:
 		camera_tween.kill()
@@ -175,6 +172,7 @@ func draw_interior_selection() -> void:
 		if not hovered_room.is_empty():
 			draw_rect(room_bounds(hovered_room), Color("8ce8db"), false, 1)
 		return
+	draw_rect(room_bounds(selected_room).grow(1), Color("7de1d6"), false, 1)
 	var index := hovered_object if hovered_object >= 0 else selected_object
 	if index >= 0:
 		draw_rect(object_bounds(selected_room, index).grow(1), Color("f8d58d"), false, 1)

@@ -50,12 +50,16 @@ func run() -> void:
 	check(game.state.robot == "Bolt" and scene.current_page == "ship", "Enter saves names and continues to the ship")
 	scene.show_page("interior")
 	var view: Control = scene.ship_view
+	await process_frame
+	await process_frame
+	var overview_scale: Vector2 = view.view_transform().get_scale()
 	for id in ["cockpit", "engine", "quarters"]:
 		scene.select_room(id)
 		await create_timer(0.9).timeout
 		check(view.room_bounds(id).has_point(view.robot_position - Vector2(0, 16)), "robot follows into " + id)
 		check(view.camera.has_point(view.robot_position - Vector2(0, 20)) and view.camera.encloses(view.room_bounds(id)), "room and companion fit the wider camera in " + id)
-		check(view.camera.size.x >= 170 and view.camera.size.y >= 95, "room view is less magnified than the old 112x60 crop in " + id)
+		check(view.camera == Rect2(0, 0, 280, 150), "selecting a room does not zoom or crop the ship in " + id)
+		check(view.view_transform().get_scale().is_equal_approx(overview_scale), "inspector layout does not magnify the ship for " + id)
 	view.door_open.bridge = false
 	view.door_open.engine = false
 	scene.select_room("cockpit")

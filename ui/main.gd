@@ -296,7 +296,9 @@ func build_ship_explorer() -> void:
 	ship_view = ShipView.new()
 	ship_view.interactive = true
 	explorer.add_child(ship_view)
-	ship_view.custom_minimum_size = Vector2(500, 240)
+	ship_view.custom_minimum_size = Vector2(500, 360)
+	# Inspector height must never enlarge the ship when a room is selected.
+	ship_view.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	ship_view.room_selected.connect(select_room)
 	ship_view.object_selected.connect(inspect_object)
 	ship_view.door_toggled.connect(func(_id: String, _opened: bool): update_room_panel())
@@ -327,7 +329,7 @@ func update_room_panel() -> void:
 		child.queue_free()
 	if selected_room.is_empty():
 		room_text("A HOME IN ORBIT", 20)
-		room_text("Click a room or use the room buttons to look closer.")
+		room_text("Select a room to inspect its equipment. The whole ship stays in view.")
 		room_text("%d / 3 rooms restored" % Game.state.owned.filter(func(id: String): return id in ["cockpit", "quarters", "engine"]).size())
 		room_text("No rush. Every session leaves a little light behind.")
 		add_door_controls()

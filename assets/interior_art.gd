@@ -15,9 +15,10 @@ func screen(x: float, y: float, w: float, h: float, online: bool) -> void:
 func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, doors: Dictionary) -> void:
 	canvas = target
 	# Pressure-hull rim sits inside the shared shaped exterior chassis.
-	box(31, 53, 208, 54, "1b2e43")
-	box(31, 51, 205, 2, "9db1b5")
-	box(32, 105, 203, 2, "7994a1")
+	for frame in [Rect2(31, 51, 64, 56), Rect2(97, 54, 73, 53), Rect2(173, 50, 65, 58)]:
+		box(frame.position.x, frame.position.y, frame.size.x, frame.size.y, "1b2e43")
+		box(frame.position.x, frame.position.y, frame.size.x, 2, "9db1b5")
+		box(frame.position.x, frame.end.y - 2, frame.size.x, 2, "7994a1")
 	for id in rooms:
 		var b: Array = rooms[id].bounds
 		var x: int = int(b[0])

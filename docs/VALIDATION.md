@@ -1,5 +1,13 @@
 # Phases 1–2 validation
 
+## Whole-ship selection and detailed body update
+
+Room selection now retains the exact 280×150 overview camera. The ship drawing area's height is also kept independent of the inspector, eliminating the indirect enlargement caused by a taller selection panel. The selected room receives a cyan outline; its inspector and the companion follow the selection.
+
+The hull has distinct raised bridge and reactor volumes around a narrower waist, separate belly plates, frame collars, service lines, radiator vanes, docking sockets, navigation lights and a small communications dish. Exterior panels distinguish living quarters from the reactor access casing. Cutaway views share this shaped chassis rather than a continuous rectangular outer border.
+
+The strict graphical run passed editor import and **124 assertions** with no script errors (25 game + 10 UI + 35 rooms + 16 interior + 15 drift + 23 usability). The three added assertions verify actual rendered transform scale stays unchanged after selecting each room, in addition to full camera bounds and robot visibility. Results are in `full-ship-check-results.json`; current screenshots were regenerated and inspected.
+
 ## Larger window, name persistence and room-following fixes
 
 The full strict graphical run passed **121 assertions** and editor import with no GDScript compile/runtime diagnostics. Per-suite results are in `usability-check-results.json`. This includes the existing 101 assertions plus 20 usability checks.
