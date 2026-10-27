@@ -42,6 +42,11 @@ func run() -> void:
 	check(game.state.credits == 0 and "engine" in game.state.owned, "purchase spends credits and persists ownership")
 	game.purchase("engine")
 	check(game.state.credits == 0 and game.state.owned.size() == 1, "duplicate purchase rejected")
+	# Give enough currency to expose duplicate charging even if affordability passes.
+	game.state.credits = 100
+	game.purchase("engine")
+	check(game.state.credits == 100 and game.state.owned.size() == 1, "owned item cannot charge credits again when affordable")
+	game.state.credits = 0
 	game.start_session(1)
 	game.last_tick = 1000
 	game.advance(31000)
@@ -61,6 +66,33 @@ func run() -> void:
 	check(game.state.credits == 10, "corrupted primary recovers validated backup")
 	check(not game.valid_snapshot({"version": 1, "credits": "bad"}), "malformed numeric state rejected")
 	check(game.valid_snapshot({"version": 1}), "missing fields accept defaults")
+	game.state = game.defaults()
+	game.active = {}
+	game.state.battery = 99
+	game.start_session(1)
+	game.last_tick = 1000
+	game.advance(60999)
+	check(game.state.credits == 0 and game.state.history.is_empty(), "no rewards one millisecond before completion")
+	game.advance(61000)
+	check(game.state.credits == 2 and game.state.xp == 1 and game.state.battery == 100, "one-minute boundary awards once and caps battery")
+	game.load_progress()
+	game.advance(200000)
+	game.finish_session()
+	check(game.state.credits == 2 and game.state.history.size() == 1 and game.active.is_empty(), "reload after completion cannot grant the reward again")
+	var before_purchase: Dictionary = game.state.duplicate(true)
+	game.purchase("cockpit")
+	check(game.state == before_purchase, "insufficient funds change no state")
+	game.purchase("unknown")
+	check(game.state == before_purchase, "unknown item changes no state")
+	game.state.credits = 100
+	game.balance.repairs[0].xp = 10
+	game.purchase("engine")
+	check(game.state.credits == 100 and game.state.owned.is_empty(), "research requirement blocks spending and ownership")
+	game.balance.repairs[0].xp = 0
+	check(game.start_session(240), "maximum custom duration accepted")
+	game.cancel_session()
+	check(game.start_session(1), "minimum custom duration accepted")
+	game.cancel_session()
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix):
 			DirAccess.remove_absolute(game.save_path + suffix)

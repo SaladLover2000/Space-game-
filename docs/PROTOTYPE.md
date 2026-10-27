@@ -37,6 +37,7 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 - `tests/test_game.gd`: isolated headless logic and persistence checks.
 - `tests/test_rooms.gd`: room click/zoom/inspection, restoration persistence, companion reactions and timer independence checks; optional graphical screenshot capture.
 - `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
+- `tests/mutation_check.py`: verifies the suites reject four deliberately introduced regressions in isolated project copies; standard Python only.
 
 The UI requests operations from Game and never grants study rewards. Catalog IDs link ownership to art. Future components/rooms can extend the catalog and visual layer; planetary discoveries can be added with a versioned save migration and deterministic seed field.
 

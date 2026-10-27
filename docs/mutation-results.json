@@ -1,0 +1,26 @@
+[
+  {
+    "defect": "double completion credits",
+    "detected": true,
+    "exit_code": 1,
+    "assertion": "completion grants configured rewards"
+  },
+  {
+    "defect": "count down while paused",
+    "detected": true,
+    "exit_code": 1,
+    "assertion": "paused time earns no progress"
+  },
+  {
+    "defect": "allow duplicate purchases",
+    "detected": true,
+    "exit_code": 1,
+    "assertion": "owned item cannot charge credits again when affordable"
+  },
+  {
+    "defect": "disconnect Pause button",
+    "detected": true,
+    "exit_code": 1,
+    "assertion": "Pause button pauses game state and becomes Resume"
+  }
+]
