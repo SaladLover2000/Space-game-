@@ -13,6 +13,7 @@ A native Godot 4 / GDScript single-player study game. No internet, assets, or ex
 7. Click a room in the ship or use the room buttons. The view smoothly zooms in; select object buttons to inspect the room. Scroll down if necessary to see the full room panel. Choose **Back to overview** to zoom out.
 8. Restore living quarters for 40 credits, the engine for 50, or the cockpit for 60. Each path is available immediately. View your companion's battery, expression and charging dock on **Robot**.
 9. Open **Drift** for a colorful exterior view: the hull gently rocks, soft white exhaust disperses, and shaded orange, turquoise and violet planets pass at different speeds. Your running study session continues and its status stays visible. Return to **Ship & study** to use the timer controls.
+10. Open **Interior** for the larger ship cutaway. Pick a room, then click the drawn equipment itself or its corresponding inspector button. Click either bulkhead hatch (or its sidebar button) to slide its shutters open/closed. Hatches are optional visual interactions and reset open when the view is recreated; purchased restoration states remain saved.
 
 The compact timer is a separate native, always-on-top window. Closing it hides it; closing the main window exits and saves. The main window is resizable and its content scrolls on small displays. Names remain editable in Settings. Cancellation requires confirmation and awards no completion rewards.
 
@@ -36,11 +37,13 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 - `ui/main.gd`: responsive screen composition, input, compact native window, sound.
 - `assets/ship_view.gd`: original low-resolution drawing, no licensed third-party art.
 - `assets/space_backdrop.gd`: original seeded nebula and shaded planet textures; parallax scenery. User references informed the palette only; no reference image pixels or watermarks are bundled.
+- `assets/interior_art.gd`: modular wall/floor tiling, cockpit workstation, recessed bunk, locker, coolant system and animated bulkheads. Original code-drawn art inspired by the interior references; no third-party sprite sheet copied or embedded.
+- `tests/test_interior.gd`: all nine in-room fixture hit tests, hatch shutter behavior, repair-aware inspection and isolation from study/save progress.
 - `tests/test_drift.gd`: motion, exhaust lifetime, moving-hull hit tests, scenery/timer isolation and optional real-frame render comparisons.
 - `tests/test_game.gd`: isolated headless logic and persistence checks.
 - `tests/test_rooms.gd`: room click/zoom/inspection, restoration persistence, companion reactions and timer independence checks; optional graphical screenshot capture.
 - `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
-- `tests/mutation_check.py`: verifies the suites reject four deliberately introduced regressions in isolated project copies; standard Python only.
+- `tests/mutation_check.py`: verifies the suites reject five deliberately introduced regressions in isolated project copies; standard Python only.
 
 The UI requests operations from Game and never grants study rewards. Catalog IDs link ownership to art. Future components/rooms can extend the catalog and visual layer; planetary discoveries can be added with a versioned save migration and deterministic seed field.
 

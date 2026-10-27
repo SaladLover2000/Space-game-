@@ -21,6 +21,8 @@ def main():
     scratch = args.scratch.resolve()
     scratch.mkdir(parents=True, exist_ok=True)
     cases = [
+        ("disconnect hatch toggle", "assets/ship_view.gd", "door_open[id] = not door_open[id]",
+         "door_open[id] = door_open[id]", "test_interior.gd", "bridge hatch click closes the correct door"),
         ("double completion credits", "scripts/game.gd", "state.credits += credits",
          "state.credits += credits * 2", "test_game.gd", "completion grants configured rewards"),
         ("count down while paused", "scripts/game.gd", "if active.is_empty() or active.paused:",

@@ -1,5 +1,11 @@
 [
   {
+    "defect": "disconnect hatch toggle",
+    "detected": true,
+    "exit_code": 1,
+    "assertion": "bridge hatch click closes the correct door"
+  },
+  {
     "defect": "double completion credits",
     "detected": true,
     "exit_code": 1,

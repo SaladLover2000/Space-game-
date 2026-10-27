@@ -23,7 +23,7 @@ func run() -> void:
 	scene.show_page("setup")
 	game.rename_companions("Nova", "Quiet Horizon")
 	check(game.state.robot == "Nova" and game.state.ship == "Quiet Horizon" and game.state.started, "naming persists companion and ship")
-	for page in ["ship", "drift", "robot", "shop", "stats", "settings", "menu"]:
+	for page in ["ship", "interior", "drift", "robot", "shop", "stats", "settings", "menu"]:
 		scene.show_page(page)
 		await process_frame
 		print("UI opened: ", page)

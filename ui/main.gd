@@ -21,6 +21,7 @@ var room_panel: VBoxContainer
 var selected_room: String = ""
 var robot_mood: Label
 var drift_status: Label
+var inspection_label: Label
 
 func _ready() -> void:
 	var theme_resource := Theme.new()
@@ -55,7 +56,7 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HBoxContainer.new()
 	root.add_child(nav)
-	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Drift", "drift"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
+	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Interior", "interior"], ["Drift", "drift"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
 		var target: String = entry[1]
 		button(nav, entry[0], func(): show_page(target))
 	var scroll := ScrollContainer.new()
@@ -112,6 +113,7 @@ func show_page(page: String) -> void:
 	room_panel = null
 	robot_mood = null
 	drift_status = null
+	inspection_label = null
 	match page:
 		"menu":
 			content.add_child(ShipView.new())
@@ -120,6 +122,13 @@ func show_page(page: String) -> void:
 			paragraph("Your progress stays with you. Missing a day never hurts your robot.")
 		"setup":
 			names_form(true)
+		"interior":
+			paragraph("INSIDE / " + Game.state.ship)
+			build_ship_explorer()
+			ship_view.custom_minimum_size.y = 360
+			drift_status = label("")
+			content.add_child(drift_status)
+			button(content, "Study controls", func(): show_page("ship"))
 		"drift":
 			paragraph("OUTSIDE / " + Game.state.ship)
 			ship_view = ShipView.new()
@@ -235,6 +244,8 @@ func build_ship_explorer() -> void:
 	explorer.add_child(ship_view)
 	ship_view.custom_minimum_size = Vector2(500, 240)
 	ship_view.room_selected.connect(select_room)
+	ship_view.object_selected.connect(inspect_object)
+	ship_view.door_toggled.connect(func(_id: String, _opened: bool): update_room_panel())
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 250
 	explorer.add_child(panel)
@@ -265,20 +276,40 @@ func update_room_panel() -> void:
 		room_text("Click a room or use the room buttons to look closer.")
 		room_text("%d / 3 rooms restored" % Game.state.owned.filter(func(id: String): return id in ["cockpit", "quarters", "engine"]).size())
 		room_text("No rush. Every session leaves a little light behind.")
+		add_door_controls()
 		return
 	var room: Dictionary = ship_view.rooms[selected_room]
 	var restored: bool = selected_room in Game.state.owned
 	room_text(room.name, 20)
 	room_text("RESTORED" if restored else "AWAITING CARE", 14).modulate = Color("7de1d6" if restored else "e8cf87")
 	room_text(room.restored if restored else room.damaged)
-	var object_detail := room_text("Select an object to inspect it.", 14)
+	inspection_label = room_text("Click equipment in the room, or select it below.", 14)
 	for i in range(room.objects.size()):
-		var description: String = room.restored_objects[i] if restored else room.damaged_objects[i]
-		button(room_panel, room.objects[i], func(): object_detail.text = description)
+		var index: int = i
+		var room_id: String = selected_room
+		button(room_panel, room.objects[i], func(): inspect_object(room_id, index))
 	for item in Game.balance.repairs:
 		if item.id == selected_room and not restored:
 			button(room_panel, "Restore · %d credits" % item.price, purchase_room)
 	button(room_panel, "Back to overview", func(): select_room(""))
+	add_door_controls()
+	if ship_view.selected_object >= 0:
+		inspect_object(selected_room, ship_view.selected_object)
+
+func inspect_object(room_id: String, index: int) -> void:
+	if selected_room != room_id:
+		select_room(room_id)
+	var room: Dictionary = ship_view.rooms[room_id]
+	if index < 0 or index >= room.objects.size():
+		return
+	ship_view.selected_object = index
+	inspection_label.text = room.restored_objects[index] if room_id in Game.state.owned else room.damaged_objects[index]
+	ship_view.queue_redraw()
+
+func add_door_controls() -> void:
+	for entry in [["bridge", "Bridge hatch"], ["engine", "Engine hatch"]]:
+		var id: String = entry[0]
+		button(room_panel, entry[1] + (": OPEN" if ship_view.door_open[id] else ": CLOSED"), func(): ship_view.toggle_door(id))
 
 func purchase_room() -> void:
 	notice = Game.purchase(selected_room)

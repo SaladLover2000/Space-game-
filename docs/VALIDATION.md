@@ -21,11 +21,21 @@ The full 25 game, 35 room and 10 UI checks were rerun successfully. Native drift
 & $Godot --path . --script res://tests/test_drift.gd -- --capture
 ```
 
-## Original test audit
+## Interior interaction update
+
+The larger Interior screen uses original modular cutaway artwork with wall panels, recessed steel floors, a panoramic cockpit, twin console displays, a bunk and supply locker, coolant piping and two sliding bulkhead hatches. Drawn fixtures now have direct click regions. Inspector buttons remain available as an alternate input route. No movement, combat or time pressure is required. Door open/closed state is transient visual state; room restoration remains persistent.
+
+`tests/test_interior.gd` passed 16 assertions in a native graphical run: all nine equipment clicks, the correct hatch toggling, closed/open animation endpoints, rapid reversal, progress isolation, timer continuity and repair-aware equipment descriptions. Existing game/UI/room/drift suites were rerun (25 + 10 + 35 + 15), for 101 behavioral/render assertions across the current suites. Screenshots `interior-damaged.png`, `interior-restored.png` and `quarters-closeup.png` were captured and inspected.
+
+```powershell
+& $Godot --path . --script res://tests/test_interior.gd -- --capture
+```
+
+## Original test audit details
 
 There are 70 behavioral assertions across the game (25), room (35) and UI (10) suites. Game tests execute the actual autoload, not a replacement implementation. Fast timer tests inject monotonic timestamps into the same `advance()` method used by the running game; this is controlled-clock unit testing, not a real-time/minimized-window test. Save tests read/write real isolated files. Room tests run actual tweens and inspection callbacks. UI button tests emit Godot button signals to exercise connected actions; they do not simulate physical mouse/keyboard events or validate OS-level input routing.
 
-`tests/mutation_check.py` copies the project into temporary directories beneath the explicitly supplied scratch directory, deliberately changes production code there, and runs the normal test suites. Four of four deliberate defects were rejected with nonzero exit codes and the expected behavioral assertion failures (not parse errors or crashes): doubled completion credits; countdown continuing while paused; duplicate purchases with sufficient funds; disconnected Pause button. The source project and player saves were not modified. Results are in `mutation-results.json`.
+`tests/mutation_check.py` copies the project into temporary directories beneath the explicitly supplied scratch directory, deliberately changes production code there, and runs the normal test suites. Five deliberate defects are checked with nonzero exit codes and expected behavioral assertion failures (not parse errors or crashes): a hatch toggle that does nothing; doubled completion credits; countdown continuing while paused; duplicate purchases with sufficient funds; disconnected Pause button. The source project and player saves are not modified. Results are in `mutation-results.json`.
 
 This demonstrates that these assertions detect those specific regressions. It is not a claim of exhaustive coverage, visual correctness, audible output or full end-to-end mouse interaction.
 
