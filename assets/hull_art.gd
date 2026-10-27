@@ -69,6 +69,7 @@ func draw(target: CanvasItem, owned: Array, cutaway: bool) -> void:
 	box(107, 47, 24, 2, "344f63")
 	for x in range(109, 130, 4):
 		box(x, 46, 2, 2, "a1b3b2")
+	draw_service_structure()
 	if not cutaway:
 		draw_armor(owned)
 
@@ -113,6 +114,21 @@ func draw_armor(owned: Array) -> void:
 	for y in range(70, 94, 4):
 		box(222, y, 9, 2, "2b435b")
 		box(223, y, 8, 1, "5b8294")
+	# Flush access panels and stencilled identification on the pressure shell.
+	for p in [Vector2(79,66), Vector2(81,80), Vector2(105,91), Vector2(151,74)]:
+		box(p.x, p.y, 6, 8, "1c3349")
+		box(p.x + 1, p.y + 1, 4, 6, "5d7b8d")
+		box(p.x + 2, p.y + 2, 1, 1, "c3cbb9")
+	box(106, 59, 20, 1, "d8ccb0")
+	for x in [108, 111, 114, 119, 122]:
+		box(x, 57, 1, 2, "c3c9b2")
+	box(176, 103, 3, 2, "d4b278")
+	box(180, 105, 3, 2, "d4b278")
+	box(184, 107, 3, 1, "d4b278")
+	# Offset plates give the nose a layered, machined edge.
+	plate([[18,82],[29,91],[65,93],[72,90],[33,90]], "1e334b", "829da8")
+	for x in range(34, 66, 5):
+		box(x, 92, 2, 1, "a6b6b5")
 	if "engine" not in owned:
 		for p in [Vector2(89,91), Vector2(147,86), Vector2(203,62)]:
 			box(p.x, p.y, 4, 1, "a97961")
@@ -130,5 +146,52 @@ func draw_engines(target: CanvasItem, online: bool, time: float) -> void:
 		box(259, y + 4, 3, 7, "c5e5df")
 		box(260, y + 5, 2, 5, "f1fff5" if online else "a4bfbd")
 		box(236, y + 1, 19, 1, "c3cabc")
+		# Nozzle clamps, exposed feed lines, inspection lights and cooling fins.
+		box(234, y + 4, 2, 7, "111f33")
+		box(235, y + 4, 1, 5, "d7b288")
+		box(239, y - 2, 13, 2, "22374b")
+		box(241, y - 2, 9, 1, "acbdba")
+		box(242, y + 15, 12, 2, "1c3045")
+		for px in [241, 246, 251]:
+			box(px, y + 13, 2, 2, "c0c5b6")
+		box(255, y + 2, 1, 11, "bc886a")
+		box(257, y + 3, 1, 9, "7896a0")
+		box(238, y + 7, 2, 2, "78e9d7" if online else "bc925a")
 	# Docking lamps stay subtle while the white exhaust provides the motion.
 	box(229, 83, 2, 2, "8ae5ce" if online else "b49b73")
+
+func draw_service_structure() -> void:
+	# Recessed radiator cassette, ribbed dorsal spine and individual armor seams.
+	plate([[105,39],[109,34],[133,34],[139,40]], "172b40", "718f9b")
+	for x in range(110, 134, 3):
+		box(x, 35, 1, 5, "93b1b7")
+		box(x + 1, 36, 1, 4, "335568")
+	box(108, 40, 27, 1, "d5c6a1")
+	for x in [48, 57, 66]:
+		box(x, 35, 1, 3, "253b50")
+		box(x + 1, 36, 1, 1, "d3d4bf")
+	for y in range(52, 61, 3):
+		box(19 + (61 - y), y + 8, 3, 1, "b5c5bd")
+	# Underslung cargo locks and a plated keel with copper utility lines.
+	plate([[109,111],[115,116],[147,116],[154,111]], "1a2c42", "6c8a99")
+	box(117, 112, 26, 1, "bc896c")
+	for x in [117, 128, 139]:
+		box(x, 113, 5, 2, "879da3")
+		box(x + 1, 113, 3, 1, "d4ccb4")
+	for x in [49, 69, 184, 204]:
+		var y: int = 113 if x < 90 else 118
+		box(x, y, 7, 3, "13283d")
+		box(x + 1, y, 5, 1, "879ba3")
+		box(x + 2, y + 2, 3, 1, "c09568")
+	# Aft fin root hydraulics and riveted trailing-edge panels.
+	for y in range(57, 104, 7):
+		box(233, y, 3, 2, "1d3348")
+		box(233, y, 1, 1, "d6d0b6")
+	for y in range(29, 46, 4):
+		box(219 + (y - 29) / 3.0, y, 1, 1, "e1d3b2")
+	plate([[202,109],[208,111],[216,125],[213,125]], "1c3349", "8b9fa5")
+	box(210, 116, 2, 4, "c58a69")
+	# Bridge pressure seams and tiny navigation beacons on the strakes.
+	box(47, 41, 22, 1, "405d70")
+	box(45, 36, 3, 1, "8cf1d6")
+	box(48, 118, 3, 1, "edb58a")

@@ -141,6 +141,34 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 		box(137, 73, 5, 1, "c19a72")
 		for px in [105, 121, 154]:
 			box(px, 99, 4, 1, "e7c58d")
+	# Physical service fittings: ceiling cable trays, grilles and deck fasteners.
+	for limits in [[36,86], [104,163], [179,229]]:
+		box(limits[0], 56, limits[1] - limits[0], 1, "182a3e")
+		for px in range(limits[0] + 2, limits[1], 6):
+			box(px, 55, 1, 3, "9db1b5")
+			box(px, 102, 1, 1, "b6bfae")
+	for px in [38, 109, 179]:
+		box(px, 94, 8, 3, "182c40")
+		for vx in range(px + 1, px + 7, 2):
+			box(vx, 95, 1, 1, "7994a1")
+	# Switchgear, a coiled bridge cable, bunk frame and reactor gauges.
+	box(86, 79, 3, 10, "24394c")
+	for py in [80, 83, 86]:
+		box(87, py, 1, 1, "d9bd83")
+	box(68, 90, 2, 6, "172b40")
+	box(69, 95, 5, 1, "8c7257")
+	for py in [78, 83, 88, 93]:
+		box(101, py, 1, 2, "d0c4a2")
+	box(130, 87, 4, 10, "1c3045")
+	box(131, 88, 2, 1, "a8f4d5")
+	box(131, 91, 2, 4, "586b75")
+	for px in [190, 200, 210]:
+		box(px, 65, 4, 3, "15283b")
+		box(px + 1, 66, 2, 1, "a8f4d5" if powered else "b99569")
+	box(230, 90, 5, 8, "24364a")
+	box(231, 91, 3, 1, "b9bfa9")
+	for py in [93, 95]:
+		box(231, py, 2, 1, "8c7257")
 	# Animated bulkhead shutters connect cockpit → quarters → engine.
 	for id in doors:
 		var x: int = 91 if id == "bridge" else 168
