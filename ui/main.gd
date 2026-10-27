@@ -20,6 +20,7 @@ var ship_view: Control
 var room_panel: VBoxContainer
 var selected_room: String = ""
 var robot_mood: Label
+var drift_status: Label
 
 func _ready() -> void:
 	var theme_resource := Theme.new()
@@ -54,7 +55,7 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HBoxContainer.new()
 	root.add_child(nav)
-	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
+	for entry in [["Home", "menu"], ["Ship & study", "ship"], ["Drift", "drift"], ["Robot", "robot"], ["Repairs", "shop"], ["Study log", "stats"], ["Settings", "settings"]]:
 		var target: String = entry[1]
 		button(nav, entry[0], func(): show_page(target))
 	var scroll := ScrollContainer.new()
@@ -110,6 +111,7 @@ func show_page(page: String) -> void:
 	ship_view = null
 	room_panel = null
 	robot_mood = null
+	drift_status = null
 	match page:
 		"menu":
 			content.add_child(ShipView.new())
@@ -118,6 +120,16 @@ func show_page(page: String) -> void:
 			paragraph("Your progress stays with you. Missing a day never hurts your robot.")
 		"setup":
 			names_form(true)
+		"drift":
+			paragraph("OUTSIDE / " + Game.state.ship)
+			ship_view = ShipView.new()
+			ship_view.exterior = true
+			content.add_child(ship_view)
+			ship_view.custom_minimum_size.y = 360
+			drift_status = label("")
+			content.add_child(drift_status)
+			paragraph("A little home passing quietly through a colorful universe.")
+			button(content, "Return to ship & study", func(): show_page("ship"))
 		"ship":
 			var row := HBoxContainer.new()
 			content.add_child(row)
@@ -202,6 +214,8 @@ func names_form(first: bool) -> void:
 
 func _process(_delta: float) -> void:
 	update_timer()
+	if is_instance_valid(drift_status):
+		drift_status.text = "Study / " + time_text()
 	if is_instance_valid(robot_mood) and is_instance_valid(ship_view):
 		var descriptions := {"sad": "Resting · low battery", "idle": "At ease · watching the stars", "charging": "Charging dock active · studying alongside you", "happy": "Happy · a session well spent", "upgraded": "Delighted · another piece of home restored"}
 		robot_mood.text = descriptions[ship_view.expression()]

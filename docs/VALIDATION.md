@@ -10,7 +10,18 @@ Validated using Godot 4.4.1 stable on Windows, with app-data/cache paths redirec
 - `tests/test_ui.gd`: all 10 explicit assertions passed. Checks naming, Start/Pause/Resume button callbacks against authoritative game state, overlapping-start prevention, compact-window configuration/hide/reopen, completion feedback and enabled controls. Screen creation is separately reported as smoke coverage. Failure counts determine process exit code; assertions are not disabled by release-mode settings.
 - Graphical room test: passed on the OpenGL 3.3 compatibility renderer. Captured and inspected `prototype.png`, `engine-restored.png`, `minimum-window.png`, and `robot-status.png`. Overview study controls are above the ship art; room details scroll on smaller displays. Room layout also passes at a 920×680 logical canvas.
 
-## Test audit and deliberate-failure verification
+## Colorful drifting-space update
+
+`tests/test_drift.gd` adds 13 motion assertions: bounded hull movement, hit testing on the moving hull, planet travel and different parallax speeds, exhaust movement/expansion/fade/recycling, exterior-screen status, running timer continuity and no scenery-driven progress changes. The native `--capture` run adds two real-frame checks: the scene clock advances over real time and rendered pixel data changes. These are separate from the existing 70 behavioral assertions (85 total in the graphical acceptance run).
+
+The full 25 game, 35 room and 10 UI checks were rerun successfully. Native drift rendering was inspected in `drift-view.png`. Colorful scenery is original procedural art inspired by the supplied reference palettes; no supplied image pixels were imported into the game. Visual effects are decorative and do not implement planetary discovery.
+
+```powershell
+& $Godot --headless --path . --script res://tests/test_drift.gd
+& $Godot --path . --script res://tests/test_drift.gd -- --capture
+```
+
+## Original test audit
 
 There are 70 behavioral assertions across the game (25), room (35) and UI (10) suites. Game tests execute the actual autoload, not a replacement implementation. Fast timer tests inject monotonic timestamps into the same `advance()` method used by the running game; this is controlled-clock unit testing, not a real-time/minimized-window test. Save tests read/write real isolated files. Room tests run actual tweens and inspection callbacks. UI button tests emit Godot button signals to exercise connected actions; they do not simulate physical mouse/keyboard events or validate OS-level input routing.
 

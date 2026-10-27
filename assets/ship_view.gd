@@ -10,12 +10,16 @@ var camera := Rect2(0, 0, 280, 150)
 var camera_tween: Tween
 var reaction_left: float = 0.0
 var upgrade_reaction: bool = false
+const SpaceBackdrop = preload("res://assets/space_backdrop.gd")
+var backdrop: RefCounted
+var exterior: bool = false
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clip_contents = true
 	rooms = JSON.parse_string(FileAccess.get_file_as_string("res://data/rooms.json"))
+	backdrop = SpaceBackdrop.new()
 	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
 	Game.completed.connect(func(_credits: int, _xp: int): reaction_left = 4.0; upgrade_reaction = false)
@@ -35,7 +39,18 @@ func room_bounds(id: String) -> Rect2:
 func view_transform() -> Transform2D:
 	var scale_factor := minf(size.x / camera.size.x, size.y / camera.size.y)
 	var origin := (size - camera.size * scale_factor) / 2.0 - camera.position * scale_factor
-	return Transform2D(Vector2(scale_factor, 0), Vector2(0, scale_factor), origin)
+	return Transform2D(Vector2(scale_factor, 0), Vector2(0, scale_factor), origin) * ship_drift(clock)
+
+func ship_drift(time: float) -> Transform2D:
+	var angle := sin(time * 0.17) * 0.012
+	var rotation := Transform2D(angle, Vector2.ZERO)
+	var center := Vector2(140, 81)
+	rotation.origin = center + Vector2(sin(time * 0.23) * 2, sin(time * 0.31) * 2) - rotation * center
+	return rotation
+
+func smoke_particle(index: int, time: float) -> Dictionary:
+	var age := fposmod(time + index * 0.37, 4.0)
+	return {"position": Vector2(250 + age * 10, 81 + sin(age * 1.7 + index) * age), "radius": 1 + floorf(age * 0.8), "alpha": (1.0 - age / 4.0) * 0.85}
 
 func room_at(local_position: Vector2) -> String:
 	if not Rect2(Vector2.ZERO, size).has_point(local_position):
@@ -81,21 +96,63 @@ func box(x: float, y: float, w: float, h: float, color: String) -> void:
 	draw_rect(Rect2(x, y, w, h), Color(color))
 
 func _draw() -> void:
+	if backdrop == null:
+		return
+	var bg_scale := size.y / 150.0
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE * bg_scale)
+	backdrop.draw(self, clock, size.x / bg_scale)
 	draw_set_transform_matrix(view_transform())
-	box(0, 0, 280, 150, "091124")
-	# Dithered nebula layers sit farther away than the bright stars.
-	for i in range(70):
-		var nx := fposmod(i * 11.3 - clock * 0.12, 150)
-		var ny := 15 + fposmod(i * 17.7, 85)
-		if Vector2(nx - 74, ny - 57).length() < 47:
-			box(floorf(nx), floorf(ny), 3, 2, "11182e" if i % 2 else "111c32")
-	for i in range(85):
-		var x := fposmod(i * 67.3 - clock * (0.3 + i % 3 * 0.3), 280)
-		var y := fposmod(i * 31.7, 150)
-		box(floorf(x), floorf(y), 1, 1, "34536d" if i % 3 else "93b8c5")
-	box(216, 14, 26, 26, "243053")
-	box(212, 20, 34, 14, "243053")
-	box(220, 14, 7, 4, "3a4869")
+	if exterior:
+		draw_exterior()
+	else:
+		draw_interior()
+	draw_smoke()
+
+func draw_smoke() -> void:
+	# Soft white vent wisps remain visible even while the damaged ship drifts.
+	var count := 12 if "engine" in Game.state.owned else 7
+	for i in range(count - 1, -1, -1):
+		var puff := smoke_particle(i, clock)
+		var p: Vector2 = puff.position.floor()
+		var r: float = puff.radius
+		var color := Color(0.94, 0.98, 1.0, puff.alpha)
+		draw_rect(Rect2(p - Vector2(r, r - 1), Vector2(r * 2 + 1, r * 2 - 1)), color)
+		draw_rect(Rect2(p - Vector2(r - 1, r), Vector2(r * 2 - 1, r * 2 + 1)), color)
+
+func draw_exterior() -> void:
+	box(25, 62, 218, 39, "16283e")
+	box(15, 74, 15, 16, "53758b")
+	box(11, 78, 9, 8, "85a9b7")
+	box(20, 68, 230, 26, "53758b")
+	box(29, 58, 205, 45, "7898a5")
+	box(34, 61, 199, 38, "315671")
+	box(39, 62, 178, 2, "a6c2bd")
+	box(34, 90, 199, 9, "213b56")
+	box(32, 62, 4, 33, "c9c3a0")
+	box(42, 65, 35, 16, "112c49")
+	box(45, 67, 28, 3, "73e0d9")
+	box(45, 70, 3, 8, "329cb1")
+	for x in range(90, 210, 24):
+		box(x, 65, 13, 10, "132a45")
+		box(x + 2, 67, 9, 6, "66d8d2" if "cockpit" in Game.state.owned else "537e95")
+		box(x, 83, 16, 2, "7092a2")
+	box(121, 57, 53, 4, "d3ad79")
+	box(142, 48, 2, 10, "8bc7cc")
+	box(140, 47, 6, 2, "f5d682")
+	box(224, 68, 17, 25, "9caeb4")
+	box(238, 73, 12, 16, "3d536b")
+	box(248, 76, 3, 10, "dce9e5")
+	box(39, 94, 183, 2, "4cd1c4")
+	for x in range(80, 215, 13):
+		box(x, 97, 7, 1, "182d49")
+	if "engine" not in Game.state.owned:
+		for x in [55, 115, 159, 205]:
+			box(x, 88, 5, 2, "a66d63")
+	# Small gold hull markings, not additional purchasable components.
+	box(185, 89, 14, 2, "f3c576")
+	box(187, 87, 2, 6, "f3c576")
+
+func draw_interior() -> void:
 	var repaired: bool = "engine" in Game.state.owned
 	var bridge_fixed: bool = "cockpit" in Game.state.owned
 	var quarters_fixed: bool = "quarters" in Game.state.owned
@@ -176,9 +233,6 @@ func _draw() -> void:
 		box(x, 74, 3, 16, "60ddca" if repaired else "755347")
 	box(220, 77, 20, 9, "68788a")
 	box(240, 74, 10, 15, "35445a")
-	if repaired:
-		box(250, 78, 8 + int(sin(clock * 9) * 2), 7, "e4cf7a")
-		box(250, 80, 14 + int(sin(clock * 9) * 2), 3, "66ddde")
 	for id in rooms:
 		var bounds := room_bounds(id)
 		if id not in Game.state.owned:

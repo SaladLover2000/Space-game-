@@ -98,4 +98,3 @@ func run() -> void:
 			DirAccess.remove_absolute(game.save_path + suffix)
 	print("RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
-

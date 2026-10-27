@@ -12,6 +12,7 @@ A native Godot 4 / GDScript single-player study game. No internet, assets, or ex
 6. For a quick manual check use a custom **1 minute** session. Pause, resume, and try the compact window while studying in another application.
 7. Click a room in the ship or use the room buttons. The view smoothly zooms in; select object buttons to inspect the room. Scroll down if necessary to see the full room panel. Choose **Back to overview** to zoom out.
 8. Restore living quarters for 40 credits, the engine for 50, or the cockpit for 60. Each path is available immediately. View your companion's battery, expression and charging dock on **Robot**.
+9. Open **Drift** for a colorful exterior view: the hull gently rocks, soft white exhaust disperses, and shaded orange, turquoise and violet planets pass at different speeds. Your running study session continues and its status stays visible. Return to **Ship & study** to use the timer controls.
 
 The compact timer is a separate native, always-on-top window. Closing it hides it; closing the main window exits and saves. The main window is resizable and its content scrolls on small displays. Names remain editable in Settings. Cancellation requires confirmation and awards no completion rewards.
 
@@ -34,6 +35,8 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 - `data/rooms.json`: room bounds, names and damaged/restored inspection text.
 - `ui/main.gd`: responsive screen composition, input, compact native window, sound.
 - `assets/ship_view.gd`: original low-resolution drawing, no licensed third-party art.
+- `assets/space_backdrop.gd`: original seeded nebula and shaded planet textures; parallax scenery. User references informed the palette only; no reference image pixels or watermarks are bundled.
+- `tests/test_drift.gd`: motion, exhaust lifetime, moving-hull hit tests, scenery/timer isolation and optional real-frame render comparisons.
 - `tests/test_game.gd`: isolated headless logic and persistence checks.
 - `tests/test_rooms.gd`: room click/zoom/inspection, restoration persistence, companion reactions and timer independence checks; optional graphical screenshot capture.
 - `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
@@ -65,6 +68,8 @@ Manual acceptance: launch and name companions; complete a one-minute timer while
 ## Scope and next task
 
 This delivery includes the Phase 1 core and Phase 2 visual-restoration pass. Component customization, wishlist, technology tree, weekly bonuses, achievements, planets and solar-system editor remain deferred. Research XP is stored but the three starter repairs have no research gate. Artwork is still procedural placeholder art rather than a finished commissioned sprite set. No Windows executable is bundled yet.
+
+The colorful planet fly-bys in Drift and room backgrounds are decorative scenery. Collectible discoveries, planet interaction and solar-system construction remain deferred. White exhaust is an atmospheric visual effect even before engine restoration; repaired engines emit a denser trail. Ship drift is cosmetic and never changes study rewards or battery use.
 
 Next: Phase 3 wishlist and a small set of visually distinct robot/ship components, followed by a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
 
