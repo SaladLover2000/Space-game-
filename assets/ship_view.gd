@@ -21,6 +21,10 @@ var selected_object: int = -1
 var hovered_object: int = -1
 var door_open: Dictionary = {"bridge": true, "engine": true}
 var door_progress: Dictionary = {"bridge": 1.0, "engine": 1.0}
+const HullArt = preload("res://assets/hull_art.gd")
+const RobotArt = preload("res://assets/robot_art.gd")
+var hull_art := HullArt.new()
+var robot_art := RobotArt.new()
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
@@ -59,9 +63,9 @@ func ship_drift(time: float) -> Transform2D:
 	rotation.origin = center + Vector2(sin(time * 0.23) * 2, sin(time * 0.31) * 2) - rotation * center
 	return rotation
 
-func smoke_particle(index: int, time: float) -> Dictionary:
+func smoke_particle(index: int, time: float, nozzle: int = 0) -> Dictionary:
 	var age := fposmod(time + index * 0.37, 4.0)
-	return {"position": Vector2(250 + age * 10, 81 + sin(age * 1.7 + index) * age), "radius": 1 + floorf(age * 0.8), "alpha": (1.0 - age / 4.0) * 0.85}
+	return {"position": Vector2(262 + age * 10, (69 if nozzle == 0 else 96) + sin(age * 1.7 + index) * age), "radius": 1 + floorf(age * 0.8), "alpha": (1.0 - age / 4.0) * 0.85}
 
 func room_at(local_position: Vector2) -> String:
 	if not Rect2(Vector2.ZERO, size).has_point(local_position):
@@ -172,81 +176,25 @@ func _draw() -> void:
 		draw_exterior()
 	else:
 		draw_interior()
+	hull_art.draw_engines(self, "engine" in Game.state.owned, clock)
 	draw_smoke()
 
 func draw_smoke() -> void:
 	# Soft white vent wisps remain visible even while the damaged ship drifts.
 	var count := 12 if "engine" in Game.state.owned else 7
-	for i in range(count - 1, -1, -1):
-		var puff := smoke_particle(i, clock)
-		var p: Vector2 = puff.position.floor()
-		var r: float = puff.radius
-		var color := Color(0.94, 0.98, 1.0, puff.alpha)
-		draw_rect(Rect2(p - Vector2(r, r - 1), Vector2(r * 2 + 1, r * 2 - 1)), color)
-		draw_rect(Rect2(p - Vector2(r - 1, r), Vector2(r * 2 - 1, r * 2 + 1)), color)
+	for nozzle in range(2):
+		for i in range(count - 1, -1, -1):
+			var puff := smoke_particle(i, clock, nozzle)
+			var p: Vector2 = puff.position.floor()
+			var r: float = puff.radius
+			var color := Color(0.94, 0.98, 1.0, puff.alpha)
+			draw_rect(Rect2(p - Vector2(r, r - 1), Vector2(r * 2 + 1, r * 2 - 1)), color)
+			draw_rect(Rect2(p - Vector2(r - 1, r), Vector2(r * 2 - 1, r * 2 + 1)), color)
 
 func draw_exterior() -> void:
-	box(25, 62, 218, 39, "16283e")
-	box(15, 74, 15, 16, "53758b")
-	box(11, 78, 9, 8, "85a9b7")
-	box(20, 68, 230, 26, "53758b")
-	box(29, 58, 205, 45, "7898a5")
-	box(34, 61, 199, 38, "315671")
-	box(39, 62, 178, 2, "a6c2bd")
-	box(34, 90, 199, 9, "213b56")
-	box(32, 62, 4, 33, "c9c3a0")
-	box(42, 65, 35, 16, "112c49")
-	box(45, 67, 28, 3, "73e0d9")
-	box(45, 70, 3, 8, "329cb1")
-	for x in range(90, 210, 24):
-		box(x, 65, 13, 10, "132a45")
-		box(x + 2, 67, 9, 6, "66d8d2" if "cockpit" in Game.state.owned else "537e95")
-		box(x, 83, 16, 2, "7092a2")
-	box(121, 57, 53, 4, "d3ad79")
-	box(142, 48, 2, 10, "8bc7cc")
-	box(140, 47, 6, 2, "f5d682")
-	box(224, 68, 17, 25, "9caeb4")
-	box(238, 73, 12, 16, "3d536b")
-	box(248, 76, 3, 10, "dce9e5")
-	box(39, 94, 183, 2, "4cd1c4")
-	for x in range(80, 215, 13):
-		box(x, 97, 7, 1, "182d49")
-	if "engine" not in Game.state.owned:
-		for x in [55, 115, 159, 205]:
-			box(x, 88, 5, 2, "a66d63")
-	# Small gold hull markings, not additional purchasable components.
-	box(185, 89, 14, 2, "f3c576")
-	box(187, 87, 2, 6, "f3c576")
-
+	hull_art.draw(self, Game.state.owned, false)
 func draw_interior() -> void:
+	hull_art.draw(self, Game.state.owned, true)
 	interior_art.draw(self, rooms, Game.state.owned, clock, door_progress)
 	draw_interior_selection()
-	# Tiny companion: bob, blink, battery-sensitive eyes.
-	var mood := expression()
-	var y := 84 + int(sin(clock * 2) > 0)
-	if mood in ["happy", "upgraded"]:
-		y -= int(abs(sin(clock * 9)) * 3)
-	if mood == "sad":
-		y += 1
-	box(137, y + 9, 13, 9, "9aadb7")
-	box(134, y + 10, 3, 8, "667e91")
-	box(150, y + (5 if mood in ["happy", "upgraded"] else 10), 3, 8, "667e91")
-	box(137, y + 18, 4, 3, "506579")
-	box(146, y + 18, 4, 3, "506579")
-	box(135, y, 17, 11, "b1bbc1")
-	box(137, y + 2, 13, 7, "152c3d")
-	var eye := "70e8d4" if mood != "sad" else "6d9da8"
-	var eye_height := 1 if fmod(clock, 4) > 3.8 or mood == "sad" else 3
-	box(139, y + 4, 3, eye_height, eye)
-	box(145, y + 4, 3, eye_height, eye)
-	box(143, y - 3, 1, 3, "8293a2")
-	box(142, y - 4, 3, 2, "e4c777")
-	if mood in ["happy", "upgraded"]:
-		box(140, y + 3, 1, 1, "152c3d")
-		box(146, y + 3, 1, 1, "152c3d")
-		box(156, y - 2, 1, 5, "e8d48b")
-		box(154, y, 5, 1, "e8d48b")
-	if mood == "charging":
-		box(132, 103, 24, 2, "50bfae")
-		box(142, y + 13, 4, 3, "9af0c9" if fmod(clock, 1.2) < 0.8 else "538f88")
-		box(155, y + 5 - int(fmod(clock * 5, 8)), 1, 2, "93eac9")
+	robot_art.draw(self, Vector2(143, 103), clock, expression())

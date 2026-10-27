@@ -31,7 +31,19 @@ The larger Interior screen uses original modular cutaway artwork with wall panel
 & $Godot --path . --script res://tests/test_interior.gd -- --capture
 ```
 
-## Original test audit details
+## Hull and articulated companion art pass
+
+The exterior and cutaway now share a chamfered, swept hull with forward strakes, tall aft stabilizers, layered armor and two engine pods. White exhaust originates from both nozzles. The companion sprite has a distinct visor/helmet, neck spindle, tapered breastplate, shoulder and elbow joints, grippers, hips, piston legs and separate feet. Robot status includes a larger live portrait using the same artwork and expression source as the room sprite.
+
+`tests/run_checks.py --graphical` passed editor import and all 101 existing behavioral/render assertions with **no GDScript compile/runtime errors**. Current screenshots were regenerated and inspected. Detailed per-suite results are in `shape-check-results.json`.
+
+During the first art import a GDScript type-inference error was found and fixed. Godot still returned exit code zero and some scene assertions continued, demonstrating that a successful engine exit or assertion summary alone is insufficient. The new strict runner checks captured engine diagnostics as well as suite exit codes and result markers. An intentionally malformed robot script in an isolated project copy was rejected by this runner with exit code 1 even though the underlying Godot import returned 0. Evidence is in `runner-negative-result.json`; the actual source project was not modified by this negative check.
+
+```powershell
+python tests/run_checks.py --godot $Godot --graphical --report shape-check-results.json
+```
+
+## Earlier test audit details
 
 There are 70 behavioral assertions across the game (25), room (35) and UI (10) suites. Game tests execute the actual autoload, not a replacement implementation. Fast timer tests inject monotonic timestamps into the same `advance()` method used by the running game; this is controlled-clock unit testing, not a real-time/minimized-window test. Save tests read/write real isolated files. Room tests run actual tweens and inspection callbacks. UI button tests emit Godot button signals to exercise connected actions; they do not simulate physical mouse/keyboard events or validate OS-level input routing.
 

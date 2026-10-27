@@ -38,12 +38,16 @@ The compact timer is a separate native, always-on-top window. Closing it hides i
 - `assets/ship_view.gd`: original low-resolution drawing, no licensed third-party art.
 - `assets/space_backdrop.gd`: original seeded nebula and shaded planet textures; parallax scenery. User references informed the palette only; no reference image pixels or watermarks are bundled.
 - `assets/interior_art.gd`: modular wall/floor tiling, cockpit workstation, recessed bunk, locker, coolant system and animated bulkheads. Original code-drawn art inspired by the interior references; no third-party sprite sheet copied or embedded.
+- `assets/hull_art.gd`: shared shaped hull, swept stabilizers, forward strakes, chamfered cockpit, armor plates and twin engine pods. Exterior and cutaway share the same chassis; both retain white exhaust.
+- `assets/robot_art.gd`: articulated robot with helmet/visor, neck, tapered torso, shoulder/elbow joints, two-finger grippers, hip linkage, piston legs and distinct feet. Expressions still follow battery, study and repair/completion events.
+- `assets/robot_portrait.gd`: larger companion portrait on Robot status, drawn from the same robot artwork as the in-room companion.
 - `tests/test_interior.gd`: all nine in-room fixture hit tests, hatch shutter behavior, repair-aware inspection and isolation from study/save progress.
 - `tests/test_drift.gd`: motion, exhaust lifetime, moving-hull hit tests, scenery/timer isolation and optional real-frame render comparisons.
 - `tests/test_game.gd`: isolated headless logic and persistence checks.
 - `tests/test_rooms.gd`: room click/zoom/inspection, restoration persistence, companion reactions and timer independence checks; optional graphical screenshot capture.
 - `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
 - `tests/mutation_check.py`: verifies the suites reject five deliberately introduced regressions in isolated project copies; standard Python only.
+- `tests/run_checks.py`: runs import and the full regression suite; rejects GDScript errors even if Godot reports exit code zero. Use `--graphical` to capture current game screens and check native rendered-frame animation.
 
 The UI requests operations from Game and never grants study rewards. Catalog IDs link ownership to art. Future components/rooms can extend the catalog and visual layer; planetary discoveries can be added with a versioned save migration and deterministic seed field.
 
@@ -65,6 +69,12 @@ From PowerShell, substituting the path to your Godot executable:
 ```
 
 The test uses a unique save filename and never writes to the player save. It covers invalid/overlapping sessions, long frame elapsed time, pause/cancel, rewards, repeat completion, purchase ownership, reload and corrupted-save recovery.
+
+Preferred full regression command (Python standard library only):
+
+```powershell
+python tests/run_checks.py --godot 'C:\Tools\Godot.exe' --graphical --report check-results.json
+```
 
 Manual acceptance: launch and name companions; complete a one-minute timer while minimized; hear chime and see resources; cancel another session for zero reward; reopen during a paused session; edit names; complete 25 minutes and repair engine; verify the restored art and ownership persist. Verify compact-window topmost behavior in Windows. Automated results for this delivery are recorded in `VALIDATION.md`.
 

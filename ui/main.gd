@@ -1,6 +1,7 @@
 extends Control
 
 const ShipView = preload("res://assets/ship_view.gd")
+const RobotPortrait = preload("res://assets/robot_portrait.gd")
 var root: VBoxContainer
 var content: VBoxContainer
 var timer_label: Label
@@ -175,8 +176,15 @@ func show_page(page: String) -> void:
 				buy.disabled = item_id in Game.state.owned
 			paragraph("Each repair changes its room in both overview and close-up. Pick any room to begin; all three paths are available from the start.")
 		"robot":
+			var companion_row := HBoxContainer.new()
+			companion_row.add_theme_constant_override("separation", 12)
+			content.add_child(companion_row)
 			ship_view = ShipView.new()
-			content.add_child(ship_view)
+			var portrait := RobotPortrait.new()
+			portrait.subject = ship_view
+			companion_row.add_child(portrait)
+			companion_row.add_child(ship_view)
+			ship_view.custom_minimum_size.x = 500
 			ship_view.focus_room("quarters")
 			paragraph("YOUR COMPANION / " + Game.state.robot)
 			robot_mood = label("")
