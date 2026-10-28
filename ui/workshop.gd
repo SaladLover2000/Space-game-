@@ -2,7 +2,9 @@ extends VBoxContainer
 const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
 const PartIcon = preload("res://ui/part_icon.gd")
-const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Chassis", "robot_visor":"Robot / Heads", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs"}
+const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Chassis", "robot_visor":"Robot / Heads", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs", "robot_paint":"Robot / Paint"}
+var rack_button: Button
+var rack_status: Label
 var ship_view: Control
 var robot_preview: Control
 var engine_title: Label
@@ -59,9 +61,15 @@ func _ready() -> void:
 	ship_view.part_selected.connect(select_slot)
 	robot_preview = RobotPortrait.new()
 	robot_preview.preview_mode = true
+	robot_preview.service_mode = true
+	robot_preview.service_changed.connect(refresh)
 	robot_preview.custom_minimum_size = Vector2(340,stage_height-90)
 	preview_stage.add_child(robot_preview)
 	robot_preview.hide()
+	rack_status = text(preview_stage,"",16)
+	rack_button = button(preview_stage,"Rack robot in lift",toggle_rack)
+	rack_button.hide()
+	rack_status.hide()
 	var destinations := HBoxContainer.new()
 	preview_stage.add_child(destinations)
 	button(destinations,"Ship upgrades",func(): select_slot("engine"))
@@ -117,6 +125,8 @@ func select_slot(slot: String) -> void:
 	ship_view.selected_slot = slot
 	robot_preview.visible = slot.begins_with("robot_")
 	ship_view.visible = not robot_preview.visible
+	rack_button.visible = robot_preview.visible
+	rack_status.visible = robot_preview.visible
 	ship_view.exterior = slot != "interior" and slot != "repairs"
 	clear_preview()
 
@@ -141,10 +151,15 @@ func preview_part(id: String) -> void:
 	detail.text = SLOTS[selected_slot] + "\nPreview: " + item.name
 
 func buy_part(id: String) -> void:
+	var item: Dictionary = Game.part_by_id(id)
+	if item.get("slot","").begins_with("robot_") and not robot_preview.service_ready():
+		feedback.text = "Rack your robot in the maintenance lift before installing parts or paint."
+		return
 	var result: Dictionary = Game.buy_part(id)
 	if result.ok:
 		preview_id = ""
 		ship_view.preview_equipped = {}
+	if result.ok and item.slot.begins_with("robot_"): robot_preview.begin_install()
 	feedback.text = result.message
 	refresh()
 
@@ -156,6 +171,7 @@ func service(full: bool) -> void:
 func refresh() -> void:
 	if not is_instance_valid(cards):
 		return
+	update_rack_status()
 	detail.text = SLOTS[selected_slot] + ("\nPreview: " + Game.part_by_id(preview_id).name if not preview_id.is_empty() else "\nEquipped design")
 	if selected_slot.begins_with("robot_"):
 		var outfit: Dictionary = robot_preview.preview_equipped if not robot_preview.preview_equipped.is_empty() else Game.state.equipped
@@ -222,8 +238,9 @@ func build_card(item: Dictionary) -> void:
 	body.add_child(controls)
 	var id: String = item.id
 	preview_buttons[id] = button(controls, "Preview", func(): preview_part(id))
-	var action := button(controls, "Equipped" if equipped else "Equip free" if owned else "Buy & equip  /  %d" % item.price, func(): buy_part(id))
-	action.disabled = equipped or (not owned and not lock.is_empty())
+	var verb := "Install" if item.slot.begins_with("robot_") else "Equip"
+	var action := button(controls, "Equipped" if equipped else verb + " free" if owned else "Buy & " + verb.to_lower() + "  /  %d" % item.price, func(): buy_part(id))
+	action.disabled = equipped or (not owned and not lock.is_empty()) or (item.slot.begins_with("robot_") and not robot_preview.service_ready())
 	action_buttons[id] = action
 
 func build_repairs() -> void:
@@ -240,3 +257,14 @@ func build_repairs() -> void:
 		var action := button(body, "Restored" if id in Game.state.owned else "Restore  /  %d credits" % item.price, func(): feedback.text = Game.purchase(id); refresh())
 		action.disabled = id in Game.state.owned
 		action_buttons[id] = action
+
+func toggle_rack() -> void:
+	if robot_preview.service_state == "free": robot_preview.request_rack()
+	else: robot_preview.request_release()
+
+func update_rack_status() -> void:
+	var status: String = robot_preview.service_state
+	rack_button.text = "Rack robot in lift" if status == "free" else "Release robot" if status == "racked" else "Installing..." if status == "installing" else "Lift moving..."
+	rack_button.disabled = status in ["installing","racking","releasing"]
+	rack_status.text = "MAINTENANCE LIFT / " + status.to_upper() + (" - choose parts or paint" if status == "racked" else " - rack to install upgrades" if status == "free" else "")
+

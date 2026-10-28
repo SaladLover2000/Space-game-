@@ -24,7 +24,7 @@ func run() -> void:
 	scene.show_page("shop")
 	await process_frame
 	var shop: Control = scene.workshop
-	check(game.parts.filter(func(item): return item.slot.begins_with("robot_")).size() == 15, "robot catalog contains fifteen designs across five slots")
+	check(game.parts.filter(func(item): return item.slot.begins_with("robot_")).size() == 31, "robot catalog contains twenty-five hardware designs plus six independent finishes")
 	var before: Dictionary = game.state.duplicate(true)
 	check(not game.buy_part("robot_shell_copper").ok and game.state == before, "unaffordable robot upgrade changes no progress")
 	game.state.credits = 1000
@@ -33,11 +33,13 @@ func run() -> void:
 	game.state.xp = 100
 	for slot in ["robot_shell", "robot_visor", "robot_arms", "robot_legs", "robot_core"]:
 		shop.category_picker.item_selected.emit(shop.category_indices[slot])
-		check(shop.robot_preview.visible and not shop.ship_view.visible and shop.cards.get_child_count() == 3, "robot category shows its portrait and three real part cards: " + slot)
+		check(shop.robot_preview.visible and not shop.ship_view.visible and shop.cards.get_child_count() == 5, "robot category shows its portrait and five real part cards: " + slot)
 	shop.select_slot("robot_shell")
 	before = game.state.duplicate(true)
 	shop.preview_buttons.robot_shell_copper.pressed.emit()
 	check(shop.robot_preview.preview_equipped.robot_shell == "robot_shell_copper" and game.state == before, "robot preview affects the displayed outfit without charging or equipping")
+	shop.rack_button.pressed.emit()
+	shop.robot_preview.advance_service(2)
 	shop.action_buttons.robot_shell_copper.pressed.emit()
 	check(game.state.equipped.robot_shell == "robot_shell_copper" and game.state.credits == 965, "robot Buy button deducts the exact price and equips the shell")
 	before = game.state.duplicate(true)
@@ -102,3 +104,4 @@ func run() -> void:
 	await process_frame
 	print("ROBOT STORE RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
+

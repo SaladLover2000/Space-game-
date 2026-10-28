@@ -154,5 +154,109 @@
       277,
       244
     ]
+  },
+  "robot_visor_explorer": {
+    "source": [
+      22,
+      195,
+      253,
+      205
+    ]
+  },
+  "robot_shell_explorer": {
+    "source": [
+      293,
+      100,
+      315,
+      320
+    ]
+  },
+  "robot_arms_explorer": {
+    "left": [
+      625,
+      95,
+      130,
+      375
+    ],
+    "right": [
+      790,
+      95,
+      130,
+      375
+    ]
+  },
+  "robot_legs_explorer": {
+    "left": [
+      948,
+      85,
+      138,
+      385
+    ],
+    "right": [
+      1105,
+      85,
+      138,
+      385
+    ]
+  },
+  "robot_core_explorer": {
+    "source": [
+      1270,
+      105,
+      250,
+      310
+    ]
+  },
+  "robot_visor_loader": {
+    "source": [
+      8,
+      590,
+      270,
+      302
+    ]
+  },
+  "robot_shell_loader": {
+    "source": [
+      278,
+      530,
+      340,
+      410
+    ]
+  },
+  "robot_arms_loader": {
+    "left": [
+      623,
+      520,
+      137,
+      450
+    ],
+    "right": [
+      790,
+      520,
+      143,
+      450
+    ]
+  },
+  "robot_legs_loader": {
+    "left": [
+      947,
+      520,
+      142,
+      450
+    ],
+    "right": [
+      1100,
+      520,
+      144,
+      450
+    ]
+  },
+  "robot_core_loader": {
+    "source": [
+      1265,
+      545,
+      267,
+      370
+    ]
   }
 }

@@ -145,3 +145,6 @@ The new 18-check diorama suite verifies use of the same backdrop class and plane
 
 Latest real-3D change: full regression 325 assertions passed, followed by the final expanded 27-check viewer suite after UV/texture changes (327 current checks). New checks exercise continuous camera movement within one illustrated angle, the default real viewport, artwork-derived texture and UV buffers, fixed sky under pan/zoom, and actual deck connector overlap. See REAL-3D-VIEW.md.
 
+
+Latest robot service update: 25 hardware designs, 3,125 mixed builds, six independent whole-robot finishes, and a timed rack/install/release maintenance lift. Full background runner: 344 assertions across 15 suites plus editor import, with no script errors. See ROBOT-SERVICE-BAY.md and robot-service-check-results.json. No visible game window was opened.
+

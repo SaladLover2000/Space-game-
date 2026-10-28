@@ -46,9 +46,9 @@ func run() -> void:
 	for id in art.regions:
 		for side in art.regions[id]:
 			var region: Rect2 = art.source(id,side)
-			atlas_ok = atlas_ok and Rect2(Vector2.ZERO,Vector2(image.get_size())).encloses(region) and not image.get_region(Rect2i(region)).is_invisible()
+			atlas_ok = atlas_ok and Rect2(Vector2.ZERO,Vector2(image.get_size())).encloses(region) and not art.texture_for(id).get_image().get_region(Rect2i(region)).is_invisible()
 			regions_count += 1
-	check(atlas_ok and regions_count == 21, "all fifteen equipment IDs map to twenty-one nonempty isolated component regions")
+	check(atlas_ok and regions_count == 35, "all twenty-five hardware IDs map to thirty-five nonempty isolated component regions")
 	var variants := {
 		"robot_shell":["stock","copper","cobalt"],"robot_visor":["stock","wide","amber"],
 		"robot_arms":["stock","utility","precision"],"robot_legs":["stock","boots","strider"],"robot_core":["stock","beacon","solar"]}
@@ -104,3 +104,4 @@ func run() -> void:
 			DirAccess.remove_absolute(game.save_path+suffix)
 	print("MODULAR ROBOT RESULT: ", failures, " failures; composition checks are not a rendered game review")
 	quit(0 if failures == 0 else 1)
+

@@ -53,3 +53,6 @@ The perspective viewer now shares the side view's drifting space renderer and sa
 
 The 3D tab now defaults to a real continuously orbiting solid ship with UV-mapped pixel-art metal, tapered canopy, machinery and attached lower decks. The sky framing stays independent of pan/zoom. See REAL-3D-VIEW.md for current behavior and visual-review limits.
 
+
+Latest robot service update: 25 hardware designs, 3,125 mixed builds, six independent whole-robot finishes, and a timed rack/install/release maintenance lift. Full background runner: 344 assertions across 15 suites plus editor import, with no script errors. See ROBOT-SERVICE-BAY.md and robot-service-check-results.json. No visible game window was opened.
+

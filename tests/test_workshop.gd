@@ -25,7 +25,7 @@ func run() -> void:
 	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.active = {}
-	check(game.state.equipped.size() == 12 and game.state.owned.is_empty(), "twelve ship and robot stock slots available without fabricated purchases")
+	check(game.state.equipped.size() == 13 and game.state.owned.is_empty(), "thirteen ship, robot hardware and finish slots available without fabricated purchases")
 	var before: Dictionary = game.state.duplicate(true)
 	check(not game.buy_part("paint_cobalt").ok and game.state == before, "insufficient funds cannot buy or equip a cosmetic")
 	check(not game.equip_part("paint_cobalt").ok and game.state == before, "unowned parts cannot be equipped")
@@ -67,7 +67,7 @@ func run() -> void:
 	game.state.erase("engine_condition")
 	game.save_progress()
 	game.load_progress()
-	check(game.state.equipped.size() == 12 and game.state.engine_condition == 100 and "engine" in game.state.owned, "older saves gain default equipment and preserve completed engine repair")
+	check(game.state.equipped.size() == 13 and game.state.engine_condition == 100 and "engine" in game.state.owned, "older saves gain default equipment and preserve completed engine repair")
 	check(not game.valid_snapshot({"version":1,"equipped":{"paint":5}}), "malformed equipped state is rejected")
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
@@ -137,3 +137,4 @@ func run() -> void:
 	await process_frame
 	print("WORKSHOP RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
+

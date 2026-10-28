@@ -24,7 +24,7 @@ var field_repair_clock: float = 0.0
 var encounter_rng := RandomNumberGenerator.new()
 
 func default_equipment() -> Dictionary:
-	return {"engine":"engine_stock", "hull":"hull_stock", "wings":"wings_stock", "paint":"paint_stock", "antenna":"antenna_stock", "lights":"lights_stock", "interior":"interior_stock", "robot_shell":"robot_shell_stock", "robot_visor":"robot_visor_stock", "robot_arms":"robot_arms_stock", "robot_legs":"robot_legs_stock", "robot_core":"robot_core_stock"}
+	return {"engine":"engine_stock", "hull":"hull_stock", "wings":"wings_stock", "paint":"paint_stock", "antenna":"antenna_stock", "lights":"lights_stock", "interior":"interior_stock", "robot_shell":"robot_shell_stock", "robot_visor":"robot_visor_stock", "robot_arms":"robot_arms_stock", "robot_legs":"robot_legs_stock", "robot_core":"robot_core_stock", "robot_paint":"robot_paint_stock"}
 
 func defaults() -> Dictionary:
 	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0, "expansions": [], "research": [], "focus_task": "", "hull_integrity": 100, "cruise_seconds": 0.0, "calm_lights": true}
@@ -417,3 +417,4 @@ func robot_activity() -> String:
 	if state.hull_integrity < 100: return "field_repair"
 	if not active.is_empty() and not active.paused: return "charging"
 	return ["maintenance","resting","sleeping","observing"][int(state.cruise_seconds/40.0)%4]
+

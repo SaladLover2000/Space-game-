@@ -1,0 +1,118 @@
+{
+  "passed": true,
+  "assertions": 344,
+  "suites": [
+    {
+      "suite": "import",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 0,
+      "script_errors": []
+    },
+    {
+      "suite": "test_game",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 25,
+      "script_errors": []
+    },
+    {
+      "suite": "test_ui",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 10,
+      "script_errors": []
+    },
+    {
+      "suite": "test_rooms",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 35,
+      "script_errors": []
+    },
+    {
+      "suite": "test_interior",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 16,
+      "script_errors": []
+    },
+    {
+      "suite": "test_drift",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 13,
+      "script_errors": []
+    },
+    {
+      "suite": "test_usability",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 30,
+      "script_errors": []
+    },
+    {
+      "suite": "test_workshop",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 38,
+      "script_errors": []
+    },
+    {
+      "suite": "test_robot_store",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 28,
+      "script_errors": []
+    },
+    {
+      "suite": "test_pixel_art",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 13,
+      "script_errors": []
+    },
+    {
+      "suite": "test_modular_robot",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 13,
+      "script_errors": []
+    },
+    {
+      "suite": "test_seat_pan",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 23,
+      "script_errors": []
+    },
+    {
+      "suite": "test_expedition",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 27,
+      "script_errors": []
+    },
+    {
+      "suite": "test_focus_cruise",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 29,
+      "script_errors": []
+    },
+    {
+      "suite": "test_diorama_damage",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 27,
+      "script_errors": []
+    },
+    {
+      "suite": "test_robot_service",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 17,
+      "script_errors": []
+    }
+  ]
+}

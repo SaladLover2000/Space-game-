@@ -1,12 +1,17 @@
 extends RefCounted
 ## Composes original high-detail raster modules around real shoulder and hip anchors.
 const ATLAS = preload("res://assets/art/robot-modules-v1.png")
+const ATLAS_V2 = preload("res://assets/art/robot-modules-v2.png")
+static var neutral_atlases: Dictionary = {}
+const PAINTS = {"robot_paint_stock":"ffffff","robot_paint_sand":"dcc9a5","robot_paint_cobalt":"92b6ea","robot_paint_sage":"9bc8ad","robot_paint_crimson":"df969b","robot_paint_gold":"e5c685"}
 var regions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/robot_atlas.json"))
 const HEIGHTS = {
 	"robot_shell_stock":14.0, "robot_shell_copper":17.0, "robot_shell_cobalt":18.0,
 	"robot_visor_stock":10.0, "robot_visor_wide":10.5, "robot_visor_amber":12.0,
 	"robot_arms_stock":14.0, "robot_arms_utility":16.0, "robot_arms_precision":17.0,
 	"robot_legs_stock":11.0, "robot_legs_boots":10.0, "robot_legs_strider":15.0,
+	"robot_visor_explorer":10.0,"robot_shell_explorer":16.0,"robot_arms_explorer":15.0,"robot_legs_explorer":12.0,"robot_core_explorer":5.0,
+	"robot_visor_loader":11.0,"robot_shell_loader":20.0,"robot_arms_loader":19.0,"robot_legs_loader":14.0,"robot_core_loader":18.0,
 	"robot_core_stock":5.0, "robot_core_beacon":7.0, "robot_core_solar":17.0
 }
 
@@ -35,7 +40,7 @@ func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking:
 	var body_top := -leg.y - body.y + 1.0
 	var pieces: Array = []
 	# Backpack is behind the body; front battery/beacon modules attach later.
-	if core_id == "robot_core_solar":
+	if core_id in ["robot_core_solar","robot_core_loader"]:
 		var pack := part_size(core_id)
 		pieces.append(piece(core_id,"source",Rect2(-pack.x/2,body_top-1,pack.x,pack.y)))
 	for side in ["left", "right"]:
@@ -70,7 +75,7 @@ func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking:
 			rotation = -2.25 + sin(time*6)*0.12
 		pieces.append(piece(arms_id,side,Rect2(x,body_top+1.5,size.x,size.y),rotation))
 	pieces.append(piece(head_id,"source",Rect2(-head.x/2,body_top-head.y+1.0,head.x,head.y),0.16 if mood == "sleeping" else 0.0))
-	if core_id != "robot_core_solar":
+	if core_id not in ["robot_core_solar","robot_core_loader"]:
 		var core := part_size(core_id)
 		pieces.append(piece(core_id,"source",Rect2(-core.x/2,body_top+body.y*0.43-core.y/2,core.x,core.y)))
 	return pieces
@@ -107,6 +112,18 @@ func build_description(outfit: Dictionary) -> String:
 	var original := bounds({}).size
 	return "Your build / %.2fx original height  /  %.2fx original width" % [size.y/original.y,size.x/original.x]
 
+func texture_for(id: String) -> Texture2D:
+	var key := 1 if id.ends_with("_explorer") or id.ends_with("_loader") else 0
+	if not neutral_atlases.has(key):
+		var image: Image = (ATLAS_V2 if key == 1 else ATLAS).get_image()
+		if image.is_compressed(): image.decompress()
+		image.adjust_bcs(1,1,0)
+		neutral_atlases[key] = ImageTexture.create_from_image(image)
+	return neutral_atlases[key]
+
+func finish_color(outfit: Dictionary) -> Color:
+	return Color(PAINTS.get(outfit.get("robot_paint","robot_paint_stock"),"ffffff"))
+
 func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}, seated: bool = false) -> void:
 	var hop := absf(sin(time*2))*0.3 if mood in ["happy","upgraded"] and not seated else 0.0
 	var origin := feet - Vector2(0,hop)
@@ -119,9 +136,10 @@ func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking:
 		var uv := PackedVector2Array([src.position,Vector2(src.end.x,src.position.y),src.end,Vector2(src.position.x,src.end.y)])
 		for i in range(uv.size()):
 			uv[i] /= atlas_size
-		var tint := Color(0.74,0.82,0.88) if mood == "sad" else Color.WHITE
-		target.draw_polygon(points,PackedColorArray([tint]),uv,ATLAS)
+		var tint := finish_color(outfit) * (Color(0.74,0.82,0.88) if mood == "sad" else Color.WHITE)
+		target.draw_polygon(points,PackedColorArray([tint]),uv,texture_for(part.id))
 	if mood == "charging":
 		var right_edge := bounds(outfit).end.x
 		for i in range(3):
 			target.draw_rect(Rect2(origin + Vector2(right_edge+2,-8-i*4),Vector2(0.7,1.5)),Color("8ae9d8"))
+
