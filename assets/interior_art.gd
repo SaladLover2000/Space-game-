@@ -170,7 +170,12 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 	for py in [93, 95]:
 		box(231, py, 2, 1, "8c7257")
 	draw_system_detail(owned, time)
-	# Animated bulkhead shutters connect cockpit â†’ quarters â†’ engine.
+	draw_doors(target, doors)
+
+func draw_doors(target: CanvasItem, doors: Dictionary) -> void:
+	canvas = target
+	theme_palette = {}
+	# Real animated shutters overlay the calibrated sprite passages.
 	for id in doors:
 		var x: int = 91 if id == "bridge" else 168
 		var openness: float = doors[id]

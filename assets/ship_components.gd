@@ -11,7 +11,7 @@ func polygon(points: Array, color: String) -> void:
 		vertices.append(Vector2(p[0], p[1]))
 	canvas.draw_colored_polygon(vertices, Color(color))
 
-func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool) -> void:
+func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool, detailed: bool = false) -> void:
 	canvas = target
 	var paint: String = equipment.get("paint", "paint_stock")
 	if paint != "paint_stock":
@@ -21,7 +21,7 @@ func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool) -> void:
 			box(x, 46 if x == 44 else 54 if x == 107 else 48, 27, 2, accent)
 		box(44, 110, 33, 2, panel)
 		box(181, 115, 25, 2, accent)
-		if not cutaway:
+		if not cutaway and not detailed:
 			polygon([[105,62],[148,62],[153,68],[153,81],[105,81]], panel)
 			box(110, 68, 12, 9, "183247")
 			box(132, 68, 12, 9, "183247")
@@ -43,7 +43,7 @@ func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool) -> void:
 			box(x, 46, 7, 4, "d6dacb")
 			box(x, 113, 7, 4, "c6d2c6")
 		box(104, 53, 48, 3, "a8dcce")
-		if not cutaway:
+		if not cutaway and not detailed:
 			for y in [61, 96]:
 				box(181, y, 28, 4, "d6dacb")
 	var wings: String = equipment.get("wings", "wings_stock")
@@ -76,14 +76,14 @@ func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool) -> void:
 		for x in [47, 64, 108, 128, 146, 182, 202, 218]:
 			box(x, 109 if x < 90 else 107 if x < 170 else 115, 5, 2, color)
 	var engine: String = equipment.get("engine", "engine_stock")
-	for y in [62, 89]:
+	for y in ([58, 92] if detailed else [62, 89]):
 		if engine == "engine_hauler":
-			box(233, y - 2, 25, 3, "c3b294")
-			box(233, y + 14, 25, 3, "8fa4ad")
-			for x in range(235, 257, 5):
+			box(270, y - 2, 25, 3, "c3b294")
+			box(270, y + 14, 25, 3, "8fa4ad")
+			for x in range(272, 294, 5):
 				box(x, y - 3, 2, 5, "657f8f")
 		if engine == "engine_ion":
-			box(239, y - 3, 21, 4, "334a70")
-			box(240, y - 2, 18, 1, "79e7e5")
-			box(239, y + 14, 21, 3, "445c84")
-			box(259, y + 4, 4, 7, "c7fff0")
+			box(276, y - 3, 21, 4, "334a70")
+			box(277, y - 2, 18, 1, "79e7e5")
+			box(276, y + 14, 21, 3, "445c84")
+			box(296, y + 4, 4, 7, "c7fff0")

@@ -1,0 +1,8 @@
+Use case: precise-object-edit. Production game sprite state variant.
+Edit this exact spaceship sprite into its neglected, BROKEN starting condition. Preserve pixel-for-pixel overall canvas dimensions, transparent background, side-on camera, full ship silhouette, every wall, door column, cabin boundary and floor height. Do not move anything or add any characters or UI.
+Keep the exterior recognizable with the same silver/gunmetal and navy blue material palette. Add modest scratches, grime and a few missing service covers, not catastrophic destruction.
+In the LEFT cockpit: cracked front glass, two dark navigation screens, open wiring under console, small red fault indicator.
+In the MIDDLE cabin: torn or faded blanket, one dangling ceiling cable, broken desk lamp, scuffed wall locker and a loose floor access cover. Keep clear walking floor.
+In the RIGHT reactor workshop: cyan reactor lights powered OFF, shattered dark coolant viewing tube, disconnected copper pipe with visibly separated bent ends, exposed wiring, a fallen maintenance cover and a red emergency lamp. Avoid baked-in smoke, flame or sparks because the game animates them.
+Art quality must remain the same rich hand-authored 16-bit pixel art: beveled metal highlights, coherent shadows, fine mechanical texture, dark outlines, crisp readable pixel clusters.
+This is the same exact ship/layout, only its unrepaired visual state. Background truly transparent; no black rectangle, text, watermark, border or exhaust.

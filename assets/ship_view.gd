@@ -22,6 +22,8 @@ var selected_object: int = -1
 var hovered_object: int = -1
 var door_open: Dictionary = {"bridge": true, "engine": true}
 var door_progress: Dictionary = {"bridge": 1.0, "engine": 1.0}
+const PixelShipArt = preload("res://assets/pixel_ship_art.gd")
+var pixel_ship_art := PixelShipArt.new()
 const HullArt = preload("res://assets/hull_art.gd")
 const RobotArt = preload("res://assets/robot_art.gd")
 var hull_art := HullArt.new()
@@ -44,7 +46,7 @@ func equipment() -> Dictionary:
 	return preview_equipped if not preview_equipped.is_empty() else Game.state.equipped
 
 func part_regions() -> Dictionary:
-	return {"engine":[Rect2(232,60,33,47)], "wings":[Rect2(192,16,46,25), Rect2(190,119,49,24), Rect2(185,0,40,28), Rect2(152,127,75,28)], "antenna":[Rect2(157,16,28,28)], "hull":[Rect2(175,55,53,48)], "paint":[Rect2(103,61,50,35)], "lights":[Rect2(43,108,38,6)], "interior":[Rect2(35,62,54,35)]}
+	return {"engine":[Rect2(232,60,33,47), Rect2(268,50,32,65)], "wings":[Rect2(192,16,46,25), Rect2(190,119,49,24), Rect2(185,0,40,28), Rect2(152,127,75,28)], "antenna":[Rect2(157,16,28,28)], "hull":[Rect2(175,55,53,48)], "paint":[Rect2(103,61,50,35)], "lights":[Rect2(43,108,38,6)], "interior":[Rect2(35,62,54,35)]}
 
 func part_at(local_position: Vector2) -> String:
 	if not Rect2(Vector2.ZERO, size).has_point(local_position):
@@ -60,6 +62,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(560, 300)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clip_contents = true
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	rooms = JSON.parse_string(FileAccess.get_file_as_string("res://data/rooms.json"))
 	backdrop = SpaceBackdrop.new()
 	interior_art = InteriorArt.new()
@@ -96,7 +99,7 @@ func ship_drift(time: float) -> Transform2D:
 
 func smoke_particle(index: int, time: float, nozzle: int = 0) -> Dictionary:
 	var age := fposmod(time + index * 0.37, 4.0)
-	return {"position": Vector2(262 + age * 10, (69 if nozzle == 0 else 96) + sin(age * 1.7 + index) * age), "radius": 1 + floorf(age * 0.8), "alpha": (1.0 - age / 4.0) * 0.85}
+	return {"position": Vector2(294 + age * 10, (66 if nozzle == 0 else 100) + sin(age * 1.7 + index) * age), "radius": 1 + floorf(age * 0.8), "alpha": (1.0 - age / 4.0) * 0.85}
 
 func room_at(local_position: Vector2) -> String:
 	if not Rect2(Vector2.ZERO, size).has_point(local_position):
@@ -254,8 +257,8 @@ func _draw() -> void:
 		draw_exterior()
 	else:
 		draw_interior()
-	hull_art.draw_engines(self, Game.state.engine_condition >= 25, clock)
-	components.draw(self, equipment(), not exterior)
+	# Engine nozzles are included in the calibrated raster artwork.
+	components.draw(self, equipment(), not exterior, true)
 	draw_smoke()
 	if workshop_mode:
 		var slot := hovered_slot if not hovered_slot.is_empty() else selected_slot
@@ -275,9 +278,9 @@ func draw_smoke() -> void:
 			draw_rect(Rect2(p - Vector2(r - 1, r), Vector2(r * 2 - 1, r * 2 + 1)), color)
 
 func draw_exterior() -> void:
-	hull_art.draw(self, Game.visual_repairs(), false)
+	pixel_ship_art.draw(self, Game.state.owned, true, equipment(), clock, Game.state.engine_condition)
 func draw_interior() -> void:
-	hull_art.draw(self, Game.visual_repairs(), true)
-	interior_art.draw(self, rooms, Game.visual_repairs(), clock, door_progress, equipment().get("interior", "interior_stock"))
+	pixel_ship_art.draw(self, Game.state.owned, false, equipment(), clock, Game.state.engine_condition)
+	interior_art.draw_doors(self, door_progress)
 	draw_interior_selection()
 	robot_art.draw(self, robot_position, clock, expression(), robot_walking, equipment())

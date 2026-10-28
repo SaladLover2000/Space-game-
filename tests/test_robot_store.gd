@@ -75,7 +75,7 @@ func run() -> void:
 	check(is_equal_approx(view.zoom_level, 0.65), "zoom-out clamps to a usable minimum")
 	view.reset_zoom()
 	check(view.camera == initial_camera, "Fit ship restores the wide default camera")
-	var art := preload("res://assets/interior_art.gd").new()
+	var art := preload("res://assets/pixel_ship_art.gd").new()
 	check(art.system_status([],0.1).engine_broken and art.system_status([],0.1).warning_on and not art.system_status([],0.8).warning_on, "broken engine warning alternates between on and off")
 	check(not art.system_status(["engine","cockpit","quarters"],0.1).engine_broken and not art.system_status(["engine","cockpit","quarters"],0.1).bridge_broken, "restored rooms disable their broken fittings")
 	scene.show_page("ship")

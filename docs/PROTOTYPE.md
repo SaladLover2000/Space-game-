@@ -113,3 +113,7 @@ Open **Shop → Robot upgrades** or **Robot → Customize robot in the shop**. F
 The hull now includes broad swept wings, auxiliary nacelles, layered nose plating and segmented cooling surfaces. Damage artwork includes split engine piping with escaping vapor, a dark broken cell, a loose panel, blinking red engine alarm, cracked bridge glass, exposed console wiring and a hanging habitation cable. Restoration replaces those room fittings with intact pipes, clean glass and steady indicators. These are visual restoration states, not new asteroid penalties.
 
 Mouse-wheel zoom is limited to the ship drawing area; scrolling elsewhere scrolls the interface normally. Selecting rooms does not reset zoom. The compact countdown is an in-game panel that can stay visible across navigation or be hidden without affecting the session.
+
+## Detailed raster artwork
+
+The active ship renderer now uses three detailed original pixel-art PNG atlases for damaged cutaway, restored cutaway and closed exterior views. This replaces the previous flat procedural hull and room drawings. Room restoration selects clean atlas regions independently, while hatches, the robot, equipment previews, warning blink and exhaust remain interactive. See PIXEL-ART-ASSETS.md for the calibration, assets and exact generation prompts. Existing gameplay screenshots predate this art replacement; the game has remained closed during current testing at the user's request.
