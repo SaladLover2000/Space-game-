@@ -5,6 +5,9 @@ var service_mode: bool = false
 var service_state: String = "free"
 var rack_progress: float = 0.0
 var install_left: float = 0.0
+var view_angle: int = 0
+var turn_dragging: bool = false
+var drag_origin: float = 0
 var art := RobotArt.new()
 var subject: Control
 var preview_equipped: Dictionary = {}
@@ -13,7 +16,7 @@ var clock: float = 0.0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(280, 300)
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
@@ -23,12 +26,9 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color("102337"))
-	for x in range(0, int(size.x), 20):
-		draw_line(Vector2(x, 0), Vector2(x, size.y), Color("182e42"))
-	for y in range(0, int(size.y), 20):
-		draw_line(Vector2(0, y), Vector2(size.x, y), Color("182e42"))
-	draw_rect(Rect2(Vector2.ONE, size - Vector2.ONE * 2), Color("426b7c"), false, 2)
+	if service_mode:
+		draw_texture_rect(preload("res://assets/art/robot-workshop-v1.png"),Rect2(Vector2.ZERO,size),false)
+	else: draw_rect(Rect2(Vector2.ZERO,size),Color("101923"))
 	var outfit: Dictionary = Game.state.equipped
 	var mood: String = "idle"
 	var time: float = clock
@@ -47,7 +47,7 @@ func _draw() -> void:
 	if service_mode:
 		draw_lift(outfit)
 		mood = "working" if service_state == "installing" else "idle"
-	art.draw(self,Vector2(0,-rack_progress*2) if service_mode else Vector2.ZERO,time,mood,false,outfit)
+	art.draw(self,Vector2(0,-rack_progress*2) if service_mode else Vector2.ZERO,time,mood,false,outfit,false,view_angle)
 
 func service_ready() -> bool:
 	return service_mode and service_state == "racked"
@@ -99,4 +99,16 @@ func draw_lift(outfit: Dictionary) -> void:
 	draw_rect(Rect2(-half-3,top-3,half*2+6,4),Color("7e969f"))
 	draw_rect(Rect2(-half-3,2-rack_progress*2,half*2+6,4),Color("687e88"))
 	for x in range(-int(half),int(half),5): draw_rect(Rect2(x,3-rack_progress*2,2,1),Color("d3ac61"))
+
+func _gui_input(event: InputEvent) -> void:
+	if not service_mode: return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		turn_dragging = event.pressed
+		drag_origin = event.position.x
+		accept_event()
+	elif event is InputEventMouseMotion and turn_dragging and absf(event.position.x-drag_origin) >= 50:
+		view_angle = posmod(view_angle+(1 if event.position.x > drag_origin else -1),4)
+		drag_origin = event.position.x
+		queue_redraw()
+		accept_event()
 

@@ -1,8 +1,10 @@
 extends VBoxContainer
 const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
-const PartIcon = preload("res://ui/part_icon.gd")
+const PartIcon = preload("res://ui/component_icon.gd")
 const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Chassis", "robot_visor":"Robot / Heads", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs", "robot_paint":"Robot / Paint"}
+var robot_tabs: GridContainer
+var turn_buttons: Array[Button] = []
 var rack_button: Button
 var rack_status: Label
 var ship_view: Control
@@ -66,6 +68,13 @@ func _ready() -> void:
 	robot_preview.custom_minimum_size = Vector2(340,stage_height-90)
 	preview_stage.add_child(robot_preview)
 	robot_preview.hide()
+	var turn_row := HBoxContainer.new()
+	preview_stage.add_child(turn_row)
+	for index in range(4):
+		var angle: int = index
+		var turn_button := button(turn_row,["Front","Right side","Back","Left side"][index],func(): robot_preview.view_angle = angle; robot_preview.queue_redraw())
+		turn_buttons.append(turn_button)
+
 	rack_status = text(preview_stage,"",16)
 	rack_button = button(preview_stage,"Rack robot in lift",toggle_rack)
 	rack_button.hide()
@@ -90,6 +99,14 @@ func _ready() -> void:
 		category_indices[slot] = category_picker.item_count
 		category_picker.add_item(SLOTS[slot])
 	category_picker.item_selected.connect(func(index): select_slot(SLOTS.keys()[index]))
+	robot_tabs = GridContainer.new()
+	robot_tabs.columns = 3
+	sidebar.add_child(robot_tabs)
+	for slot in ["robot_visor","robot_shell","robot_arms","robot_legs","robot_core","robot_paint"]:
+		var tab_slot: String = slot
+		category_buttons[slot] = button(robot_tabs,{"robot_visor":"Heads","robot_shell":"Chassis","robot_arms":"Arms","robot_legs":"Legs","robot_core":"Packs","robot_paint":"Paint"}[slot],func(): select_slot(tab_slot))
+	robot_tabs.hide()
+
 	detail = text(sidebar,"",17)
 	engine_title = text(sidebar,"Engine condition",14)
 	condition = ProgressBar.new()
@@ -124,9 +141,11 @@ func select_slot(slot: String) -> void:
 	category_picker.select(category_indices[slot])
 	ship_view.selected_slot = slot
 	robot_preview.visible = slot.begins_with("robot_")
+	robot_tabs.visible = robot_preview.visible
 	ship_view.visible = not robot_preview.visible
 	rack_button.visible = robot_preview.visible
 	rack_status.visible = robot_preview.visible
+	for turn_button in turn_buttons: turn_button.visible = robot_preview.visible
 	ship_view.exterior = slot != "interior" and slot != "repairs"
 	clear_preview()
 
@@ -213,21 +232,34 @@ func build_card(item: Dictionary) -> void:
 	panel.add_child(body)
 	var header := HBoxContainer.new()
 	body.add_child(header)
-	if item.slot.begins_with("robot_"):
-		var icon := RobotPortrait.new()
-		icon.preview_mode = true
-		icon.preview_equipped = Game.state.equipped.duplicate(true)
-		icon.preview_equipped[item.slot] = item.id
-		header.add_child(icon)
-		icon.custom_minimum_size = Vector2(100, 130)
-	else:
-		var icon := PartIcon.new()
-		icon.slot = item.slot
-		icon.item_id = item.id
-		header.add_child(icon)
+	var icon := PartIcon.new()
+	icon.slot = item.slot
+	icon.item_id = item.id
+	header.add_child(icon)
 	var title := text(header, item.name, 19)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text(body, item.description, 15)
+	var diagram := HBoxContainer.new()
+	body.add_child(diagram)
+	var badge := Label.new()
+	badge.text = "[+]" if not item.get("effects",{}).is_empty() else "[=]"
+	badge.modulate = Color("bca877")
+	diagram.add_child(badge)
+	var benefits := text(diagram,"\n".join(Game.effect_lines(item)),14)
+	benefits.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if not item.get("effects",{}).is_empty():
+		var candidate: Dictionary = Game.state.equipped.duplicate(true)
+		candidate[item.slot] = item.id
+		var key: String = item.effects.keys()[0]
+		var old_value: int = Game.equipment_effects().get(key,0)
+		var new_value: int = Game.equipment_effects(candidate).get(key,0)
+		text(body,"BUILD / %s: %d -> %d" % [key.replace("_percent"," %").replace("_"," "),old_value,new_value],13)
+		var meter := ProgressBar.new()
+		meter.custom_minimum_size.y = 6
+		meter.show_percentage = false
+		meter.max_value = 2 if key in ["damage_reduction","work_lamp"] else 60
+		meter.value = new_value
+		body.add_child(meter)
 	var owned: bool = Game.part_owned(item.id)
 	var equipped: bool = Game.state.equipped.get(item.slot) == item.id
 	var lock: String = Game.part_lock(item)

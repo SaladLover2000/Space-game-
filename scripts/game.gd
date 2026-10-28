@@ -59,7 +59,7 @@ func advance(now: int) -> void:
 func start_session(minutes: int) -> bool:
 	if not active.is_empty() or minutes < 1 or minutes > 240 or state.focus_task.strip_edges().is_empty():
 		return false
-	active = {"id": str(Time.get_unix_time_from_system()) + "-" + str(Time.get_ticks_usec()), "minutes": minutes, "remaining_ms": minutes * 60000, "paused": false, "task": state.focus_task.strip_edges().left(160)}
+	active = {"id": str(Time.get_unix_time_from_system()) + "-" + str(Time.get_ticks_usec()), "minutes": minutes, "remaining_ms": minutes * 60000, "paused": false, "task": state.focus_task.strip_edges().left(160), "effects": equipment_effects()}
 	last_tick = Time.get_ticks_msec()
 	save_progress()
 	changed.emit()
@@ -92,9 +92,10 @@ func finish_session() -> void:
 	var minutes := int(session.minutes)
 	var credits := minutes * int(balance.credits_per_minute)
 	var xp := minutes * int(balance.xp_per_minute)
+	xp += floori(xp*float(session.get("effects",{}).get("xp_percent",0))/100.0)
 	state.credits += credits
 	state.xp += xp
-	state.battery = mini(100, int(state.battery) + minutes * int(balance.battery_per_minute))
+	state.battery = mini(100, int(state.battery) + minutes * int(balance.battery_per_minute) + floori(minutes*int(balance.battery_per_minute)*float(session.get("effects",{}).get("battery_percent",0))/100.0))
 	state.total_seconds += minutes * 60
 	state.history.append({"id": session.id, "minutes": minutes, "credits": credits, "xp": xp, "task": session.get("task", ""), "date": Time.get_datetime_string_from_system()})
 	save_progress() # Reward and consumed session persist in one snapshot.
@@ -372,7 +373,7 @@ func advance_flight(delta: float) -> void:
 	if not state.started:
 		return
 	var elapsed := clampf(delta,0.0,1.0)
-	state.cruise_seconds += elapsed
+	state.cruise_seconds += elapsed*(1.0+equipment_effects().cruise_percent/100.0)
 	for event in asteroid_events:
 		event.age += elapsed
 		if event.age >= 5.0: apply_contact(event)
@@ -383,7 +384,7 @@ func advance_flight(delta: float) -> void:
 		resolve_encounter(encounter_rng.randf(),encounter_rng.randf())
 	if state.hull_integrity < 100 and robot_activity() == "field_repair":
 		field_repair_clock += elapsed
-		if field_repair_clock >= 30.0:
+		if field_repair_clock >= 30.0/(1.0+equipment_effects().repair_percent/100.0):
 			field_repair_clock = 0
 			state.hull_integrity = mini(100,int(state.hull_integrity)+1)
 			save_progress()
@@ -401,7 +402,7 @@ func apply_contact(event: Dictionary) -> void:
 	event.resolved = true
 	if event.damage > 0:
 		var before := state.duplicate(true)
-		state.hull_integrity = maxi(80,int(state.hull_integrity)-int(event.damage))
+		state.hull_integrity = maxi(80,int(state.hull_integrity)-maxi(0,int(event.damage)-int(equipment_effects().damage_reduction)))
 		if not commit_purchase(before): event.damage = 0
 
 func patch_hull() -> Dictionary:
@@ -417,4 +418,22 @@ func robot_activity() -> String:
 	if state.hull_integrity < 100: return "field_repair"
 	if not active.is_empty() and not active.paused: return "charging"
 	return ["maintenance","resting","sleeping","observing"][int(state.cruise_seconds/40.0)%4]
+
+func equipment_effects(outfit: Dictionary = {}) -> Dictionary:
+	var result := {"xp_percent":0,"battery_percent":0,"move_percent":0,"repair_percent":0,"cruise_percent":0,"damage_reduction":0,"work_lamp":0}
+	var equipped: Dictionary = state.equipped if outfit.is_empty() else outfit
+	for id in equipped.values():
+		for key in part_by_id(id).get("effects",{}): result[key] += int(part_by_id(id).effects[key])
+	result.xp_percent = mini(15,result.xp_percent)
+	result.repair_percent = mini(60,result.repair_percent)
+	result.damage_reduction = mini(1,result.damage_reduction)
+	return result
+
+func effect_lines(item: Dictionary) -> Array[String]:
+	var labels := {"xp_percent":"Research XP +%d%% on completed focus", "battery_percent":"Study battery recharge +%d%%", "move_percent":"Robot walking speed +%d%%", "repair_percent":"Free hull repair rate +%d%%", "cruise_percent":"Cruise scenery speed +%d%%", "damage_reduction":"Rare impact damage -%d hull point", "work_lamp":"Work lamp / illuminates active maintenance"}
+	var lines: Array[String] = []
+	for key in item.get("effects",{}):
+		lines.append(labels[key] if key == "work_lamp" else labels[key] % item.effects[key])
+	if lines.is_empty(): lines.append("Appearance only / no stat change" if item.slot in ["robot_paint","paint","lights","interior"] else "Standard hardware / baseline performance")
+	return lines
 

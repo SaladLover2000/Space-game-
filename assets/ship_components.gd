@@ -1,5 +1,6 @@
 extends RefCounted
 ## Replaceable original component overlays, shared by preview and equipped ships.
+var art := preload("res://assets/ship_parts_art.gd").new()
 var canvas: CanvasItem
 
 func box(x: float, y: float, w: float, h: float, color: String) -> void:
@@ -13,6 +14,9 @@ func polygon(points: Array, color: String) -> void:
 
 func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool, detailed: bool = false) -> void:
 	canvas = target
+	if detailed:
+		art.draw_equipped(target,equipment)
+		return
 	var paint: String = equipment.get("paint", "paint_stock")
 	if paint != "paint_stock":
 		var accent := "74bee4" if paint == "paint_cobalt" else "dfb27b"
@@ -87,3 +91,4 @@ func draw(target: CanvasItem, equipment: Dictionary, cutaway: bool, detailed: bo
 			box(277, y - 2, 18, 1, "79e7e5")
 			box(276, y + 14, 21, 3, "445c84")
 			box(296, y + 4, 4, 7, "c7fff0")
+

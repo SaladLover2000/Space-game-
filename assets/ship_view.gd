@@ -222,7 +222,7 @@ func advance_robot(delta: float) -> void:
 					target.x = robot_position.x
 				waiting_hatch = hatch
 	var previous := robot_position
-	robot_position = robot_position.move_toward(target, maxf(0.0, delta) * 150.0)
+	robot_position = robot_position.move_toward(target, maxf(0.0, delta) * 150.0 * (1.0+Game.equipment_effects().move_percent/100.0))
 	robot_walking = not robot_position.is_equal_approx(previous)
 	if robot_position.distance_to(robot_destination) < 0.01 and not robot_route.is_empty():
 		robot_destination = robot_route.pop_front()

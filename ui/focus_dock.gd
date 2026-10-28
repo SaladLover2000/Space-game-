@@ -94,7 +94,10 @@ func refresh() -> void:
 	timer.text = "%02d:%02d" % [seconds/60,seconds%60]
 	var title_ready := not task.text.strip_edges().is_empty()
 	reward.text = "Paused" if active and Game.active.paused else "Focusing" if active else "Ready" if title_ready else "Add a task to start"
-	reward.text += " / +%d credits, +%d XP" % [minutes*int(Game.balance.credits_per_minute),minutes*int(Game.balance.xp_per_minute)]
+	var effects: Dictionary = Game.active.get("effects",{}) if not Game.active.is_empty() else Game.equipment_effects()
+	var xp := minutes*int(Game.balance.xp_per_minute)
+	xp += floori(xp*float(effects.get("xp_percent",0))/100.0)
+	reward.text += " / +%d credits, +%d XP" % [minutes*int(Game.balance.credits_per_minute),xp]
 	start_button.visible = not active
 	start_button.disabled = active or not title_ready
 	pause_button.visible = active
@@ -106,3 +109,4 @@ func refresh() -> void:
 func reveal() -> void:
 	dismissed = false
 	refresh()
+

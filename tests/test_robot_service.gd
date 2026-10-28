@@ -25,7 +25,7 @@ func run() -> void:
 	var bay: Control = shop.robot_preview
 	bay.set_process(false)
 	var art: RefCounted = bay.art
-	check(game.state.equipped.robot_paint == "robot_paint_stock" and art.finish_color({}) == Color.WHITE,"new and legacy outfits default to a single neutral metal finish")
+	check(game.state.equipped.robot_paint == "robot_paint_stock" and art.finish_color({}) == Color("fff3dc"),"new and legacy outfits default to a single warm white ceramic finish")
 	var palette_ok := true
 	var alpha_ok := true
 	for id in ["robot_visor_stock","robot_legs_boots","robot_shell_cobalt","robot_shell_loader"]:

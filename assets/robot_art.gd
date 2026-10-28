@@ -2,8 +2,11 @@ extends RefCounted
 ## Composes original high-detail raster modules around real shoulder and hip anchors.
 const ATLAS = preload("res://assets/art/robot-modules-v1.png")
 const ATLAS_V2 = preload("res://assets/art/robot-modules-v2.png")
+const SIDE_ATLAS = preload("res://assets/art/robot-modules-side-v1.png")
+const BACK_ATLAS = preload("res://assets/art/robot-modules-back-v1.png")
+var directional: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/robot_directional_atlas.json"))
 static var neutral_atlases: Dictionary = {}
-const PAINTS = {"robot_paint_stock":"ffffff","robot_paint_sand":"dcc9a5","robot_paint_cobalt":"92b6ea","robot_paint_sage":"9bc8ad","robot_paint_crimson":"df969b","robot_paint_gold":"e5c685"}
+const PAINTS = {"robot_paint_stock":"fff3dc","robot_paint_sand":"dcc9a5","robot_paint_cobalt":"92b6ea","robot_paint_sage":"9bc8ad","robot_paint_crimson":"df969b","robot_paint_gold":"e5c685"}
 var regions: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/robot_atlas.json"))
 const HEIGHTS = {
 	"robot_shell_stock":14.0, "robot_shell_copper":17.0, "robot_shell_cobalt":18.0,
@@ -81,7 +84,7 @@ func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking:
 	return pieces
 
 func piece(id: String, side: String, destination: Rect2, rotation: float = 0.0) -> Dictionary:
-	return {"id":id,"source":source(id,side),"rect":destination,"rotation":rotation}
+	return {"id":id,"side":side,"source":source(id,side),"rect":destination,"rotation":rotation}
 
 func vertices(piece_data: Dictionary) -> PackedVector2Array:
 	var rect: Rect2 = piece_data.rect
@@ -112,34 +115,65 @@ func build_description(outfit: Dictionary) -> String:
 	var original := bounds({}).size
 	return "Your build / %.2fx original height  /  %.2fx original width" % [size.y/original.y,size.x/original.x]
 
-func texture_for(id: String) -> Texture2D:
+func texture_for(id: String, angle: int = 0) -> Texture2D:
+	if angle != 0: return BACK_ATLAS if angle == 2 else SIDE_ATLAS
 	var key := 1 if id.ends_with("_explorer") or id.ends_with("_loader") else 0
 	if not neutral_atlases.has(key):
 		var image: Image = (ATLAS_V2 if key == 1 else ATLAS).get_image()
 		if image.is_compressed(): image.decompress()
-		image.adjust_bcs(1,1,0)
+		image.adjust_bcs(1.45,1.1,0)
 		neutral_atlases[key] = ImageTexture.create_from_image(image)
 	return neutral_atlases[key]
 
 func finish_color(outfit: Dictionary) -> Color:
 	return Color(PAINTS.get(outfit.get("robot_paint","robot_paint_stock"),"ffffff"))
 
-func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}, seated: bool = false) -> void:
+func oriented_pose(outfit: Dictionary, time: float, mood: String, walking: bool, seated: bool, angle: int) -> Array:
+	var pieces := pose(outfit,time,mood,walking,seated)
+	if angle == 0: return pieces
+	var view: Dictionary = directional["back" if angle == 2 else "side"]
+	var body := part_size(resolve("robot_shell",outfit))
+	for part in pieces:
+		var data: Array = view[part.id][part.side]
+		part.source = Rect2(data[0],data[1],data[2],data[3])
+		var rect: Rect2 = part.rect
+		var width: float = part.source.size.x/part.source.size.y*rect.size.y
+		var center := rect.get_center().x
+		if angle != 2:
+			center = (body.x*0.08 if part.side == "right" else -body.x*0.08) if part.id.begins_with("robot_arms") or part.id.begins_with("robot_legs") else -body.x*0.35 if part.id.begins_with("robot_core") else 0.0
+		part.rect = Rect2(center-width/2,rect.position.y,width,rect.size.y)
+		part.rank = 5 if part.id.begins_with("robot_core") and angle == 2 else -1 if part.side == "left" and angle != 2 else 4 if part.side == "right" and angle != 2 else 1
+	pieces.sort_custom(func(a,b): return a.rank < b.rank)
+	return pieces
+
+func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}, seated: bool = false, angle: int = 0) -> void:
 	var hop := absf(sin(time*2))*0.3 if mood in ["happy","upgraded"] and not seated else 0.0
 	var origin := feet - Vector2(0,hop)
-	var atlas_size := Vector2(ATLAS.get_size())
-	for part in pose(outfit,time,mood,walking,seated):
+	var texture: Texture2D = texture_for("robot_shell_stock",angle)
+	var atlas_size := Vector2(texture.get_size())
+	var lamp := work_lamp_polygon(outfit,mood)
+	if not lamp.is_empty() and angle != 2:
+		for index in range(lamp.size()): lamp[index] += origin
+		target.draw_colored_polygon(lamp,Color(1,0.96,0.8,0.09))
+	for part in oriented_pose(outfit,time,mood,walking,seated,angle):
 		var points := vertices(part)
 		for i in range(points.size()):
+			if angle == 3: points[i].x = -points[i].x
 			points[i] += origin
 		var src: Rect2 = part.source
 		var uv := PackedVector2Array([src.position,Vector2(src.end.x,src.position.y),src.end,Vector2(src.position.x,src.end.y)])
 		for i in range(uv.size()):
 			uv[i] /= atlas_size
-		var tint := finish_color(outfit) * (Color(0.74,0.82,0.88) if mood == "sad" else Color.WHITE)
-		target.draw_polygon(points,PackedColorArray([tint]),uv,texture_for(part.id))
+		var tint := finish_color(outfit)
+		target.draw_polygon(points,PackedColorArray([tint]),uv,texture_for(part.id,angle))
 	if mood == "charging":
 		var right_edge := bounds(outfit).end.x
 		for i in range(3):
 			target.draw_rect(Rect2(origin + Vector2(right_edge+2,-8-i*4),Vector2(0.7,1.5)),Color("8ae9d8"))
+
+
+func work_lamp_polygon(outfit: Dictionary, mood: String) -> PackedVector2Array:
+	if mood != "working" or resolve("robot_visor",outfit) not in ["robot_visor_wide","robot_visor_amber","robot_visor_loader"]: return PackedVector2Array()
+	var head_y := bounds(outfit).position.y+5
+	return PackedVector2Array([Vector2(4,head_y),Vector2(23,head_y-3),Vector2(23,head_y+8)])
 

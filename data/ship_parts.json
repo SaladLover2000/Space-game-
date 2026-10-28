@@ -5,7 +5,8 @@
     "name": "Original twin engines",
     "description": "Keep the familiar twin pods and soft white exhaust.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "engine_hauler",
@@ -14,7 +15,10 @@
     "description": "Wide reinforced engine collars and visible cooling fins. Requires a complete engine overhaul.",
     "price": 80,
     "xp": 0,
-    "requires": "engine"
+    "requires": "engine",
+    "effects": {
+      "repair_percent": 20
+    }
   },
   {
     "id": "engine_ion",
@@ -23,7 +27,10 @@
     "description": "Longer cyan-lit engine shrouds. Keeps the peaceful white exhaust effect.",
     "price": 120,
     "xp": 60,
-    "requires": "engine"
+    "requires": "engine",
+    "effects": {
+      "cruise_percent": 15
+    }
   },
   {
     "id": "hull_stock",
@@ -31,7 +38,8 @@
     "name": "Original hull plates",
     "description": "The ship's original chamfered pressure hull.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "hull_ribs",
@@ -39,15 +47,22 @@
     "name": "Ribbed cargo armor",
     "description": "External structural ribs and reinforced belly panels.",
     "price": 75,
-    "xp": 0
+    "xp": 0,
+    "effects": {
+      "damage_reduction": 1
+    }
   },
   {
     "id": "hull_shielded",
     "slot": "hull",
     "name": "Ceramic hull cladding",
-    "description": "Pale layered armor tiles and teal service strips. Visual equipment, with no combat statistics.",
+    "description": "Layered ceramic armor tiles with repair access channels.",
     "price": 140,
-    "xp": 80
+    "xp": 80,
+    "effects": {
+      "damage_reduction": 1,
+      "repair_percent": 10
+    }
   },
   {
     "id": "wings_stock",
@@ -55,7 +70,8 @@
     "name": "Original stabilizers",
     "description": "Keep the starter fins.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "wings_swept",
@@ -63,7 +79,10 @@
     "name": "Swept stabilizer kit",
     "description": "Longer swept upper and lower fin extensions.",
     "price": 70,
-    "xp": 0
+    "xp": 0,
+    "effects": {
+      "cruise_percent": 8
+    }
   },
   {
     "id": "wings_solar",
@@ -71,7 +90,10 @@
     "name": "Solar fin arrays",
     "description": "Blue photovoltaic panels mounted along the stabilizers.",
     "price": 120,
-    "xp": 60
+    "xp": 60,
+    "effects": {
+      "battery_percent": 10
+    }
   },
   {
     "id": "paint_stock",
@@ -79,7 +101,8 @@
     "name": "Original steel & copper",
     "description": "The starter steel hull with copper trim.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "paint_cobalt",
@@ -87,7 +110,8 @@
     "name": "Cobalt livery",
     "description": "Deep blue hull accents and ice-blue stripes.",
     "price": 25,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "paint_copper",
@@ -95,7 +119,8 @@
     "name": "Warm copper livery",
     "description": "Warm copper panels with cream markings.",
     "price": 25,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "antenna_stock",
@@ -103,7 +128,8 @@
     "name": "Original communications dish",
     "description": "Keep the starter dish and mast.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "antenna_dish",
@@ -111,7 +137,10 @@
     "name": "Deep-space dish",
     "description": "A larger articulated communications dish.",
     "price": 50,
-    "xp": 0
+    "xp": 0,
+    "effects": {
+      "xp_percent": 2
+    }
   },
   {
     "id": "antenna_sensor",
@@ -119,7 +148,10 @@
     "name": "Sensor crown",
     "description": "Twin sensor masts and violet-lit receiver bars.",
     "price": 90,
-    "xp": 50
+    "xp": 50,
+    "effects": {
+      "xp_percent": 3
+    }
   },
   {
     "id": "lights_stock",
@@ -127,23 +159,26 @@
     "name": "Original marker lamps",
     "description": "The ship's original understated lamps.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "lights_teal",
     "slot": "lights",
-    "name": "Teal running lights",
-    "description": "Bright teal guidance lights along the hull.",
+    "name": "Turquoise marker fixtures",
+    "description": "Recessed industrial lamps in armored housings. Cosmetic; steady light, no neon strips.",
     "price": 30,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "lights_violet",
     "slot": "lights",
-    "name": "Violet running lights",
-    "description": "Violet hull lights with warm gold markers.",
+    "name": "Lavender marker fixtures",
+    "description": "Small contained navigation lamps with warm metal mounting brackets. Cosmetic; no outline lighting.",
     "price": 30,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "interior_stock",
@@ -151,7 +186,8 @@
     "name": "Industrial steel interior",
     "description": "Original steel bulkheads and a clear side-on maintenance deck.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "interior_habitat",
@@ -159,7 +195,8 @@
     "name": "Warm habitat interior",
     "description": "Warm bronze bulkheads, amber lamps and a cozy deck palette.",
     "price": 60,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "interior_lab",
@@ -167,7 +204,8 @@
     "name": "Cyan laboratory interior",
     "description": "Deep navy walls, cool silver equipment and cyan lighting.",
     "price": 90,
-    "xp": 40
+    "xp": 40,
+    "effects": {}
   },
   {
     "id": "robot_shell_stock",
@@ -175,7 +213,8 @@
     "name": "Compact service chassis",
     "price": 0,
     "xp": 0,
-    "description": "A compact, tapered service body with silver and blue armor. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A compact, tapered service body with warm white armor. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
   },
   {
     "id": "robot_shell_copper",
@@ -183,7 +222,10 @@
     "name": "Salvage chassis",
     "price": 35,
     "xp": 0,
-    "description": "A rounded ochre salvage body with a wider chest and shoulder sockets. Changes the assembled silhouette. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A rounded ceramic salvage body with a wider chest and shoulder sockets. Changes the assembled silhouette. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 10
+    }
   },
   {
     "id": "robot_shell_cobalt",
@@ -191,7 +233,10 @@
     "name": "Survey chassis",
     "price": 70,
     "xp": 35,
-    "description": "A narrow elongated metal body with exposed mechanical ribs. Adds torso height. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A narrow elongated metal body with exposed mechanical ribs. Adds torso height. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 2
+    }
   },
   {
     "id": "robot_visor_stock",
@@ -199,7 +244,8 @@
     "name": "Twin-eye service head",
     "price": 0,
     "xp": 0,
-    "description": "A compact chamfered head with expressive cyan optics and antennae. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A compact chamfered head with expressive bright optics and antennae. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
   },
   {
     "id": "robot_visor_wide",
@@ -207,7 +253,10 @@
     "name": "Dome visor head",
     "price": 30,
     "xp": 0,
-    "description": "A low rounded salvage head with a broad cyan visor. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A low rounded salvage head with a broad cyan visor. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "work_lamp": 1
+    }
   },
   {
     "id": "robot_visor_amber",
@@ -215,7 +264,11 @@
     "name": "Twin sensor head",
     "price": 55,
     "xp": 25,
-    "description": "A taller cylindrical head with sensor survey lenses and aerials. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A taller cylindrical head with sensor survey lenses and aerials. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 5,
+      "work_lamp": 1
+    }
   },
   {
     "id": "robot_arms_stock",
@@ -223,7 +276,8 @@
     "name": "Service claw arms",
     "price": 0,
     "xp": 0,
-    "description": "Articulated slim arms with shoulder bearings and small fingers. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "Articulated slim arms with shoulder bearings and small fingers. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
   },
   {
     "id": "robot_arms_utility",
@@ -231,7 +285,10 @@
     "name": "Heavy salvage arms",
     "price": 45,
     "xp": 0,
-    "description": "Wider lifter arms, heavy elbow joints and large articulated grippers. Increases total span. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "Wider lifter arms, heavy elbow joints and large articulated grippers. Increases total span. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 20
+    }
   },
   {
     "id": "robot_arms_precision",
@@ -239,7 +296,10 @@
     "name": "Long precision arms",
     "price": 85,
     "xp": 50,
-    "description": "Longer survey arms with exposed actuators and fine-tipped fingers. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "Longer survey arms with exposed actuators and fine-tipped fingers. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 3
+    }
   },
   {
     "id": "robot_legs_stock",
@@ -247,7 +307,8 @@
     "name": "Service piston legs",
     "price": 0,
     "xp": 0,
-    "description": "Standard piston legs, knee bearings and metal deck shoes. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "Standard piston legs, knee bearings and metal deck shoes. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
   },
   {
     "id": "robot_legs_boots",
@@ -255,7 +316,10 @@
     "name": "Short magnetic legs",
     "price": 40,
     "xp": 0,
-    "description": "A lower, broader stance with reinforced magnetic boots. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A lower, broader stance with reinforced magnetic boots. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 5
+    }
   },
   {
     "id": "robot_legs_strider",
@@ -263,7 +327,10 @@
     "name": "Tall survey legs",
     "price": 80,
     "xp": 40,
-    "description": "Long spring-and-piston legs raise the body and change standing height. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "Long spring-and-piston legs raise the body and change standing height. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "move_percent": 20
+    }
   },
   {
     "id": "robot_core_stock",
@@ -271,7 +338,8 @@
     "name": "Chest battery cartridge",
     "price": 0,
     "xp": 0,
-    "description": "A compact cyan power cartridge that attaches to the current chassis. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A compact cyan power cartridge that attaches to the current chassis. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
   },
   {
     "id": "robot_core_beacon",
@@ -279,7 +347,10 @@
     "name": "Salvage beacon module",
     "price": 50,
     "xp": 0,
-    "description": "A larger reinforced cyan beacon mounted on the chest. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A larger reinforced service beacon mounted on the chest. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 2
+    }
   },
   {
     "id": "robot_core_solar",
@@ -287,95 +358,130 @@
     "name": "Solar survey backpack",
     "price": 100,
     "xp": 60,
-    "description": "A separate backpack with blue solar fins, visible behind the shoulders. Cosmetic equipment; study rewards stay the same. Shape only; finish is chosen separately in Robot / Paint."
+    "description": "A separate backpack with ceramic solar fins, visible behind the shoulders. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "battery_percent": 10
+    }
   },
   {
     "id": "robot_visor_explorer",
     "slot": "robot_visor",
     "name": "Explorer binocular head",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 45,
-    "xp": 10
+    "xp": 10,
+    "effects": {
+      "xp_percent": 3
+    }
   },
   {
     "id": "robot_shell_explorer",
     "slot": "robot_shell",
     "name": "Explorer barrel chassis",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 45,
-    "xp": 10
+    "xp": 10,
+    "effects": {
+      "move_percent": 5
+    }
   },
   {
     "id": "robot_arms_explorer",
     "slot": "robot_arms",
     "name": "Explorer claw arms",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 45,
-    "xp": 10
+    "xp": 10,
+    "effects": {
+      "repair_percent": 10
+    }
   },
   {
     "id": "robot_legs_explorer",
     "slot": "robot_legs",
     "name": "Explorer spring legs",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 45,
-    "xp": 10
+    "xp": 10,
+    "effects": {
+      "move_percent": 12
+    }
   },
   {
     "id": "robot_core_explorer",
     "slot": "robot_core",
     "name": "Medical scanner module",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 45,
-    "xp": 10
+    "xp": 10,
+    "effects": {
+      "xp_percent": 3
+    }
   },
   {
     "id": "robot_visor_loader",
     "slot": "robot_visor",
     "name": "Loader camera head",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 85,
-    "xp": 30
+    "xp": 30,
+    "effects": {
+      "repair_percent": 10,
+      "work_lamp": 1
+    }
   },
   {
     "id": "robot_shell_loader",
     "slot": "robot_shell",
     "name": "Loader armored chassis",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 85,
-    "xp": 30
+    "xp": 30,
+    "effects": {
+      "repair_percent": 15
+    }
   },
   {
     "id": "robot_arms_loader",
     "slot": "robot_arms",
     "name": "Loader hydraulic fists",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 85,
-    "xp": 30
+    "xp": 30,
+    "effects": {
+      "repair_percent": 25
+    }
   },
   {
     "id": "robot_legs_loader",
     "slot": "robot_legs",
     "name": "Loader piston boots",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 85,
-    "xp": 30
+    "xp": 30,
+    "effects": {
+      "repair_percent": 10
+    }
   },
   {
     "id": "robot_core_loader",
     "slot": "robot_core",
     "name": "Twin-cylinder reactor pack",
-    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish.",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
     "price": 85,
-    "xp": 30
+    "xp": 30,
+    "effects": {
+      "repair_percent": 20
+    }
   },
   {
     "id": "robot_paint_stock",
     "slot": "robot_paint",
-    "name": "Neutral metal",
-    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "name": "Warm white ceramic",
+    "description": "Ivory-white armor over dark mechanical joints. Shared by all mixed modules.",
     "price": 0,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "robot_paint_sand",
@@ -383,7 +489,8 @@
     "name": "Sand ceramic",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "robot_paint_cobalt",
@@ -391,7 +498,8 @@
     "name": "Cobalt blue",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "robot_paint_sage",
@@ -399,7 +507,8 @@
     "name": "Sage green",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "robot_paint_crimson",
@@ -407,7 +516,8 @@
     "name": "Crimson enamel",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   },
   {
     "id": "robot_paint_gold",
@@ -415,6 +525,7 @@
     "name": "Warm brass",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
-    "xp": 0
+    "xp": 0,
+    "effects": {}
   }
 ]

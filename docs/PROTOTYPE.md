@@ -56,3 +56,6 @@ The 3D tab now defaults to a real continuously orbiting solid ship with UV-mappe
 
 Latest robot service update: 25 hardware designs, 3,125 mixed builds, six independent whole-robot finishes, and a timed rack/install/release maintenance lift. Full background runner: 344 assertions across 15 suites plus editor import, with no script errors. See ROBOT-SERVICE-BAY.md and robot-service-check-results.json. No visible game window was opened.
 
+
+Latest component workshop update: warm white base armor with no low-battery paint dimming; isolated component cards and direct robot slot tabs; four directional robot views with separate profile/rear artwork; pixel-art workshop and detailed installed engines/fins/contained marker fixtures; real equipment effects with snapshotted focus rewards. Final background runner passed editor import plus 369 assertions across 16 suites, without script errors. See COMPONENT-WORKSHOP.md and component-workshop-check-results.json. No visible game window was opened.
+
