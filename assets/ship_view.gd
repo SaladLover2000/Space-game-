@@ -8,8 +8,9 @@ var interactive: bool = false
 var rooms: Dictionary = {}
 var selected_room: String = ""
 var hovered_room: String = ""
-var camera := Rect2(0, 0, 280, 150)
+var camera := Rect2(-70, -45, 420, 240)
 var camera_tween: Tween
+var zoom_level: float = 1.0
 var reaction_left: float = 0.0
 var upgrade_reaction: bool = false
 const SpaceBackdrop = preload("res://assets/space_backdrop.gd")
@@ -27,7 +28,10 @@ var hull_art := HullArt.new()
 var robot_art := RobotArt.new()
 var robot_position := Vector2(143, 103)
 var robot_tween: Tween
-const ROOM_CAMERA_SIZE = Vector2(280, 150)
+var robot_destination := Vector2(143, 103)
+var waiting_hatch: String = ""
+var robot_walking: bool = false
+const ROOM_CAMERA_SIZE = Vector2(420, 240)
 const ShipComponents = preload("res://assets/ship_components.gd")
 var components := ShipComponents.new()
 signal part_selected(slot: String)
@@ -40,7 +44,7 @@ func equipment() -> Dictionary:
 	return preview_equipped if not preview_equipped.is_empty() else Game.state.equipped
 
 func part_regions() -> Dictionary:
-	return {"engine":[Rect2(232,60,33,47)], "wings":[Rect2(192,16,46,25), Rect2(190,119,49,24)], "antenna":[Rect2(157,16,28,28)], "hull":[Rect2(175,55,53,48)], "paint":[Rect2(103,61,50,35)], "lights":[Rect2(43,108,38,6)], "interior":[Rect2(35,62,54,35)]}
+	return {"engine":[Rect2(232,60,33,47)], "wings":[Rect2(192,16,46,25), Rect2(190,119,49,24), Rect2(185,0,40,28), Rect2(152,127,75,28)], "antenna":[Rect2(157,16,28,28)], "hull":[Rect2(175,55,53,48)], "paint":[Rect2(103,61,50,35)], "lights":[Rect2(43,108,38,6)], "interior":[Rect2(35,62,54,35)]}
 
 func part_at(local_position: Vector2) -> String:
 	if not Rect2(Vector2.ZERO, size).has_point(local_position):
@@ -68,6 +72,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	clock += delta
+	advance_robot(delta)
 	for id in door_open:
 		door_progress[id] = move_toward(door_progress[id], 1.0 if door_open[id] else 0.0, delta * 3.0)
 	reaction_left = maxf(0.0, reaction_left - delta)
@@ -108,34 +113,52 @@ func focus_room(id: String) -> void:
 	selected_room = id
 	selected_object = -1
 	hovered_object = -1
-	var target := Rect2(0, 0, 280, 150)
 	if not id.is_empty():
-		# Selection changes the inspector and companion target, never the scale.
 		follow_robot(id)
-	if camera_tween:
-		camera_tween.kill()
-	camera_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	camera_tween.tween_method(func(value: Rect2): camera = value; queue_redraw(), camera, target, 0.5)
+
+func change_zoom(factor: float) -> void:
+	zoom_level = clampf(zoom_level * factor, 0.65, 2.8)
+	var extent := Vector2(420, 240) / zoom_level
+	camera = Rect2(Vector2(140, 75) - extent * 0.5, extent)
+	queue_redraw()
+
+func reset_zoom() -> void:
+	zoom_level = 1.0
+	change_zoom(1.0)
 
 func follow_robot(id: String) -> void:
 	var anchors := {"cockpit": Vector2(80, 103), "quarters": Vector2(143, 103), "engine": Vector2(205, 103)}
-	if not anchors.has(id):
-		return
-	if robot_tween:
-		robot_tween.kill()
-	var destination: Vector2 = anchors[id]
-	# Keep automatic companion travel unobstructed; no movement input is needed.
+	if anchors.has(id):
+		robot_destination = anchors[id]
+
+func advance_robot(delta: float) -> void:
+	var target := robot_destination
+	waiting_hatch = ""
+	var direction := signf(target.x - robot_position.x)
+	var nearest: float = INF
 	for hatch in door_open:
 		var hatch_x: float = 95 if hatch == "bridge" else 172
-		if minf(robot_position.x, destination.x) < hatch_x and maxf(robot_position.x, destination.x) > hatch_x and not door_open[hatch]:
-			door_open[hatch] = true
-			door_toggled.emit(hatch, true)
-	var duration := clampf(robot_position.distance_to(destination) / 150.0, 0.2, 0.8)
-	robot_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	robot_tween.tween_property(self, "robot_position", destination, duration)
-
+		# Opening shutters must clear the doorway before the companion crosses.
+		if door_open[hatch] and door_progress[hatch] >= 0.95:
+			continue
+		if (hatch_x - robot_position.x) * direction >= 0 and (target.x - hatch_x) * direction > 0:
+			var distance_to_hatch := absf(hatch_x - robot_position.x)
+			if distance_to_hatch < nearest:
+				nearest = distance_to_hatch
+				target.x = hatch_x - direction * 10.0
+				# A hatch closing beside the robot must never pull it backwards.
+				if (target.x - robot_position.x) * direction < 0:
+					target.x = robot_position.x
+				waiting_hatch = hatch
+	var previous := robot_position
+	robot_position = robot_position.move_toward(target, maxf(0.0, delta) * 150.0)
+	robot_walking = not robot_position.is_equal_approx(previous)
 func _gui_input(event: InputEvent) -> void:
 	if not interactive:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		change_zoom(1.15 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.15)
+		accept_event()
 		return
 	if workshop_mode:
 		if event is InputEventMouseMotion:
@@ -257,4 +280,4 @@ func draw_interior() -> void:
 	hull_art.draw(self, Game.visual_repairs(), true)
 	interior_art.draw(self, rooms, Game.visual_repairs(), clock, door_progress, equipment().get("interior", "interior_stock"))
 	draw_interior_selection()
-	robot_art.draw(self, robot_position, clock, expression(), robot_tween != null and robot_tween.is_running())
+	robot_art.draw(self, robot_position, clock, expression(), robot_walking, equipment())

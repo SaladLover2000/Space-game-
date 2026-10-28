@@ -41,11 +41,11 @@ func run() -> void:
 	check(not game.active.paused and scene.pause_button.text == "Pause", "Resume button resumes game state and becomes Pause")
 	scene.open_compact()
 	await process_frame
-	check(scene.compact_window.always_on_top and scene.compact_window.force_native and scene.compact_window.visible, "compact timer requests a visible native topmost window")
-	scene.compact_window.close_requested.emit()
-	check(not scene.compact_window.visible and not game.active.is_empty(), "closing compact window hides it without canceling study")
+	check(scene.compact_panel.get_parent() == scene.root and scene.compact_panel.visible, "compact timer is an in-game panel, not a native popup")
+	scene.compact_hide_button.pressed.emit()
+	check(not scene.compact_panel.visible and not game.active.is_empty(), "closing compact window hides it without canceling study")
 	scene.open_compact()
-	check(scene.compact_window.visible, "compact timer can reopen")
+	check(scene.compact_panel.visible, "compact timer can reopen")
 	game.active.remaining_ms = 0
 	game.finish_session()
 	await process_frame

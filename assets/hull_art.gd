@@ -11,10 +11,11 @@ func plate(points: Array, fill: String, trim: String = "aebec0") -> void:
 		polygon.append(Vector2(p[0], p[1]))
 	canvas.draw_colored_polygon(polygon, Color(fill))
 	polygon.append(polygon[0])
-	canvas.draw_polyline(polygon, Color(trim), 1)
+	canvas.draw_polyline(polygon, Color(trim), 1, true)
 
 func draw(target: CanvasItem, owned: Array, cutaway: bool) -> void:
 	canvas = target
+	draw_wing_structure()
 	# Swept stabilizers behind the pressure hull, with inset armor and cooling slots.
 	plate([[188,55],[209,19],[222,19],[239,60]], "26394e", "c17d69")
 	plate([[196,51],[212,23],[220,23],[230,51]], "85949c")
@@ -195,3 +196,31 @@ func draw_service_structure() -> void:
 	box(47, 41, 22, 1, "405d70")
 	box(45, 36, 3, 1, "8cf1d6")
 	box(48, 118, 3, 1, "edb58a")
+func draw_wing_structure() -> void:
+	# Broad swept lifting surfaces and outboard nacelles give the vessel a frigate profile.
+	plate([[121,56],[168,28],[204,5],[221,5],[204,38],[185,61]], "17283b", "9db4bf")
+	plate([[141,52],[174,32],[207,10],[214,10],[195,37],[180,52]], "516c83", "b4c5c9")
+	plate([[165,41],[205,13],[209,13],[188,39]], "244761", "638caa")
+	plate([[178,34],[196,20],[201,20],[184,35]], "426995", "8da9c2")
+	for i in range(5):
+		box(183+i*3, 28-i*2, 2, 1, "b6c9d0")
+	plate([[122,106],[153,128],[199,151],[222,151],[205,119],[182,102]], "17283b", "9db4bf")
+	plate([[140,109],[159,124],[202,146],[215,146],[196,120],[180,110]], "536d83", "b4c5c9")
+	plate([[160,121],[201,142],[208,142],[187,122]], "284d70", "6d96b0")
+	# Segmented thermal vanes and copper feed tubes expose the construction.
+	for i in range(6):
+		box(164+i*5, 126+i*2, 2, 3, "1a2e44")
+		box(165+i*5, 126+i*2, 1, 2, "b5c7c9")
+	for y in [37, 117]:
+		plate([[176,y],[206,y],[214,y+4],[214,y+10],[177,y+10],[169,y+6]], "253f58", "b0c1c4")
+		box(178,y+2,22,2,"819cab")
+		box(179,y+7,26,1,"b78d6d")
+		for x in range(180,207,5):
+			box(x,y+4,2,2,"47697f")
+		box(208,y+3,3,5,"1b3045")
+		box(211,y+4,2,3,"9ee9df")
+	# Forward docking collar and sharply raked bow plating.
+	plate([[5,80],[17,64],[27,59],[19,77],[27,98],[17,94]], "263f57", "a9c0c4")
+	plate([[8,80],[18,68],[15,80],[20,91]], "52768e", "7e9eaf")
+	for y in [74,82,90]:
+		box(17,y,2,1,"cfb58a")

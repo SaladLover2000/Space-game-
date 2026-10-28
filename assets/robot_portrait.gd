@@ -2,13 +2,17 @@ extends Control
 const RobotArt = preload("res://assets/robot_art.gd")
 var art := RobotArt.new()
 var subject: Control
+var preview_equipped: Dictionary = {}
+var preview_mode: bool = false
+var clock: float = 0.0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(280, 300)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	clock += delta
 	queue_redraw()
 
 func _draw() -> void:
@@ -22,4 +26,7 @@ func _draw() -> void:
 	draw_set_transform(Vector2(size.x * 0.5, size.y - 20), 0, Vector2.ONE * scale_factor)
 	draw_rect(Rect2(-12, 2, 24, 2), Color("294d60"))
 	if is_instance_valid(subject):
-		art.draw(self, Vector2.ZERO, subject.clock, subject.expression())
+		art.draw(self, Vector2.ZERO, subject.clock, subject.expression(), false, Game.state.equipped)
+
+	elif preview_mode:
+		art.draw(self, Vector2.ZERO, clock, "idle", false, preview_equipped if not preview_equipped.is_empty() else Game.state.equipped)

@@ -1,8 +1,11 @@
 extends VBoxContainer
 const ShipView = preload("res://assets/ship_view.gd")
+const RobotPortrait = preload("res://assets/robot_portrait.gd")
 const PartIcon = preload("res://ui/part_icon.gd")
-const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs"}
+const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Shells", "robot_visor":"Robot / Optics", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs"}
 var ship_view: Control
+var robot_preview: Control
+var engine_title: Label
 var cards: GridContainer
 var detail: Label
 var feedback: Label
@@ -34,8 +37,12 @@ func button(parent: Node, value: String, callback: Callable) -> Button:
 func _ready() -> void:
 	add_theme_constant_override("separation", 12)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text(self, "SHIP WORKSHOP / Fit a little more personality into your home", 23)
-	text(self, "Click the ship's engines, fins, hull or equipment, or choose a category. Preview first; credits are spent only when you buy.", 16)
+	text(self, "SHIP & ROBOT WORKSHOP / Build your own little home", 23)
+	text(self, "Choose ship parts or robot upgrades. Scroll over the ship to zoom. Preview first; credits are spent only when you buy.", 16)
+	var destinations := HBoxContainer.new()
+	add_child(destinations)
+	button(destinations, "Ship parts", func(): select_slot("engine"))
+	button(destinations, "Robot upgrades", func(): select_slot("robot_shell"))
 	var upper := HBoxContainer.new()
 	upper.add_theme_constant_override("separation", 16)
 	add_child(upper)
@@ -47,6 +54,11 @@ func _ready() -> void:
 	ship_view.custom_minimum_size = Vector2(500, 330)
 	ship_view.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	ship_view.part_selected.connect(select_slot)
+	robot_preview = RobotPortrait.new()
+	robot_preview.preview_mode = true
+	robot_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	upper.add_child(robot_preview)
+	robot_preview.hide()
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 280
 	upper.add_child(panel)
@@ -54,7 +66,7 @@ func _ready() -> void:
 	aside.add_theme_constant_override("separation", 10)
 	panel.add_child(aside)
 	detail = text(aside, "", 17)
-	text(aside, "Engine condition", 15)
+	engine_title = text(aside, "Engine condition", 15)
 	condition = ProgressBar.new()
 	condition.custom_minimum_size.y = 24
 	aside.add_child(condition)
@@ -88,12 +100,15 @@ func select_slot(slot: String) -> void:
 		return
 	selected_slot = slot
 	ship_view.selected_slot = slot
+	robot_preview.visible = slot.begins_with("robot_")
+	ship_view.visible = not robot_preview.visible
 	ship_view.exterior = slot != "interior" and slot != "repairs"
 	clear_preview()
 
 func clear_preview() -> void:
 	preview_id = ""
 	ship_view.preview_equipped = {}
+	robot_preview.preview_equipped = {}
 	feedback.text = "Your equipped design is shown."
 	refresh()
 
@@ -104,6 +119,8 @@ func preview_part(id: String) -> void:
 	preview_id = id
 	ship_view.preview_equipped = Game.state.equipped.duplicate(true)
 	ship_view.preview_equipped[item.slot] = id
+	robot_preview.preview_equipped = ship_view.preview_equipped.duplicate(true)
+	robot_preview.queue_redraw()
 	ship_view.queue_redraw()
 	feedback.text = "PREVIEW ONLY / " + item.name + " — no credits spent."
 	detail.text = SLOTS[selected_slot] + "\nPreview: " + item.name
@@ -126,6 +143,10 @@ func refresh() -> void:
 		return
 	detail.text = SLOTS[selected_slot] + ("\nPreview: " + Game.part_by_id(preview_id).name if not preview_id.is_empty() else "\nEquipped design")
 	condition.value = Game.state.engine_condition
+	condition.visible = not selected_slot.begins_with("robot_")
+	engine_title.visible = condition.visible
+	if preview_id.is_empty():
+		robot_preview.preview_equipped = {}
 	var show_repairs := selected_slot in ["engine", "repairs"]
 	patch_button.visible = show_repairs
 	overhaul_button.visible = show_repairs
@@ -158,10 +179,18 @@ func build_card(item: Dictionary) -> void:
 	panel.add_child(body)
 	var header := HBoxContainer.new()
 	body.add_child(header)
-	var icon := PartIcon.new()
-	icon.slot = item.slot
-	icon.item_id = item.id
-	header.add_child(icon)
+	if item.slot.begins_with("robot_"):
+		var icon := RobotPortrait.new()
+		icon.preview_mode = true
+		icon.preview_equipped = Game.state.equipped.duplicate(true)
+		icon.preview_equipped[item.slot] = item.id
+		header.add_child(icon)
+		icon.custom_minimum_size = Vector2(100, 130)
+	else:
+		var icon := PartIcon.new()
+		icon.slot = item.slot
+		icon.item_id = item.id
+		header.add_child(icon)
 	var title := text(header, item.name, 19)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text(body, item.description, 15)

@@ -168,5 +168,125 @@
     "description": "Deep navy walls, cool silver equipment and cyan lighting.",
     "price": 90,
     "xp": 40
+  },
+  {
+    "id": "robot_shell_stock",
+    "slot": "robot_shell",
+    "name": "Original alloy shell",
+    "price": 0,
+    "xp": 0,
+    "description": "Familiar brushed alloy panels. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_shell_copper",
+    "slot": "robot_shell",
+    "name": "Copper explorer shell",
+    "price": 35,
+    "xp": 0,
+    "description": "Warm copper armor, cream highlights and reinforced shoulder plates. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_shell_cobalt",
+    "slot": "robot_shell",
+    "name": "Cobalt expedition shell",
+    "price": 70,
+    "xp": 35,
+    "description": "Deep blue armor with bright titanium edges. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_visor_stock",
+    "slot": "robot_visor",
+    "name": "Twin-eye visor",
+    "price": 0,
+    "xp": 0,
+    "description": "The original expressive twin-eye display. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_visor_wide",
+    "slot": "robot_visor",
+    "name": "Panoramic cyan visor",
+    "price": 30,
+    "xp": 0,
+    "description": "A single wide cyan display with a scanning highlight. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_visor_amber",
+    "slot": "robot_visor",
+    "name": "Amber survey optics",
+    "price": 55,
+    "xp": 25,
+    "description": "Raised amber survey lenses and a reinforced brow. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_arms_stock",
+    "slot": "robot_arms",
+    "name": "Standard grippers",
+    "price": 0,
+    "xp": 0,
+    "description": "Original two-finger hands. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_arms_utility",
+    "slot": "robot_arms",
+    "name": "Utility tool arms",
+    "price": 45,
+    "xp": 0,
+    "description": "Larger shoulder housings, wrist tools and articulated claws. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_arms_precision",
+    "slot": "robot_arms",
+    "name": "Precision manipulators",
+    "price": 85,
+    "xp": 50,
+    "description": "White precision cuffs with fine-tipped fingers. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_legs_stock",
+    "slot": "robot_legs",
+    "name": "Original piston legs",
+    "price": 0,
+    "xp": 0,
+    "description": "Lightweight legs and familiar feet. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_legs_boots",
+    "slot": "robot_legs",
+    "name": "Magnetic deck boots",
+    "price": 40,
+    "xp": 0,
+    "description": "Broad reinforced boots, ankle clamps and cyan sole lights. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_legs_strider",
+    "slot": "robot_legs",
+    "name": "Expedition leg braces",
+    "price": 80,
+    "xp": 40,
+    "description": "Long side braces and heavy heel guards. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_core_stock",
+    "slot": "robot_core",
+    "name": "Standard chest panel",
+    "price": 0,
+    "xp": 0,
+    "description": "Original recessed battery indicator. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_core_beacon",
+    "slot": "robot_core",
+    "name": "Beacon chest module",
+    "price": 50,
+    "xp": 0,
+    "description": "An animated cyan chest ring and raised protective housing. Visual upgrade; study rewards stay the same."
+  },
+  {
+    "id": "robot_core_solar",
+    "slot": "robot_core",
+    "name": "Solar study pack",
+    "price": 100,
+    "xp": 60,
+    "description": "A visible backpack with solar fins and an amber charge indicator. Visual upgrade; study rewards stay the same."
   }
 ]

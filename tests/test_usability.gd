@@ -58,15 +58,43 @@ func run() -> void:
 		await create_timer(0.9).timeout
 		check(view.room_bounds(id).has_point(view.robot_position - Vector2(0, 16)), "robot follows into " + id)
 		check(view.camera.has_point(view.robot_position - Vector2(0, 20)) and view.camera.encloses(view.room_bounds(id)), "room and companion fit the wider camera in " + id)
-		check(view.camera == Rect2(0, 0, 280, 150), "selecting a room does not zoom or crop the ship in " + id)
+		check(view.camera == Rect2(-70, -45, 420, 240), "selecting a room does not zoom or crop the ship in " + id)
 		check(view.view_transform().get_scale().is_equal_approx(overview_scale), "inspector layout does not magnify the ship for " + id)
-	view.door_open.bridge = false
-	view.door_open.engine = false
-	scene.select_room("cockpit")
+	# Drive production movement with controlled elapsed time to test collision logic.
+	view.set_process(false)
+	view.robot_position = Vector2(80, 103)
+	view.door_open = {"bridge":false, "engine":false}
+	view.door_progress = {"bridge":0.0, "engine":0.0}
 	scene.select_room("engine")
-	await create_timer(0.9).timeout
-	check(view.room_bounds("engine").has_point(view.robot_position - Vector2(0, 16)), "rapid room changes redirect the robot to the last selected room")
-	check(view.door_open.engine, "companion travel opens a hatch on its route")
+	view.advance_robot(10.0)
+	check(view.robot_position.x == 85 and not view.door_open.bridge, "closed bridge blocks even a long movement frame without opening itself")
+	view.toggle_door("bridge")
+	view.door_progress.bridge = 0.5
+	view.advance_robot(10.0)
+	check(view.robot_position.x == 85, "robot waits until the opening shutter clears the doorway")
+	view.door_progress.bridge = 1.0
+	view.advance_robot(10.0)
+	check(view.robot_position.x == 162 and view.waiting_hatch == "engine", "opening bridge resumes travel but the closed engine hatch blocks the route")
+	view.toggle_door("engine")
+	view.door_progress.engine = 1.0
+	view.advance_robot(10.0)
+	check(view.robot_position == Vector2(205,103), "opening the engine hatch resumes the pending room destination")
+	view.toggle_door("engine")
+	view.door_progress.engine = 0.0
+	scene.select_room("cockpit")
+	view.advance_robot(10.0)
+	check(view.robot_position.x == 182, "closed hatch also blocks travel from the engine side")
+	view.toggle_door("engine")
+	view.door_progress.engine = 1.0
+	view.advance_robot(0.05)
+	view.toggle_door("engine")
+	view.advance_robot(10.0)
+	check(view.robot_position.x >= 172, "closing a hatch during approach stops the robot before crossing")
+	view.toggle_door("engine")
+	view.door_progress.engine = 1.0
+	view.advance_robot(10.0)
+	check(view.robot_position == Vector2(80,103), "robot continues toward the selected room after reopening")
+	view.set_process(true)
 	game.start_session(25)
 	var session_id: String = game.active.id
 	scene.select_room("cockpit")
@@ -80,6 +108,18 @@ func run() -> void:
 		await process_frame
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://docs/room-following.png")
+	scene.show_page("ship")
+	game.start_session(25)
+	await process_frame
+	check(scene.timer_label.get_theme_font_size("font_size") >= 64 and scene.timer_label.text.contains("25:"), "large main timer displays the active countdown")
+	scene.open_compact()
+	await process_frame
+	check(scene.compact_panel.get_parent() == scene.root and scene.compact_label.get_theme_font_size("font_size") >= 32, "timer is readable inside the game and creates no popup")
+	if DisplayServer.get_name() != "headless" and "--capture" in OS.get_cmdline_user_args():
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://docs/wide-ship-large-timer.png")
+	scene.compact_hide_button.pressed.emit()
+	game.cancel_session()
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix):
 			DirAccess.remove_absolute(game.save_path + suffix)

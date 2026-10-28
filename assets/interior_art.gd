@@ -169,7 +169,8 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 	box(231, 91, 3, 1, "b9bfa9")
 	for py in [93, 95]:
 		box(231, py, 2, 1, "8c7257")
-	# Animated bulkhead shutters connect cockpit → quarters → engine.
+	draw_system_detail(owned, time)
+	# Animated bulkhead shutters connect cockpit â†’ quarters â†’ engine.
 	for id in doors:
 		var x: int = 91 if id == "bridge" else 168
 		var openness: float = doors[id]
@@ -183,3 +184,68 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 			box(x + 7 - shutter, 75, shutter, 26, "768b96")
 		box(x + 1, 101, 6, 2, "e3bd73")
 		box(x + 6, 69, 2, 2, "7fe8be" if openness > 0.9 else "e2a770")
+
+func system_status(owned: Array, time: float) -> Dictionary:
+	return {"engine_broken": "engine" not in owned, "bridge_broken": "cockpit" not in owned, "quarters_broken": "quarters" not in owned, "warning_on": fposmod(time, 1.2) < 0.6}
+
+func pipe(points: Array, broken: bool) -> void:
+	var line := PackedVector2Array()
+	for point in points:
+		line.append(Vector2(point[0],point[1]))
+	canvas.draw_polyline(line, Color("18283a"), 3.5)
+	canvas.draw_polyline(line, Color("b1816c" if broken else "829fa8"), 2.0)
+	canvas.draw_polyline(line, Color("d2a48b" if broken else "b4d0cd"), 0.6)
+
+func draw_system_detail(owned: Array, time: float) -> void:
+	var status := system_status(owned, time)
+	# Broken engine feed has a real gap and twisted ends; restoration joins it.
+	if status.engine_broken:
+		pipe([[177,76],[178,68],[184,68],[185,65],[194,65]], true)
+		pipe([[200,63],[205,64],[215,64],[218,69]], true)
+		box(194,64,2,3,"111f32")
+		box(199,62,2,3,"111f32")
+		for i in range(5):
+			var age := fposmod(time * 0.7 + i * 0.21, 1.0)
+			var steam := Color(0.68,0.82,0.87,(1.0-age)*0.32)
+			canvas.draw_circle(Vector2(197 + sin(age*5+i)*2, 64-age*11),1+age*2,steam)
+		# Dislodged access cover, exposed wires and a dark cracked reactor cell.
+		box(201,76,3,13,"132237")
+		pipe([[202,78],[204,82],[201,85],[203,88]], true)
+		canvas.draw_line(Vector2(207,94),Vector2(216,97),Color("a18b77"),2)
+		canvas.draw_line(Vector2(216,97),Vector2(215,101),Color("607886"),2)
+		box(211,95,2,1,"d2af77")
+	else:
+		pipe([[177,76],[178,65],[215,65],[218,69]], false)
+		for x in [182,199,213]:
+			box(x,64,2,3,"b5c5ba")
+	# Alarm fixture alternates bright red and dark red only while damaged.
+	box(228,57,7,4,"172a3e")
+	var alarm := Color("ff5963" if status.warning_on else "672b3b") if status.engine_broken else Color("7ee8c6")
+	canvas.draw_rect(Rect2(230,58,3,2),alarm)
+	if status.engine_broken and status.warning_on:
+		canvas.draw_circle(Vector2(231.5,59),5,Color(1,0.18,0.22,0.08))
+	# Bridge cracked glass and an open console fascia become sound fittings.
+	if status.bridge_broken:
+		var crack := PackedVector2Array([Vector2(59,62),Vector2(56,67),Vector2(60,70),Vector2(58,75)])
+		canvas.draw_polyline(crack,Color("9cb9bf"),0.6)
+		canvas.draw_line(Vector2(56,67),Vector2(52,65),Color("9cb9bf"),0.6)
+		box(45,89,10,5,"142235")
+		pipe([[46,90],[48,92],[50,90],[52,93]],true)
+	else:
+		box(45,90,10,3,"647f8e")
+		for x in [46,49,52]:
+			box(x,91,1,1,"a2eddb")
+	# Habitation has wall sockets, individual supplies and a damaged ceiling cable.
+	for x in [112,116,120]:
+		box(x,65,2,2,"b0b3a5")
+		box(x,65,1,1,"e4d9b1")
+	if status.quarters_broken:
+		pipe([[146,61],[146,67],[149,70],[147,74]],true)
+		canvas.draw_line(Vector2(147,74),Vector2(150,78),Color("c19a72"),0.8)
+		box(153,94,5,3,"192c40")
+		canvas.draw_line(Vector2(154,94),Vector2(160,97),Color("9f8b7c"),1)
+	else:
+		pipe([[146,61],[146,65],[153,65]],false)
+		box(153,94,5,3,"788f9b")
+	for x in [38,73,105,158,180,226]:
+		box(x,96,2,1,"b2c2bd")

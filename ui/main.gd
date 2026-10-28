@@ -16,7 +16,9 @@ var duration: SpinBox
 var presets: HBoxContainer
 var current_page := "menu"
 var notice := ""
-var compact_window: Window
+var compact_panel: PanelContainer
+var compact_hide_button: Button
+var compact_pause_button: Button
 var compact_label: Label
 var sound_player: AudioStreamPlayer
 var ship_view: Control
@@ -162,6 +164,7 @@ func show_page(page: String) -> void:
 			drift_status = label("")
 			content.add_child(drift_status)
 			paragraph("A little home passing quietly through a colorful universe.")
+			button(content, "Customize robot in the shop", func(): show_page("shop"); workshop.select_slot("robot_shell"))
 			button(content, "Return to ship & study", func(): show_page("ship"))
 		"ship":
 			var row := HBoxContainer.new()
@@ -177,7 +180,7 @@ func show_page(page: String) -> void:
 			for minutes in [25, 45, 60, 90, 120]:
 				var value: int = minutes
 				button(presets, str(minutes), func(): duration.value = value)
-			timer_label = label("", 36)
+			timer_label = label("", 64)
 			content.add_child(timer_label)
 			reward_label = label("", 17)
 			reward_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -212,6 +215,7 @@ func show_page(page: String) -> void:
 			content.add_child(battery)
 			paragraph("Condition / weathered shell, functional study dock. A small companion finding its spark again.")
 			paragraph("During a session the dock pulses gently. Battery is awarded on completion; pausing or canceling never drains it.")
+			button(content, "Customize robot in the shop", func(): show_page("shop"); workshop.select_slot("robot_shell"))
 			button(content, "Return to ship & study", func(): show_page("ship"))
 		"stats":
 			paragraph("YOUR STUDY LOG")
@@ -302,6 +306,12 @@ func build_ship_explorer() -> void:
 	ship_view.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	ship_view.room_selected.connect(select_room)
 	ship_view.object_selected.connect(inspect_object)
+	var zoom_controls := HBoxContainer.new()
+	content.add_child(zoom_controls)
+	button(zoom_controls, "− Zoom out", func(): ship_view.change_zoom(1.0 / 1.15))
+	button(zoom_controls, "+ Zoom in", func(): ship_view.change_zoom(1.15))
+	button(zoom_controls, "Fit ship", func(): ship_view.reset_zoom())
+	zoom_controls.add_child(label("Mouse wheel over ship to zoom", 14))
 	ship_view.door_toggled.connect(func(_id: String, _opened: bool): update_room_panel())
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 250
@@ -398,7 +408,7 @@ func update_timer() -> void:
 		timer_label.text = time_text()
 		reward_label.text = "On completion / +%d credits · +%d research XP · +%d%% battery (up to 100%%)" % [minutes * int(Game.balance.credits_per_minute), minutes * int(Game.balance.xp_per_minute), minutes * int(Game.balance.battery_per_minute)]
 	if is_instance_valid(compact_label):
-		compact_label.text = "  %s\n  %s" % [Game.state.robot, time_text()]
+		compact_label.text = "%s\n%s" % [Game.state.robot, time_text() if not Game.active.is_empty() else "Ready"]
 
 func confirm_cancel() -> void:
 	if Game.active.is_empty():
@@ -411,25 +421,21 @@ func confirm_cancel() -> void:
 	dialog.popup_centered()
 
 func open_compact() -> void:
-	if is_instance_valid(compact_window):
-		compact_window.show()
+	if is_instance_valid(compact_panel):
+		compact_panel.show()
+		update_timer()
 		return
-	compact_window = Window.new()
-	compact_window.hide()
-	compact_window.title = "Little Orbit / Focus"
-	compact_window.size = Vector2i(340, 170)
-	compact_window.unresizable = true
-	compact_window.always_on_top = true
-	compact_window.force_native = true
-	add_child(compact_window)
-	var column := VBoxContainer.new()
-	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	compact_window.add_child(column)
-	compact_label = label("", 24)
-	column.add_child(compact_label)
-	button(column, "Pause / Resume", func(): Game.toggle_pause())
-	compact_window.close_requested.connect(compact_window.hide)
-	compact_window.show()
+	compact_panel = PanelContainer.new()
+	root.add_child(compact_panel)
+	root.move_child(compact_panel, 3)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	compact_panel.add_child(row)
+	compact_label = label("", 32)
+	compact_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(compact_label)
+	compact_pause_button = button(row, "Pause / Resume", func(): Game.toggle_pause())
+	compact_hide_button = button(row, "Hide timer", func(): compact_panel.hide())
 	update_timer()
 
 func on_completed(credits: int, xp: int) -> void:

@@ -1,4 +1,4 @@
-# Little Orbit — Playable prototype, Phases 1–2
+# Little Orbit — Study game and modular workshop
 
 A native Godot 4 / GDScript single-player study game. No internet, assets, or external libraries are required to play.
 
@@ -8,20 +8,20 @@ For the larger standalone window on this PC, double-click `PLAY-GAME.cmd` in the
 
 Names now autosave after a short typing pause, on leaving the form, and on clean exit. Enter or the form button saves and continues. New-game setup is marked complete only by continuing. A failed save is shown on the form rather than reporting success.
 
-Room selection keeps the complete 280×150 ship view at the same scale. The inspector no longer stretches the drawing area and enlarges the ship. A cyan outline identifies the selected room while its equipment appears in the inspector. Selecting a room automatically moves the companion into it with a stepping animation. Hatches on the route open automatically; this requires no player movement input and changes no study rewards.
+The ship starts in a wide 420×240 camera. Scroll the mouse wheel over the ship to zoom from 0.65× to 2.8×, or use the Zoom and Fit ship buttons. Room selection preserves your chosen scale. The inspector no longer stretches the drawing area and enlarges the ship. A cyan outline identifies the selected room while its equipment appears in the inspector. Selecting a room automatically moves the companion into it with a stepping animation. Closed hatches block the companion in either direction. Open a hatch manually to resume the pending destination; the robot waits for its opening animation to clear. Movement changes no study rewards.
 
 1. Install Godot 4.4 or newer, standard edition (no .NET required).
 2. In the project manager choose **Import**, select `project.godot`, then **Import & Edit**.
 3. Press **F6** with `scenes/main.tscn` open, or **F5** to run the project.
 4. Choose **Begin your journey**, name your robot and ship, then start a session.
-5. Choose 25/45/60/90/120 minutes or type a custom whole-minute duration from 1–240. A completed 25-minute session earns 50 credits: open **Repairs** to restore the engine. The engine room and exhaust visibly light up.
-6. For a quick manual check use a custom **1 minute** session. Pause, resume, and try the compact window while studying in another application.
+5. Choose 25/45/60/90/120 minutes or type a custom whole-minute duration from 1–240. A completed 25-minute session earns 50 credits: open **Shop → Room repairs** to restore the engine. The engine room and exhaust visibly light up.
+6. For a quick manual check use a custom **1 minute** session. Pause, resume, and try the compact timer panel and its Hide timer button.
 7. Click a room in the ship or use the room buttons. The full ship remains visible and the room is highlighted; select equipment in the scene or its buttons to inspect it. Scroll down if necessary to see the full room panel. Choose **Back to overview** to clear the selection.
 8. Restore living quarters for 40 credits, the engine for 50, or the cockpit for 60. Each path is available immediately. View your companion's battery, expression and charging dock on **Robot**.
 9. Open **Drift** for a colorful exterior view: the hull gently rocks, soft white exhaust disperses, and shaded orange, turquoise and violet planets pass at different speeds. Your running study session continues and its status stays visible. Return to **Ship & study** to use the timer controls.
-10. Open **Interior** for the larger ship cutaway. Pick a room, then click the drawn equipment itself or its corresponding inspector button. Click either bulkhead hatch (or its sidebar button) to slide its shutters open/closed. Hatches are optional visual interactions and reset open when the view is recreated; purchased restoration states remain saved.
+10. Open **Interior** for the larger ship cutaway. Pick a room, then click the drawn equipment itself or its corresponding inspector button. Click either bulkhead hatch (or its sidebar button) to slide its shutters open/closed. Hatches block passage while closed and reset open when the view is recreated; purchased restoration states remain saved.
 
-The compact timer is a separate native, always-on-top window. Closing it hides it; closing the main window exits and saves. The main window is resizable and its content scrolls on small displays. Names remain editable in Settings. Cancellation requires confirmation and awards no completion rewards.
+The compact timer is a panel inside the main game, below navigation. Hide timer puts it away without pausing or canceling. It creates no native popup and never stays on top of other apps. Closing the main game saves and exits. The main window is resizable and its content scrolls on small displays. Names remain editable in Settings. Cancellation requires confirmation and awards no completion rewards.
 
 ## Included
 
@@ -91,7 +91,7 @@ This delivery includes the Phase 1 core and Phase 2 visual-restoration pass. A f
 
 The colorful planet fly-bys in Drift and room backgrounds are decorative scenery. Collectible discoveries, planet interaction and solar-system construction remain deferred. White exhaust is an atmospheric visual effect even before engine restoration; repaired engines emit a denser trail. Ship drift is cosmetic and never changes study rewards or battery use.
 
-Next: wishlist and robot components, followed by a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
+Next: wishlist and a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
 
 ## Export
 
@@ -106,3 +106,10 @@ The cutaway now has taller side walls and a narrow deck for a clearer side-on vi
 An engine patch costs 10 credits and restores 25 condition points, capped at 100%. A full overhaul costs 50 credits, restores 100%, and unlocks replacement engines. Patching does not grant overhaul ownership. Four patches can fill condition, after which an overhaul can still unlock replacements. Automatic asteroid damage is not implemented; condition never degrades as a study penalty. These components are cosmetic, not combat statistics.
 
 Old saves gain stock equipment automatically. Invalid, unowned or mismatched equipment IDs reset to the correct stock part. Workshop purchases and equipment changes roll back if saving fails. A successful retry clears the storage error notice. Test screenshots use isolated demonstration saves, not player progress.
+## Robot upgrades and revised ship controls
+
+Open **Shop → Robot upgrades** or **Robot → Customize robot in the shop**. Five slots offer 15 designs: shells, optics, arms, legs, and chest/backpack modules. Each card has an outfit illustration, price, research gate, Preview, and Buy & equip. Preview is temporary; purchases persist and owned parts swap freely. Cosmetic upgrades appear both in the large robot portrait and aboard the ship. They do not change study rewards or consume battery. Old saves receive the five free stock parts.
+
+The hull now includes broad swept wings, auxiliary nacelles, layered nose plating and segmented cooling surfaces. Damage artwork includes split engine piping with escaping vapor, a dark broken cell, a loose panel, blinking red engine alarm, cracked bridge glass, exposed console wiring and a hanging habitation cable. Restoration replaces those room fittings with intact pipes, clean glass and steady indicators. These are visual restoration states, not new asteroid penalties.
+
+Mouse-wheel zoom is limited to the ship drawing area; scrolling elsewhere scrolls the interface normally. Selecting rooms does not reset zoom. The compact countdown is an in-game panel that can stay visible across navigation or be hidden without affecting the session.

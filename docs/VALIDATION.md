@@ -97,3 +97,9 @@ Actual runtime captures: `ship-workshop.png`, `shop-parts-catalog.png`, `interio
 ## Ship detail pass
 
 Added original hull service structure, dorsal radiator, cargo locks, layered nose plating, access panels, fin hydraulics, engine clamps and feed lines. Interior fittings include cable trays, vents, switchgear and reactor gauges. The strict graphical runner passed all 162 existing behavioral/render assertions without script errors; screenshots were regenerated and visually inspected. See detail-check-results.json. No new logic tests were added for decorative drawing code.
+
+## Robot store, camera controls and in-game timer
+
+Current strict **headless** run: editor import plus 197 passing behavioral assertions across eight suites, with no script errors. See robot-zoom-check-results.json. The new 28-check suite exercises actual robot shop category/Preview/Buy callbacks, affordability, research gates, duplicate purchase prevention, free swapping, real disk reload, failed-save rollback, mouse-wheel input, zoom limits and preservation on room selection, restoration/alarm state, and timer navigation/hiding/reopening without creating Window nodes. The usability suite additionally checks closed-door collision in both directions, waiting for opening clearance, closing during approach and resuming the pending route.
+
+This run launched no visible game windows. The latest wing, room-damage and robot-equipment artwork has not yet received a graphical capture or visual review; existing PNG files predate this pass. A request to open the game for new screenshots is pending user permission. The timer is now an in-game PanelContainer, replacing the former native always-on-top window. No automated graphical tests should be run without user permission.
