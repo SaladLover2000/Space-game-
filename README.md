@@ -5,3 +5,5 @@ Little Orbit is a playable Godot 4 study game with study timers, visual restorat
 ![New ship artwork - asset preview, not a game screenshot](assets/art/ship-cutaway-restored-v1.png)
 
 Detailed raster artwork and its gameplay integration are documented in [PIXEL-ART-ASSETS.md](docs/PIXEL-ART-ASSETS.md).
+
+Robots now assemble interchangeable raster heads, chassis, arms, legs and packs; see [MODULAR-ROBOT.md](docs/MODULAR-ROBOT.md).

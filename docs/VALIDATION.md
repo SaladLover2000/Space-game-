@@ -109,3 +109,10 @@ This run launched no visible game windows. The latest wing, room-damage and robo
 The current strict headless runner passed editor import and **208 assertions** across nine suites with no script errors. See pixel-art-check-results.json. New checks verify all three sprite states have matching atlas dimensions and usable alpha, each repaired room selects its own restored artwork, the reactor states differ, the deck and passage columns align with the robot and blocking hatches, the fitted camera contains the full atlas, and exhaust comes from the new aft nozzles. Existing purchase, persistence, robot upgrade, timer, wheel zoom and hatch movement checks passed unchanged. The earlier robot-only headless count was 195, not 197; the report was authoritative.
 
 Generated asset images were inspected. The assembled game has not been visually reviewed or captured because no visible game launch is authorized. Existing PNG screenshots are historical; assets/art PNGs are the new sprite assets.
+
+
+## Interchangeable raster robot validation
+
+The current strict headless runner passed editor import and **221 assertions** across ten suites with no script errors. See modular-robot-check-results.json. New tests enumerate all 243 outfits, verify the seven rendered layers select their actual equipment IDs, check neck/hip connections and floor alignment, verify the common portrait stage contains every idle outfit, compare wider/taller dimensions, verify unchanged arms move with a broader chassis and that long legs raise the existing torso/head, check twenty-one nonempty atlas regions, exercise real shop height preview without changing progress, and verify persisted dimensions and size-aware hatch blocking/resumption.
+
+The new parts atlas was visually inspected. The assembled robot in the running game has not been visually captured or reviewed; all testing remained headless in accordance with the user's instruction. Existing screenshots still show earlier robot artwork.

@@ -10,6 +10,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(280, 300)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _process(delta: float) -> void:
 	clock += delta
@@ -22,11 +23,18 @@ func _draw() -> void:
 	for y in range(0, int(size.y), 20):
 		draw_line(Vector2(0, y), Vector2(size.x, y), Color("182e42"))
 	draw_rect(Rect2(Vector2.ONE, size - Vector2.ONE * 2), Color("426b7c"), false, 2)
-	var scale_factor := floorf(minf(size.x / 40.0, size.y / 46.0))
-	draw_set_transform(Vector2(size.x * 0.5, size.y - 20), 0, Vector2.ONE * scale_factor)
-	draw_rect(Rect2(-12, 2, 24, 2), Color("294d60"))
+	var outfit: Dictionary = Game.state.equipped
+	var mood: String = "idle"
+	var time: float = clock
+	if preview_mode and not preview_equipped.is_empty():
+		outfit = preview_equipped
 	if is_instance_valid(subject):
-		art.draw(self, Vector2.ZERO, subject.clock, subject.expression(), false, Game.state.equipped)
-
-	elif preview_mode:
-		art.draw(self, Vector2.ZERO, clock, "idle", false, preview_equipped if not preview_equipped.is_empty() else Game.state.equipped)
+		mood = subject.expression()
+		time = subject.clock
+	# A shared scale shows real size differences rather than enlarging every build equally.
+	var reference := Rect2(-28,-50,56,54).merge(art.bounds(outfit,time,mood).grow(2))
+	var scale_factor := minf((size.x-12)/reference.size.x,(size.y-12)/reference.size.y)
+	var offset := (size-reference.size*scale_factor)/2-reference.position*scale_factor
+	draw_set_transform(offset,0,Vector2.ONE*scale_factor)
+	draw_rect(Rect2(-16,1,32,1),Color("294d60"))
+	art.draw(self,Vector2.ZERO,time,mood,false,outfit)

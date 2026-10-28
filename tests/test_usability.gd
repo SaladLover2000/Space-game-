@@ -67,14 +67,15 @@ func run() -> void:
 	view.door_progress = {"bridge":0.0, "engine":0.0}
 	scene.select_room("engine")
 	view.advance_robot(10.0)
-	check(view.robot_position.x == 85 and not view.door_open.bridge, "closed bridge blocks even a long movement frame without opening itself")
+	var stop_margin: float = view.robot_art.clearance(view.equipment())
+	check(is_equal_approx(view.robot_position.x,95-stop_margin) and not view.door_open.bridge, "closed bridge blocks even a long movement frame without opening itself")
 	view.toggle_door("bridge")
 	view.door_progress.bridge = 0.5
 	view.advance_robot(10.0)
-	check(view.robot_position.x == 85, "robot waits until the opening shutter clears the doorway")
+	check(is_equal_approx(view.robot_position.x,95-stop_margin), "robot waits until the opening shutter clears the doorway")
 	view.door_progress.bridge = 1.0
 	view.advance_robot(10.0)
-	check(view.robot_position.x == 162 and view.waiting_hatch == "engine", "opening bridge resumes travel but the closed engine hatch blocks the route")
+	check(is_equal_approx(view.robot_position.x,172-stop_margin) and view.waiting_hatch == "engine", "opening bridge resumes travel but the closed engine hatch blocks the route")
 	view.toggle_door("engine")
 	view.door_progress.engine = 1.0
 	view.advance_robot(10.0)
@@ -83,7 +84,7 @@ func run() -> void:
 	view.door_progress.engine = 0.0
 	scene.select_room("cockpit")
 	view.advance_robot(10.0)
-	check(view.robot_position.x == 182, "closed hatch also blocks travel from the engine side")
+	check(is_equal_approx(view.robot_position.x,172+stop_margin), "closed hatch also blocks travel from the engine side")
 	view.toggle_door("engine")
 	view.door_progress.engine = 1.0
 	view.advance_robot(0.05)

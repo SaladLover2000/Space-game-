@@ -117,3 +117,8 @@ Mouse-wheel zoom is limited to the ship drawing area; scrolling elsewhere scroll
 ## Detailed raster artwork
 
 The active ship renderer now uses three detailed original pixel-art PNG atlases for damaged cutaway, restored cutaway and closed exterior views. This replaces the previous flat procedural hull and room drawings. Room restoration selects clean atlas regions independently, while hatches, the robot, equipment previews, warning blink and exhaust remain interactive. See PIXEL-ART-ASSETS.md for the calibration, assets and exact generation prompts. Existing gameplay screenshots predate this art replacement; the game has remained closed during current testing at the user's request.
+
+
+## Modular robot bodies
+
+Robot upgrades now assemble separate detailed raster heads, chassis, paired arms, paired legs and equipment. Choose Shop → Robot upgrades. The salvage chassis is wider; survey legs and torso are taller. Different families can be combined in 243 outfits. Preview updates the assembled body without buying it, and the shop displays height/width relative to the original build. Existing owned parts and save IDs remain compatible. See MODULAR-ROBOT.md for the asset, prompt, attachment layout and validation scope.

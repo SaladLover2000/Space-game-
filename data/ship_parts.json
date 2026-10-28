@@ -172,121 +172,121 @@
   {
     "id": "robot_shell_stock",
     "slot": "robot_shell",
-    "name": "Original alloy shell",
+    "name": "Compact service chassis",
     "price": 0,
     "xp": 0,
-    "description": "Familiar brushed alloy panels. Visual upgrade; study rewards stay the same."
+    "description": "A compact, tapered service body with silver and blue armor. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_shell_copper",
     "slot": "robot_shell",
-    "name": "Copper explorer shell",
+    "name": "Broad salvage chassis",
     "price": 35,
     "xp": 0,
-    "description": "Warm copper armor, cream highlights and reinforced shoulder plates. Visual upgrade; study rewards stay the same."
+    "description": "A rounded ochre salvage body with a wider chest and shoulder sockets. Changes the assembled silhouette. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_shell_cobalt",
     "slot": "robot_shell",
-    "name": "Cobalt expedition shell",
+    "name": "Tall survey chassis",
     "price": 70,
     "xp": 35,
-    "description": "Deep blue armor with bright titanium edges. Visual upgrade; study rewards stay the same."
+    "description": "A narrow elongated cobalt body with exposed mechanical ribs. Adds torso height. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_visor_stock",
     "slot": "robot_visor",
-    "name": "Twin-eye visor",
+    "name": "Twin-eye service head",
     "price": 0,
     "xp": 0,
-    "description": "The original expressive twin-eye display. Visual upgrade; study rewards stay the same."
+    "description": "A compact chamfered head with expressive cyan optics and antennae. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_visor_wide",
     "slot": "robot_visor",
-    "name": "Panoramic cyan visor",
+    "name": "Dome visor head",
     "price": 30,
     "xp": 0,
-    "description": "A single wide cyan display with a scanning highlight. Visual upgrade; study rewards stay the same."
+    "description": "A low rounded salvage head with a broad cyan visor. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_visor_amber",
     "slot": "robot_visor",
-    "name": "Amber survey optics",
+    "name": "Tall survey head",
     "price": 55,
     "xp": 25,
-    "description": "Raised amber survey lenses and a reinforced brow. Visual upgrade; study rewards stay the same."
+    "description": "A taller cylindrical head with amber survey lenses and aerials. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_arms_stock",
     "slot": "robot_arms",
-    "name": "Standard grippers",
+    "name": "Service claw arms",
     "price": 0,
     "xp": 0,
-    "description": "Original two-finger hands. Visual upgrade; study rewards stay the same."
+    "description": "Articulated slim arms with shoulder bearings and small fingers. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_arms_utility",
     "slot": "robot_arms",
-    "name": "Utility tool arms",
+    "name": "Heavy salvage arms",
     "price": 45,
     "xp": 0,
-    "description": "Larger shoulder housings, wrist tools and articulated claws. Visual upgrade; study rewards stay the same."
+    "description": "Wider lifter arms, heavy elbow joints and large articulated grippers. Increases total span. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_arms_precision",
     "slot": "robot_arms",
-    "name": "Precision manipulators",
+    "name": "Long precision arms",
     "price": 85,
     "xp": 50,
-    "description": "White precision cuffs with fine-tipped fingers. Visual upgrade; study rewards stay the same."
+    "description": "Longer survey arms with exposed actuators and fine-tipped fingers. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_legs_stock",
     "slot": "robot_legs",
-    "name": "Original piston legs",
+    "name": "Service piston legs",
     "price": 0,
     "xp": 0,
-    "description": "Lightweight legs and familiar feet. Visual upgrade; study rewards stay the same."
+    "description": "Standard piston legs, knee bearings and metal deck shoes. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_legs_boots",
     "slot": "robot_legs",
-    "name": "Magnetic deck boots",
+    "name": "Short magnetic legs",
     "price": 40,
     "xp": 0,
-    "description": "Broad reinforced boots, ankle clamps and cyan sole lights. Visual upgrade; study rewards stay the same."
+    "description": "A lower, broader stance with reinforced magnetic boots. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_legs_strider",
     "slot": "robot_legs",
-    "name": "Expedition leg braces",
+    "name": "Tall survey legs",
     "price": 80,
     "xp": 40,
-    "description": "Long side braces and heavy heel guards. Visual upgrade; study rewards stay the same."
+    "description": "Long spring-and-piston legs raise the body and change standing height. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_core_stock",
     "slot": "robot_core",
-    "name": "Standard chest panel",
+    "name": "Chest battery cartridge",
     "price": 0,
     "xp": 0,
-    "description": "Original recessed battery indicator. Visual upgrade; study rewards stay the same."
+    "description": "A compact cyan power cartridge that attaches to the current chassis. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_core_beacon",
     "slot": "robot_core",
-    "name": "Beacon chest module",
+    "name": "Salvage beacon module",
     "price": 50,
     "xp": 0,
-    "description": "An animated cyan chest ring and raised protective housing. Visual upgrade; study rewards stay the same."
+    "description": "A larger reinforced cyan beacon mounted on the chest. Cosmetic equipment; study rewards stay the same."
   },
   {
     "id": "robot_core_solar",
     "slot": "robot_core",
-    "name": "Solar study pack",
+    "name": "Solar survey backpack",
     "price": 100,
     "xp": 60,
-    "description": "A visible backpack with solar fins and an amber charge indicator. Visual upgrade; study rewards stay the same."
+    "description": "A separate backpack with blue solar fins, visible behind the shoulders. Cosmetic equipment; study rewards stay the same."
   }
 ]

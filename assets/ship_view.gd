@@ -139,6 +139,7 @@ func advance_robot(delta: float) -> void:
 	waiting_hatch = ""
 	var direction := signf(target.x - robot_position.x)
 	var nearest: float = INF
+	var body_clearance: float = robot_art.clearance(equipment())
 	for hatch in door_open:
 		var hatch_x: float = 95 if hatch == "bridge" else 172
 		# Opening shutters must clear the doorway before the companion crosses.
@@ -148,7 +149,7 @@ func advance_robot(delta: float) -> void:
 			var distance_to_hatch := absf(hatch_x - robot_position.x)
 			if distance_to_hatch < nearest:
 				nearest = distance_to_hatch
-				target.x = hatch_x - direction * 10.0
+				target.x = hatch_x - direction * body_clearance
 				# A hatch closing beside the robot must never pull it backwards.
 				if (target.x - robot_position.x) * direction < 0:
 					target.x = robot_position.x

@@ -213,8 +213,8 @@ func show_page(page: String) -> void:
 			battery.value = Game.state.battery
 			battery.custom_minimum_size.y = 24
 			content.add_child(battery)
-			paragraph("Condition / weathered shell, functional study dock. A small companion finding its spark again.")
-			paragraph("During a session the dock pulses gently. Battery is awarded on completion; pausing or canceling never drains it.")
+			paragraph("Build your companion / interchangeable heads, chassis, arms, legs and packs. Each module has its own shape and dimensions.")
+			paragraph("Mix compact, broad salvage and tall survey parts in the shop. Taller legs raise the body; wider chassis move the shoulders and arms outward. Battery is still awarded only on study completion.")
 			button(content, "Customize robot in the shop", func(): show_page("shop"); workshop.select_slot("robot_shell"))
 			button(content, "Return to ship & study", func(): show_page("ship"))
 		"stats":

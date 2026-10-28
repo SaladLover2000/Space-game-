@@ -2,7 +2,7 @@ extends VBoxContainer
 const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
 const PartIcon = preload("res://ui/part_icon.gd")
-const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Shells", "robot_visor":"Robot / Optics", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs"}
+const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Chassis", "robot_visor":"Robot / Heads", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs"}
 var ship_view: Control
 var robot_preview: Control
 var engine_title: Label
@@ -142,6 +142,9 @@ func refresh() -> void:
 	if not is_instance_valid(cards):
 		return
 	detail.text = SLOTS[selected_slot] + ("\nPreview: " + Game.part_by_id(preview_id).name if not preview_id.is_empty() else "\nEquipped design")
+	if selected_slot.begins_with("robot_"):
+		var outfit: Dictionary = robot_preview.preview_equipped if not robot_preview.preview_equipped.is_empty() else Game.state.equipped
+		detail.text += "\n" + robot_preview.art.build_description(outfit)
 	condition.value = Game.state.engine_condition
 	condition.visible = not selected_slot.begins_with("robot_")
 	engine_title.visible = condition.visible
