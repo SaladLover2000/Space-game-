@@ -23,7 +23,7 @@ func part_size(id: String, side: String = "source") -> Vector2:
 	var height: float = HEIGHTS[id]
 	return Vector2(region.size.x / region.size.y * height, height)
 
-func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking: bool = false) -> Array:
+func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking: bool = false, seated: bool = false) -> Array:
 	var body_id := resolve("robot_shell", outfit)
 	var head_id := resolve("robot_visor", outfit)
 	var arms_id := resolve("robot_arms", outfit)
@@ -44,13 +44,27 @@ func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking:
 		var lift := maxf(0.0,sin(time*12 + (0 if side == "left" else PI))) * 1.4 if walking else 0.0
 		var stride := sin(time*12) * sign_side * 0.9 if walking else 0.0
 		var x := sign_side * body.x * 0.22 - size.x/2 + stride
-		pieces.append(piece(legs_id,side,Rect2(x,-size.y-lift,size.x,size.y)))
+		if seated:
+			var full_source := source(legs_id,side)
+			var upper_height := size.y*0.53
+			var angle := 1.15
+			var thigh := piece(legs_id,side,Rect2(x,-size.y,size.x,upper_height),angle)
+			thigh.source = Rect2(full_source.position,Vector2(full_source.size.x,full_source.size.y*0.53))
+			pieces.append(thigh)
+			var knee := Vector2(x+size.x/2,-size.y)+Vector2(0,upper_height).rotated(angle)
+			var shin := piece(legs_id,side,Rect2(knee-Vector2(size.x/2,0.2),Vector2(size.x,size.y-upper_height+0.2)),-0.08)
+			shin.source = Rect2(full_source.position+Vector2(0,full_source.size.y*0.53),Vector2(full_source.size.x,full_source.size.y*0.47))
+			pieces.append(shin)
+		else:
+			pieces.append(piece(legs_id,side,Rect2(x,-size.y-lift,size.x,size.y)))
 	pieces.append(piece(body_id,"source",Rect2(-body.x/2,body_top,body.x,body.y)))
 	for side in ["left", "right"]:
 		var size := part_size(arms_id, side)
 		var x := -body.x/2-size.x+1.5 if side == "left" else body.x/2-1.5
 		var rotation := sin(time*12) * (0.12 if side == "left" else -0.12) if walking else 0.0
-		if side == "right" and mood in ["happy","upgraded"]:
+		if seated:
+			rotation = 0.55 if side == "left" else 0.75
+		elif side == "right" and mood in ["happy","upgraded"]:
 			rotation = -2.25 + sin(time*6)*0.12
 		pieces.append(piece(arms_id,side,Rect2(x,body_top+1.5,size.x,size.y),rotation))
 	pieces.append(piece(head_id,"source",Rect2(-head.x/2,body_top-head.y+1.0,head.x,head.y)))
@@ -70,10 +84,10 @@ func vertices(piece_data: Dictionary) -> PackedVector2Array:
 		points[i] = pivot + (points[i]-pivot).rotated(piece_data.rotation)
 	return points
 
-func bounds(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking: bool = false) -> Rect2:
+func bounds(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking: bool = false, seated: bool = false) -> Rect2:
 	var initialized := false
 	var result := Rect2()
-	for part in pose(outfit,time,mood,walking):
+	for part in pose(outfit,time,mood,walking,seated):
 		for point in vertices(part):
 			if not initialized:
 				result = Rect2(point,Vector2.ZERO)
@@ -91,11 +105,11 @@ func build_description(outfit: Dictionary) -> String:
 	var original := bounds({}).size
 	return "Your build / %.2f× original height · %.2f× original width" % [size.y/original.y,size.x/original.x]
 
-func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}) -> void:
-	var hop := absf(sin(time*7))*1.5 if mood in ["happy","upgraded"] else 0.0
+func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}, seated: bool = false) -> void:
+	var hop := absf(sin(time*7))*1.5 if mood in ["happy","upgraded"] and not seated else 0.0
 	var origin := feet - Vector2(0,hop)
 	var atlas_size := Vector2(ATLAS.get_size())
-	for part in pose(outfit,time,mood,walking):
+	for part in pose(outfit,time,mood,walking,seated):
 		var points := vertices(part)
 		for i in range(points.size()):
 			points[i] += origin

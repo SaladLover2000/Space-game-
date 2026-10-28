@@ -80,6 +80,8 @@ func run() -> void:
 		event.pressed = true
 		event.position = shop.ship_view.view_transform() * slot_points[slot]
 		shop.ship_view._gui_input(event)
+		event.pressed = false
+		shop.ship_view._gui_input(event)
 		check(shop.selected_slot == slot, "ship hotspot opens the " + slot + " category")
 	shop.select_slot("engine")
 	before = game.state.duplicate(true)

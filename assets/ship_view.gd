@@ -1,6 +1,17 @@
 extends Control
 ## Original procedural pixel art on a fixed low-resolution canvas.
 var clock: float = 0.0
+signal seating_changed(seated: bool)
+const PILOT_SEAT = Vector2(58, 103)
+const PILOT_CUSHION_Y = 91.0
+const DRAG_THRESHOLD = 6.0
+var robot_seated: bool = false
+var seat_requested: bool = false
+var pan_pressed: bool = false
+var pan_dragging: bool = false
+var pan_press_position := Vector2.ZERO
+var pan_start_camera := Rect2()
+var pan_scale: float = 1.0
 signal room_selected(id: String)
 signal object_selected(room: String, index: int)
 signal door_toggled(id: String, opened: bool)
@@ -66,12 +77,13 @@ func _ready() -> void:
 	rooms = JSON.parse_string(FileAccess.get_file_as_string("res://data/rooms.json"))
 	backdrop = SpaceBackdrop.new()
 	interior_art = InteriorArt.new()
-	mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
 	Game.completed.connect(func(_credits: int, _xp: int): reaction_left = 4.0; upgrade_reaction = false)
 	Game.repaired.connect(func(_id: String): reaction_left = 2.5; upgrade_reaction = true)
 	mouse_exited.connect(func(): hovered_room = ""; hovered_object = -1; queue_redraw())
-	tooltip_text = "Click a room to look inside" if interactive else ""
+	tooltip_text = "Drag with left mouse to pan. Mouse wheel zooms. Click the pilot seat to sit."
+	get_window().focus_exited.connect(cancel_pan)
 
 func _process(delta: float) -> void:
 	clock += delta
@@ -122,19 +134,50 @@ func focus_room(id: String) -> void:
 func change_zoom(factor: float) -> void:
 	zoom_level = clampf(zoom_level * factor, 0.65, 2.8)
 	var extent := Vector2(420, 240) / zoom_level
-	camera = Rect2(Vector2(140, 75) - extent * 0.5, extent)
+	camera = Rect2(camera.get_center() - extent * 0.5, extent)
 	queue_redraw()
 
 func reset_zoom() -> void:
+	cancel_pan()
+	camera = Rect2(-70,-45,420,240)
 	zoom_level = 1.0
 	change_zoom(1.0)
 
 func follow_robot(id: String) -> void:
 	var anchors := {"cockpit": Vector2(80, 103), "quarters": Vector2(143, 103), "engine": Vector2(205, 103)}
 	if anchors.has(id):
+		if robot_seated or seat_requested:
+			stand_up()
 		robot_destination = anchors[id]
 
+func request_sit() -> void:
+	robot_seated = false
+	seat_requested = true
+	robot_destination = PILOT_SEAT
+	seating_changed.emit(false)
+
+func stand_up() -> void:
+	robot_seated = false
+	seat_requested = false
+	robot_destination = robot_position
+	robot_walking = false
+	waiting_hatch = ""
+	seating_changed.emit(false)
+
+func toggle_seat() -> void:
+	if robot_seated or seat_requested:
+		stand_up()
+	else:
+		request_sit()
+
+func seated_origin() -> Vector2:
+	var id: String = robot_art.resolve("robot_legs",equipment())
+	return Vector2(PILOT_SEAT.x,PILOT_CUSHION_Y+robot_art.part_size(id,"left").y-1.0)
+
 func advance_robot(delta: float) -> void:
+	if robot_seated:
+		robot_walking = false
+		return
 	var target := robot_destination
 	waiting_hatch = ""
 	var direction := signf(target.x - robot_position.x)
@@ -157,43 +200,86 @@ func advance_robot(delta: float) -> void:
 	var previous := robot_position
 	robot_position = robot_position.move_toward(target, maxf(0.0, delta) * 150.0)
 	robot_walking = not robot_position.is_equal_approx(previous)
+	if seat_requested and robot_position.distance_to(PILOT_SEAT) < 0.01:
+		robot_seated = true
+		seat_requested = false
+		robot_walking = false
+		seating_changed.emit(true)
+
+func cancel_pan() -> void:
+	pan_pressed = false
+	pan_dragging = false
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
+
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+			cancel_pan()
+			change_zoom(1.15 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0/1.15)
+			accept_event()
+			return
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				pan_pressed = true
+				pan_dragging = false
+				pan_press_position = event.position
+				pan_start_camera = camera
+				pan_scale = minf(size.x/camera.size.x,size.y/camera.size.y)
+			else:
+				var is_click: bool = pan_pressed and not pan_dragging and event.position.distance_to(pan_press_position) < DRAG_THRESHOLD
+				cancel_pan()
+				if is_click and Rect2(Vector2.ZERO,size).has_point(event.position):
+					activate_at(event.position)
+			accept_event()
+			return
+	if event is InputEventMouseMotion:
+		if pan_pressed:
+			if not (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
+				cancel_pan()
+				return
+			if event.position.distance_to(pan_press_position) >= DRAG_THRESHOLD:
+				pan_dragging = true
+			if pan_dragging:
+				camera.position = pan_start_camera.position - (event.position-pan_press_position)/maxf(pan_scale,0.001)
+				mouse_default_cursor_shape = Control.CURSOR_DRAG
+				queue_redraw()
+			accept_event()
+			return
+		if workshop_mode:
+			hovered_slot = part_at(event.position)
+		elif interactive:
+			hovered_room = room_at(event.position)
+			hovered_object = object_at(event.position)
+		queue_redraw()
+
+func activate_at(local_position: Vector2) -> void:
 	if not interactive:
 		return
-	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		change_zoom(1.15 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.15)
-		accept_event()
-		return
 	if workshop_mode:
-		if event is InputEventMouseMotion:
-			hovered_slot = part_at(event.position)
-			queue_redraw()
-		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			var slot := part_at(event.position)
-			if not slot.is_empty():
-				part_selected.emit(slot)
-				accept_event()
+		var slot := part_at(local_position)
+		if not slot.is_empty():
+			part_selected.emit(slot)
 		return
-	if event is InputEventMouseMotion:
-		hovered_room = room_at(event.position)
-		hovered_object = object_at(event.position)
-		queue_redraw()
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var door := door_at(event.position)
-		if not door.is_empty():
-			toggle_door(door)
-			accept_event()
-			return
-		var object_index := object_at(event.position)
-		if object_index >= 0:
-			selected_object = object_index
-			object_selected.emit(selected_room, object_index)
-			accept_event()
-			return
-		var id := room_at(event.position)
-		if not id.is_empty():
-			room_selected.emit(id)
-			accept_event()
+	var door := door_at(local_position)
+	if not door.is_empty():
+		toggle_door(door)
+		return
+	var world := view_transform().affine_inverse() * local_position
+	if not exterior and object_bounds("cockpit",2).has_point(world):
+		if selected_room != "cockpit":
+			room_selected.emit("cockpit")
+		selected_object = 2
+		object_selected.emit("cockpit",2)
+		toggle_seat()
+		return
+	var object_index := object_at(local_position)
+	if object_index >= 0:
+		selected_object = object_index
+		object_selected.emit(selected_room,object_index)
+		return
+	var id := room_at(local_position)
+	if not id.is_empty():
+		room_selected.emit(id)
 
 func object_bounds(room: String, index: int) -> Rect2:
 	var bounds: Array = rooms[room].object_bounds[index]
@@ -284,4 +370,7 @@ func draw_interior() -> void:
 	pixel_ship_art.draw(self, Game.state.owned, false, equipment(), clock, Game.state.engine_condition)
 	interior_art.draw_doors(self, door_progress)
 	draw_interior_selection()
-	robot_art.draw(self, robot_position, clock, expression(), robot_walking, equipment())
+	if robot_seated:
+		robot_art.draw(self,seated_origin(),clock,expression(),false,equipment(),true)
+	else:
+		robot_art.draw(self,robot_position,clock,expression(),robot_walking,equipment())

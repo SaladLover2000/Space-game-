@@ -116,3 +116,10 @@ Generated asset images were inspected. The assembled game has not been visually 
 The current strict headless runner passed editor import and **221 assertions** across ten suites with no script errors. See modular-robot-check-results.json. New tests enumerate all 243 outfits, verify the seven rendered layers select their actual equipment IDs, check neck/hip connections and floor alignment, verify the common portrait stage contains every idle outfit, compare wider/taller dimensions, verify unchanged arms move with a broader chassis and that long legs raise the existing torso/head, check twenty-one nonempty atlas regions, exercise real shop height preview without changing progress, and verify persisted dimensions and size-aware hatch blocking/resumption.
 
 The new parts atlas was visually inspected. The assembled robot in the running game has not been visually captured or reviewed; all testing remained headless in accordance with the user's instruction. Existing screenshots still show earlier robot artwork.
+
+
+## Pilot seating and left-mouse panning
+
+The strict headless runner passed editor import and **244 assertions** across eleven suites with no script errors. See seat-pan-check-results.json. The new 23-check suite drives the actual GUI press, motion and release callbacks: diagonal pan, suppression of chair/hatch/shop clicks during drag, release outside the canvas, lost-button cancellation, pan-preserving zoom/room selection and Fit ship reset. It also tests blocked seating routes through both hatches, arrival-only seating, articulated seated limbs, hip alignment for all three leg styles, description-refresh isolation, actual Stand up and Pilot seat button callbacks, room-follow resumption and unchanged session/progress state.
+
+Existing fixture/hotspot tests now send complete press/release clicks because actions deliberately occur after release. These are production callback tests, not OS-level mouse automation. No visible game window was opened or captured; the assembled seated pose still needs graphical acceptance review.

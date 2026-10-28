@@ -122,3 +122,8 @@ The active ship renderer now uses three detailed original pixel-art PNG atlases 
 ## Modular robot bodies
 
 Robot upgrades now assemble separate detailed raster heads, chassis, paired arms, paired legs and equipment. Choose Shop → Robot upgrades. The salvage chassis is wider; survey legs and torso are taller. Different families can be combined in 243 outfits. Preview updates the assembled body without buying it, and the shop displays height/width relative to the original build. Existing owned parts and save IDs remain compatible. See MODULAR-ROBOT.md for the asset, prompt, attachment layout and validation scope.
+
+
+## Pilot chair and camera panning
+
+Hold left mouse and drag on the ship to move the view in either direction. Wheel zoom keeps your camera center; Fit ship restores the overview. Click the pilot chair to walk over and sit, waiting for any closed hatches. Use Stand up or choose another room to leave. The existing Pilot seat equipment button also activates seating. Drag gestures do not activate fixtures or doors. See SEAT-AND-CAMERA.md for behavior and test scope.

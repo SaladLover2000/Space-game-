@@ -2,10 +2,10 @@
   "cockpit": {
     "name": "Cockpit",
     "bounds": [
-      33,
-      56,
-      60,
-      46
+      0,
+      55,
+      93,
+      48
     ],
     "damaged": "Dust dims the glass. The navigation console has only a little power.",
     "restored": "Clean glass and steady instruments. A brighter view of the journey ahead.",
@@ -26,10 +26,10 @@
     ],
     "object_bounds": [
       [
-        36,
-        78,
-        33,
-        14
+        17,
+        79,
+        28,
+        15
       ],
       [
         35,
@@ -38,10 +38,10 @@
         19
       ],
       [
-        73,
-        77,
-        13,
-        24
+        49,
+        74,
+        18,
+        25
       ]
     ]
   },

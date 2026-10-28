@@ -163,7 +163,8 @@ func show_page(page: String) -> void:
 			ship_view.custom_minimum_size.y = 360
 			drift_status = label("")
 			content.add_child(drift_status)
-			paragraph("A little home passing quietly through a colorful universe.")
+			paragraph("Drag left mouse to pan; use the wheel to zoom.")
+			button(content,"Fit ship",func(): ship_view.reset_zoom())
 			button(content, "Customize robot in the shop", func(): show_page("shop"); workshop.select_slot("robot_shell"))
 			button(content, "Return to ship & study", func(): show_page("ship"))
 		"ship":
@@ -311,7 +312,8 @@ func build_ship_explorer() -> void:
 	button(zoom_controls, "− Zoom out", func(): ship_view.change_zoom(1.0 / 1.15))
 	button(zoom_controls, "+ Zoom in", func(): ship_view.change_zoom(1.15))
 	button(zoom_controls, "Fit ship", func(): ship_view.reset_zoom())
-	zoom_controls.add_child(label("Mouse wheel over ship to zoom", 14))
+	zoom_controls.add_child(label("Drag left mouse to pan · wheel to zoom", 14))
+	ship_view.seating_changed.connect(func(_seated: bool): update_room_panel())
 	ship_view.door_toggled.connect(func(_id: String, _opened: bool): update_room_panel())
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = 250
@@ -354,7 +356,7 @@ func update_room_panel() -> void:
 	for i in range(room.objects.size()):
 		var index: int = i
 		var room_id: String = selected_room
-		button(room_panel, room.objects[i], func(): inspect_object(room_id, index))
+		button(room_panel, room.objects[i], func(): activate_object(room_id,index))
 	for item in Game.balance.repairs:
 		if item.id == selected_room and not restored:
 			button(room_panel, "Restore · %d credits" % item.price, purchase_room)
@@ -362,6 +364,11 @@ func update_room_panel() -> void:
 	add_door_controls()
 	if ship_view.selected_object >= 0:
 		inspect_object(selected_room, ship_view.selected_object)
+
+func activate_object(room_id: String, index: int) -> void:
+	inspect_object(room_id,index)
+	if room_id == "cockpit" and index == 2:
+		ship_view.toggle_seat()
 
 func inspect_object(room_id: String, index: int) -> void:
 	if selected_room != room_id:
@@ -377,6 +384,11 @@ func add_door_controls() -> void:
 	for entry in [["bridge", "Bridge hatch"], ["engine", "Engine hatch"]]:
 		var id: String = entry[0]
 		button(room_panel, entry[1] + (": OPEN" if ship_view.door_open[id] else ": CLOSED"), func(): ship_view.toggle_door(id))
+
+	if selected_room == "cockpit":
+		var seat_action := "Stand up" if ship_view.robot_seated else "Cancel sitting" if ship_view.seat_requested else "Sit in pilot seat"
+		button(room_panel,seat_action,func(): ship_view.toggle_seat())
+		room_text("Seated at the controls." if ship_view.robot_seated else "Walking to the seat. Open any closed hatch on the route." if ship_view.seat_requested else "Click the pilot seat to sit; choose another room to get up.",14)
 
 func purchase_room() -> void:
 	notice = Game.purchase(selected_room)

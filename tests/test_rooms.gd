@@ -41,6 +41,8 @@ func run() -> void:
 		click.pressed = true
 		click.position = hit_position
 		view._gui_input(click)
+		click.pressed = false
+		view._gui_input(click)
 		check(scene.selected_room == id, "room click selects " + id)
 		await create_timer(0.55).timeout
 		check(view.camera.size.is_equal_approx(Vector2(420, 240)), "room selection keeps the whole ship visible for " + id)

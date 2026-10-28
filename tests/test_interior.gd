@@ -15,6 +15,8 @@ func click(view: Control, world_position: Vector2) -> void:
 	event.pressed = true
 	event.position = view.view_transform() * world_position
 	view._gui_input(event)
+	event.pressed = false
+	view._gui_input(event)
 
 func capture(name: String) -> void:
 	if DisplayServer.get_name() != "headless" and "--capture" in OS.get_cmdline_user_args():
@@ -71,7 +73,7 @@ func run() -> void:
 		game.purchase(id)
 	scene.select_room("cockpit")
 	await create_timer(0.55).timeout
-	click(view, Vector2(50, 84))
+	click(view, view.object_bounds("cockpit",0).get_center())
 	check(scene.inspection_label.text == view.rooms.cockpit.restored_objects[0], "restored equipment click shows restored description")
 	scene.select_room("")
 	await create_timer(0.55).timeout
