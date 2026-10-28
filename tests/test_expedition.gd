@@ -81,7 +81,7 @@ func run() -> void:
 	await process_frame
 	var viewer: Control = scene.ship_3d
 	check(is_instance_valid(viewer.camera) and viewer.mesh_count > 80,"mesh inspector constructs a real camera and detailed mesh components")
-	check(viewer.pixel_style and not viewer.viewport_container.visible,"3D tab defaults to the pixel-art presentation")
+	check(not viewer.pixel_style and viewer.viewport_container.visible,"3D tab defaults to a freely orbiting real model")
 	var seen := {}
 	for i in range(8):
 		viewer.yaw = -0.85+i*TAU/8
@@ -107,3 +107,4 @@ func run() -> void:
 		if FileAccess.file_exists(game.save_path+suffix): DirAccess.remove_absolute(game.save_path+suffix)
 	print("EXPEDITION RESULT: ",failures," failures; rendered GPU appearance is not validated headlessly")
 	quit(0 if failures == 0 else 1)
+

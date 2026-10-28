@@ -22,11 +22,34 @@ func run() -> void:
 	await process_frame
 	var viewer: Control = scene.ship_3d
 	var art: RefCounted = viewer.diorama_art
+	check(not viewer.pixel_style and viewer.viewport_container.visible,"3D tab opens real mesh rendering by default")
+	var finish: ImageTexture = viewer.panel_texture(Color.WHITE)
+	check(finish.get_width() == 260 and finish.get_height() == 170,"solid model uses a UV-mapped metal finish sampled from the approved pixel artwork")
+	var shell: MeshInstance3D = viewer.model.get_child(0)
+	var arrays: Array = shell.mesh.surface_get_arrays(0)
+	check(arrays[Mesh.ARRAY_TEX_UV].size() == arrays[Mesh.ARRAY_VERTEX].size(),"hull faces carry actual surface UVs instead of a flat ship billboard")
+	var camera_before: Vector3 = viewer.camera.position
+	var model_before: Transform3D = viewer.model.transform
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = Vector2(100,100)
+	viewer._gui_input(press)
+	var motion := InputEventMouseMotion.new()
+	motion.position = Vector2(123,111)
+	viewer._gui_input(motion)
+	check(viewer.camera.position.distance_to(camera_before) > 0.1 and viewer.model.transform == model_before,"drag continuously orbits actual camera around unchanged solid geometry")
+	check(not is_equal_approx(viewer.yaw,-0.85) and viewer.frame_index() == 0,"small drag changes 3D angle even within a single illustrated frame")
+	viewer.dragging = false
+	viewer.reset_view()
+
 	check(viewer.backdrop.get_script().resource_path == "res://assets/space_backdrop.gd","diorama uses the same space renderer as the side views")
 	var before: Rect2 = viewer.background_camera()
 	viewer.target = Vector3(2,1,0)
 	viewer.update_camera()
-	check(viewer.background_camera().get_center() != before.get_center(),"panning moves the background camera as well as the ship presentation")
+	check(viewer.background_camera() == before,"panning the ship camera leaves the distant sky fixed")
+	viewer.distance = 30
+	check(viewer.background_camera() == before,"zoom changes the ship framing without scaling the stars")
 	viewer.reset_view()
 	check(viewer.background_camera().get_center().is_equal_approx(before.get_center()),"Fit restores the shared-space camera")
 	check(viewer.drift_offset(30) != viewer.drift_offset(0),"cruise time produces gentle visible ship drift")
@@ -52,6 +75,17 @@ func run() -> void:
 	game.state.owned = []
 	game.load_progress()
 	check("engine" not in art.damage_state(game.state.owned).broken,"damage presentation follows the repair restored from disk")
+	var links: RefCounted = load("res://assets/expansion_art.gd").new()
+	var lab: Dictionary = game.catalog_item(game.expansion_catalog,"lab")
+	var lab_link: Dictionary = links.connection(lab)
+	check(lab_link.start.y <= 110 and lab_link.finish.y >= lab.bounds[1] and lab_link.width >= 18,"lab shaft spans the full hull-to-deck gap with a visible pressurized passage")
+	game.state.expansions = ["lab","fabrication","habitat"]
+	viewer.refresh_model()
+	var connectors: Array = viewer.model.get_children().filter(func(node): return node.is_in_group("ship_deck_connector"))
+	check(connectors.size() == 3,"each purchased deck receives an actual solid 3D connecting passage")
+	var lab_box: AABB = connectors[0].get_aabb()
+	lab_box.position += connectors[0].position
+	check(lab_box.position.y < -1.4 and lab_box.end.y > -1,"3D lab shaft physically overlaps the lower room and main hull")
 	var valid := true
 	for frame in range(8):
 		for patch in art.repair_regions(frame,["cockpit","quarters","engine"]):
@@ -75,3 +109,4 @@ func run() -> void:
 		if FileAccess.file_exists(game.save_path+suffix): DirAccess.remove_absolute(game.save_path+suffix)
 	print("DIORAMA DAMAGE RESULT: ",failures," failures; assembled rendering still requires visual review")
 	quit(0 if failures == 0 else 1)
+

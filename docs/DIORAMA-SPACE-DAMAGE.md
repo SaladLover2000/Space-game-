@@ -12,3 +12,6 @@ Original damaged artwork created with the built-in image tool:
 - registered intact reference: assets/art/ship-pixel-angles-v2.png
 
 The atlas itself was visually inspected. The game remained closed and all checks ran headlessly, as requested. New chat images show the asset, not a gameplay screenshot.
+
+Superseded default: the 3D tab now opens real geometry. See REAL-3D-VIEW.md for continuous orbit, fixed distant sky and connected decks. Illustrated angles remain an optional 2D mode.
+

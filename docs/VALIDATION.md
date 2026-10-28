@@ -141,3 +141,7 @@ Existing fixture/hotspot tests now send complete press/release clicks because ac
 ## Shared-space damaged-angle validation
 
 The new 18-check diorama suite verifies use of the same backdrop class and planet trajectory as the side view, camera pan/reset, time-dependent drift, transparent optional mesh viewport configuration, registered alpha/damaged atlas differences, default broken-system selection, per-repair overlays, actual engine-fault mesh removal, saved restoration reload, patch bounds for all eight angles, clean full-restoration state and separate minor hull wear. The complete strict headless regression passed 318 assertions plus editor import with no script errors. No game window was opened; actual rendered background compositing and repair-region appearance still need visual review.
+
+
+Latest real-3D change: full regression 325 assertions passed, followed by the final expanded 27-check viewer suite after UV/texture changes (327 current checks). New checks exercise continuous camera movement within one illustrated angle, the default real viewport, artwork-derived texture and UV buffers, fixed sky under pan/zoom, and actual deck connector overlap. See REAL-3D-VIEW.md.
+

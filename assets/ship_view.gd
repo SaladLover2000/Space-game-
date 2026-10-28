@@ -366,8 +366,11 @@ func box(x: float, y: float, w: float, h: float, color: String) -> void:
 func _draw() -> void:
 	if backdrop == null:
 		return
+	var sky := Rect2(Vector2(-70,-45),Vector2(240*size.x/maxf(size.y,1),240))
+	var sky_scale := size.y/240.0
+	draw_set_transform(-sky.position*sky_scale,0,Vector2.ONE*sky_scale)
+	backdrop.draw_world(self,Game.state.cruise_seconds,sky)
 	draw_set_transform_matrix(camera_transform())
-	backdrop.draw_world(self,Game.state.cruise_seconds,camera)
 	draw_asteroids()
 	draw_set_transform_matrix(view_transform())
 	for item in Game.expansion_catalog:
@@ -377,6 +380,9 @@ func _draw() -> void:
 		draw_exterior()
 	else:
 		draw_interior()
+	for item in Game.expansion_catalog:
+		if item.id in Game.state.expansions or item.id == preview_expansion:
+			expansion_art.draw_connection(self,item)
 	# Engine nozzles are included in the calibrated raster artwork.
 	components.draw(self, equipment(), not exterior, true)
 	draw_smoke()
@@ -471,3 +477,4 @@ func draw_asteroids() -> void:
 		draw_colored_polygon(points,Color("52616c"))
 		points.append(points[0])
 		draw_polyline(points,Color("82919b"),0.5)
+

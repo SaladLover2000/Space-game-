@@ -201,7 +201,7 @@ func show_page(page: String) -> void:
 		"ship":
 			build_ship_explorer()
 		"3d":
-			paragraph("SHIP DIORAMA / Drag to turn between pixel-art angles. Shift + drag pans; wheel zooms.")
+			paragraph("3D SHIP / Drag to orbit freely. Shift + drag pans; wheel zooms.")
 			ship_3d = Ship3D.new()
 			content.add_child(ship_3d)
 			button(content,"Fit 3D view",func(): ship_3d.reset_view())
@@ -210,8 +210,8 @@ func show_page(page: String) -> void:
 			content.add_child(diorama_status)
 			var modes := HBoxContainer.new()
 			content.add_child(modes)
-			button(modes,"Pixel-art diorama",func(): ship_3d.set_pixel_style(true))
-			button(modes,"Free-orbit mesh inspector",func(): ship_3d.set_pixel_style(false))
+			button(modes,"Illustrated angles (2D)",func(): ship_3d.set_pixel_style(true))
+			button(modes,"3D model / Free orbit",func(): ship_3d.set_pixel_style(false))
 		"bridge":
 			paragraph("MAIN CONTROL / A quiet watch between the stars")
 			bridge_view = BridgeView.new()
@@ -517,3 +517,4 @@ func _notification(what: int) -> void:
 		Game.advance(Time.get_ticks_msec())
 		Game.save_progress()
 		get_tree().quit()
+

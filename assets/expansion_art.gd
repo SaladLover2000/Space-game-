@@ -16,3 +16,36 @@ func draw(canvas: CanvasItem, item: Dictionary, preview: bool = false) -> void:
 	canvas.draw_texture_rect_region(ATLAS,bounds,Rect2(item.column*512,300,512,400),tint)
 	if preview:
 		canvas.draw_rect(bounds,Color("7de1d6"),false,1)
+
+func connection(item: Dictionary) -> Dictionary:
+	var start := Vector2(130,110)
+	var finish := Vector2(130,191)
+	if item.id == "habitat":
+		start = Vector2(130,244)
+		finish = Vector2(130,267)
+	elif item.id == "fabrication":
+		start = Vector2(166,216)
+		finish = Vector2(185,216)
+	return {"start":start,"finish":finish,"width":18.0}
+
+func draw_connection(canvas: CanvasItem, item: Dictionary) -> void:
+	var link := connection(item)
+	var a: Vector2 = link.start
+	var b: Vector2 = link.finish
+	canvas.draw_line(a,b,Color("101923"),20)
+	canvas.draw_line(a,b,Color("445765"),16)
+	canvas.draw_line(a,b,Color("1c2a35"),10)
+	if item.id == "fabrication":
+		for y in [-8,8]: canvas.draw_line(a+Vector2(0,y),b+Vector2(0,y),Color("bdc8c9"),2)
+	else:
+		for x in [-8,8]: canvas.draw_line(a+Vector2(x,0),b+Vector2(x,0),Color("bdc8c9"),2)
+		for y in range(int(a.y)+4,int(b.y),6):
+			canvas.draw_line(Vector2(a.x-4,y),Vector2(a.x+4,y),Color("9ba8a8"),1)
+		for end in [a,b]:
+			canvas.draw_rect(Rect2(end-Vector2(13,3),Vector2(26,6)),Color("8c9ca2"))
+			canvas.draw_rect(Rect2(end-Vector2(10,1),Vector2(20,2)),Color("b58e52"))
+		if item.id == "lab":
+			for x in [-1,1]:
+				canvas.draw_line(Vector2(130+x*30,116),Vector2(130+x*38,191),Color("18232e"),6)
+				canvas.draw_line(Vector2(130+x*30,116),Vector2(130+x*38,191),Color("9aa8ac"),2)
+
