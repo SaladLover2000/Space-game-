@@ -15,6 +15,7 @@ func run() -> void:
 	var game := root.get_node("Game")
 	game.save_path = "user://minimized_test_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.state.sound = false
 	game.active = {}

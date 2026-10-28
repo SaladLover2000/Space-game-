@@ -1,0 +1,32 @@
+[
+  {
+    "id": "navigation_patch",
+    "name": "Navigation software rebuild",
+    "price": 60,
+    "xp": 60,
+    "requires": [
+      "lab"
+    ],
+    "description": "Unlocks the repaired navigation software state and its installed diagnostics in the immersive cockpit."
+  },
+  {
+    "id": "deep_scanner",
+    "name": "Deep-space sensor calibration",
+    "price": 80,
+    "xp": 80,
+    "requires": [
+      "lab"
+    ],
+    "description": "Activates the sensor visualization on the 3D ship inspector. Decorative discoveries remain future work."
+  },
+  {
+    "id": "habitat_systems",
+    "name": "Closed-loop life support",
+    "price": 90,
+    "xp": 80,
+    "requires": [
+      "lab"
+    ],
+    "description": "Unlocks construction of the hydroponics habitat on the next lower level."
+  }
+]

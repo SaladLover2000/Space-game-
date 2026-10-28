@@ -64,10 +64,12 @@ func pose(outfit: Dictionary, time: float = 0.0, mood: String = "idle", walking:
 		var rotation := sin(time*12) * (0.12 if side == "left" else -0.12) if walking else 0.0
 		if seated:
 			rotation = 0.55 if side == "left" else 0.75
+		elif mood == "working":
+			rotation = 0.45+sin(time*1.6+(0 if side == "left" else 1))*0.10
 		elif side == "right" and mood in ["happy","upgraded"]:
 			rotation = -2.25 + sin(time*6)*0.12
 		pieces.append(piece(arms_id,side,Rect2(x,body_top+1.5,size.x,size.y),rotation))
-	pieces.append(piece(head_id,"source",Rect2(-head.x/2,body_top-head.y+1.0,head.x,head.y)))
+	pieces.append(piece(head_id,"source",Rect2(-head.x/2,body_top-head.y+1.0,head.x,head.y),0.16 if mood == "sleeping" else 0.0))
 	if core_id != "robot_core_solar":
 		var core := part_size(core_id)
 		pieces.append(piece(core_id,"source",Rect2(-core.x/2,body_top+body.y*0.43-core.y/2,core.x,core.y)))
@@ -103,10 +105,10 @@ func clearance(outfit: Dictionary) -> float:
 func build_description(outfit: Dictionary) -> String:
 	var size := bounds(outfit).size
 	var original := bounds({}).size
-	return "Your build / %.2f× original height · %.2f× original width" % [size.y/original.y,size.x/original.x]
+	return "Your build / %.2fx original height  /  %.2fx original width" % [size.y/original.y,size.x/original.x]
 
 func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking: bool = false, outfit: Dictionary = {}, seated: bool = false) -> void:
-	var hop := absf(sin(time*7))*1.5 if mood in ["happy","upgraded"] and not seated else 0.0
+	var hop := absf(sin(time*2))*0.3 if mood in ["happy","upgraded"] and not seated else 0.0
 	var origin := feet - Vector2(0,hop)
 	var atlas_size := Vector2(ATLAS.get_size())
 	for part in pose(outfit,time,mood,walking,seated):
@@ -122,4 +124,4 @@ func draw(target: CanvasItem, feet: Vector2, time: float, mood: String, walking:
 	if mood == "charging":
 		var right_edge := bounds(outfit).end.x
 		for i in range(3):
-			target.draw_rect(Rect2(origin + Vector2(right_edge+2,-8-i*4-fposmod(time*3,3)),Vector2(0.7,1.5)),Color("8ae9d8"))
+			target.draw_rect(Rect2(origin + Vector2(right_edge+2,-8-i*4),Vector2(0.7,1.5)),Color("8ae9d8"))

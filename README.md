@@ -1,9 +1,7 @@
-# Space-game-
+# Little Orbit
 
-Little Orbit is a playable Godot 4 study game with study timers, visual restoration, a modular ship workshop three side-view interior themes, robot equipment, and mouse-wheel ship zoom. See [the prototype guide](docs/PROTOTYPE.md) for setup, architecture, validation, and limitations.
+A native Godot 4.4.1 study game with detailed pixel-art ship restoration, interchangeable robot parts, connected lower-deck expansion, lab research, an immersive bridge and a task-first focus timer.
 
-![New ship artwork - asset preview, not a game screenshot](assets/art/ship-cutaway-restored-v1.png)
+Use PLAY-GAME.cmd to run the existing project. See [the guide](docs/PROTOTYPE.md), [current milestone](docs/GROWING-STARSHIP.md) and [validation](docs/VALIDATION.md).
 
-Detailed raster artwork and its gameplay integration are documented in [PIXEL-ART-ASSETS.md](docs/PIXEL-ART-ASSETS.md).
-
-Robots now assemble interchangeable raster heads, chassis, arms, legs and packs; see [MODULAR-ROBOT.md](docs/MODULAR-ROBOT.md).
+![Pixel-art ship angle atlas - asset preview, not a gameplay screenshot](assets/art/ship-pixel-angles-v2.png)

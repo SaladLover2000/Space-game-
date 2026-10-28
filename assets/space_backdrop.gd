@@ -18,19 +18,19 @@ func _init() -> void:
 		for x in range(280):
 			var field := noise.get_noise_2d(x, y)
 			var ribbon := sin(x * 0.018 + y * 0.025) * 0.22 + field
-			var color := Color("080d24")
+			var color := Color("030611")
 			if ribbon > -0.2:
-				color = Color("15234a")
+				color = Color("070d1c")
 			if ribbon > 0.0:
-				color = Color("263368")
+				color = Color("0a1328")
 			if ribbon > 0.19:
-				color = Color("4a3578")
+				color = Color("111a31")
 			if ribbon > 0.31:
-				color = Color("8a437f")
+				color = Color("1b1a36")
 			if field > 0.28 and x < 165:
-				color = Color("1c7589")
+				color = Color("10232d")
 			if field > 0.4 and x < 165:
-				color = Color("43b0b0")
+				color = Color("19303a")
 			if (x * 73 + y * 31) % 7 == 0:
 				color = color.lightened(0.07)
 			image.set_pixel(x, y, color)
@@ -80,3 +80,23 @@ func draw(canvas: CanvasItem, time: float, width: float = 280.0) -> void:
 		canvas.draw_texture_rect(planets[i], Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2), false)
 		if i == 2:
 			canvas.draw_arc(center, radius * 1.6, PI, TAU, 24, Color("efbbd8"), 1)
+
+func draw_world(canvas: CanvasItem, time: float, camera: Rect2) -> void:
+	canvas.draw_rect(camera.grow(10),Color("030611"))
+	# One very distant cloud field, not repeated patches of bright nebula.
+	canvas.draw_texture_rect(nebula,Rect2(-800,-600,1800,1200),false,Color(0.8,0.85,1,0.6))
+	for tile_y in range(floori(camera.position.y/240)-1,ceili(camera.end.y/240)+1):
+		for tile_x in range(floori(camera.position.x/420)-1,ceili(camera.end.x/420)+1):
+			for i in range(45):
+				var seed_value: float = i*67.31+tile_y*23.7+tile_x*17.1
+				var speed: float = 2.0+(i%3)*2.0
+				var position := Vector2(tile_x*420+fposmod(seed_value+time*speed,420),tile_y*240+fposmod(i*31.71+tile_x*11,240))
+				var color := Color("6b7e96" if i%3 else "b1c5d5")
+				canvas.draw_line(position,position+Vector2(0.7+i%3*0.4,0),color,0.5)
+	var radii := [70.0,26.0,17.0]
+	for i in range(3):
+		var center := cruise_planet_position(i,time)
+		canvas.draw_texture_rect(planets[i],Rect2(center-Vector2.ONE*radii[i],Vector2.ONE*radii[i]*2),false)
+
+func cruise_planet_position(index: int, time: float) -> Vector2:
+	return Vector2(fposmod(-150+index*480+time*(0.7+index*0.25)+500,1500)-500,[-25.0,180.0,70.0][index])

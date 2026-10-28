@@ -18,6 +18,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://test_orbit_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.active = {}
 	check(not game.start_session(0), "reject zero duration")
 	check(not game.start_session(241), "reject oversized duration")
@@ -67,6 +68,7 @@ func run() -> void:
 	check(not game.valid_snapshot({"version": 1, "credits": "bad"}), "malformed numeric state rejected")
 	check(game.valid_snapshot({"version": 1}), "missing fields accept defaults")
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.active = {}
 	game.state.battery = 100
 	game.start_session(1)

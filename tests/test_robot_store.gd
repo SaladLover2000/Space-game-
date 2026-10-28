@@ -16,6 +16,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://robot_store_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.active = {}
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
@@ -31,7 +32,7 @@ func run() -> void:
 	check(not game.buy_part("robot_core_solar").ok and game.state == before, "robot research gate cannot be bypassed")
 	game.state.xp = 100
 	for slot in ["robot_shell", "robot_visor", "robot_arms", "robot_legs", "robot_core"]:
-		shop.category_buttons[slot].pressed.emit()
+		shop.category_picker.item_selected.emit(shop.category_indices[slot])
 		check(shop.robot_preview.visible and not shop.ship_view.visible and shop.cards.get_child_count() == 3, "robot category shows its portrait and three real part cards: " + slot)
 	shop.select_slot("robot_shell")
 	before = game.state.duplicate(true)
@@ -83,14 +84,16 @@ func run() -> void:
 	scene.open_compact()
 	var panel: Control = scene.compact_panel
 	scene.show_page("robot")
-	check(scene.compact_panel == panel and panel.visible, "in-game timer survives navigation without creating another panel")
+	check(scene.compact_panel == panel and not panel.visible and not game.active.is_empty(), "shop hides the timer panel without creating another panel or stopping the session")
+	scene.show_page("ship")
+	scene.open_compact()
 	scene.compact_pause_button.pressed.emit()
 	check(game.active.paused, "in-game timer Pause uses the real session action")
 	scene.compact_hide_button.pressed.emit()
 	check(not panel.visible and game.active.paused, "Hide puts the timer away without canceling or changing session state")
 	scene.open_compact()
 	check(scene.compact_panel == panel and panel.visible, "timer reopens using the same in-game panel")
-	check(scene.find_children("*", "Window", true, false).is_empty(), "timer and shop create no popup windows")
+	check(scene.find_children("*", "Window", true, false).filter(func(window): return window.visible and window.force_native).is_empty(), "timer and shop create no popup windows")
 	game.cancel_session()
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(game.save_path + suffix):

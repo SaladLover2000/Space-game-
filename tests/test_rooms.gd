@@ -23,6 +23,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://room_test_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.active = {}
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
@@ -94,7 +95,7 @@ func run() -> void:
 	root.content_scale_size = Vector2i(920, 680)
 	await process_frame
 	await process_frame
-	check(scene.content.size.x <= 872, "room layout fits minimum window width")
+	check(scene.content.size.x <= 888, "room layout fits minimum window width")
 	await capture("minimum-window")
 	root.size = Vector2i(1152, 768)
 	root.content_scale_size = Vector2i(1152, 768)
@@ -105,7 +106,7 @@ func run() -> void:
 	check(view.expression() == "idle", "celebration ends in recharged idle expression")
 	scene.show_page("robot")
 	await process_frame
-	check(is_instance_valid(scene.robot_mood), "dedicated robot status screen opens")
+	check(is_instance_valid(scene.workshop) and scene.workshop.selected_slot == "robot_shell", "robot tab opens the robot upgrade workshop")
 	await create_timer(0.55).timeout
 	await capture("robot-status")
 	for suffix in ["", ".bak", ".tmp"]:

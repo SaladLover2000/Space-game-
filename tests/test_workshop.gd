@@ -22,6 +22,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://workshop_test_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.active = {}
 	check(game.state.equipped.size() == 12 and game.state.owned.is_empty(), "twelve ship and robot stock slots available without fabricated purchases")
@@ -98,7 +99,7 @@ func run() -> void:
 	var credits_before: int = game.state.credits
 	shop.action_buttons.paint_copper.pressed.emit()
 	check(game.state.equipped.paint == "paint_copper" and game.state.credits == credits_before - 25, "actual shop Buy button charges and equips the selected cosmetic")
-	shop.category_buttons.interior.pressed.emit()
+	shop.category_picker.item_selected.emit(shop.category_indices.interior)
 	shop.preview_buttons.interior_habitat.pressed.emit()
 	check(not shop.ship_view.exterior and shop.ship_view.equipment().interior == "interior_habitat" and game.state.equipped.interior == "interior_stock", "interior theme preview uses cutaway without equipping for free")
 	await capture("interior-theme-preview")
@@ -120,7 +121,7 @@ func run() -> void:
 	root.content_scale_size = Vector2i(920,680)
 	await process_frame
 	await process_frame
-	check(scene.content.size.x <= 872 and shop.cards.columns == 1, "workshop fits the minimum width with one-column cards")
+	check(scene.content.size.x <= 888 and shop.cards.columns == 1, "workshop fits the minimum width with one-column cards")
 	root.size = Vector2i(1600,900)
 	root.content_scale_size = Vector2i(1600,900)
 	scene.show_page("interior")

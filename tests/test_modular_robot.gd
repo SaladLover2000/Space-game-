@@ -25,6 +25,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://modular_robot_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.state.started = true
 	game.active = {}
 	var original := art.bounds({})

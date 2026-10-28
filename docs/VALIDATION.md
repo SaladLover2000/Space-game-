@@ -1,3 +1,16 @@
+# Current validation - 2026-10-28
+
+The strict headless runner passed editor import and **300 assertions across 13 suites**, with no GDScript compile/runtime errors. Current report: expedition-check-results.json. Historical entries below describe earlier builds and are superseded by this milestone.
+
+The 27-check expedition suite verifies prerequisite and affordability gates, no double charges, save-failure rollback, actual Build callbacks, preview isolation, construction/research disk reload, connected lower-deck routes, hatch blocking, return to the pilot chair, bridge software state, real mesh construction, eight separate pixel-art angles, camera-only orbit input and the optional researched scanner.
+
+The 29-check focus/cruise suite verifies blank/whitespace task rejection, safe legacy checkpoint resumption, actual task/Start callbacks, hidden shop timer with uninterrupted elapsed focus time, side-panel shop structure, Robot-tab upgrade access, compact dock layout against active font metrics, clean ASCII status text, steady default lights, glancing/missed contacts, contact-time/idempotent minor hull damage, non-destructive hull floor, patch costs/save rollback, free robot repairs, planet motion and manual-over-autonomous activity priority.
+
+Existing reward, pause/cancel, naming, backup recovery, repair/part purchasing, atlas calibration, 243 robot combinations, seat poses, click-vs-drag and camera zoom checks passed. Test fixtures now name their focus task explicitly because production defaults intentionally reject anonymous sessions. Minimum-width checks reflect the revised 16-pixel margins. Headless font metrics differ from the normal rendered font; the dock height budget accounts for measured line height rather than claiming rendered pixel-fit acceptance.
+
+No visible game was launched. The new generated cockpit, room-module and pixel-angle asset files were visually inspected, including corrected atlas spacing. Assembled layout, GPU output, physical OS mouse routing and motion comfort have not been visually accepted. Existing gameplay screenshots are historical. No screenshot is claimed for this milestone. See GROWING-STARSHIP.md and UI-REFERENCES.md for behavior, sources and exact asset/prompt paths.
+
+---
 # Phases 1–2 validation
 
 ## Whole-ship selection and detailed body update

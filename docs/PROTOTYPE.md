@@ -1,129 +1,49 @@
-# Little Orbit — Study game and modular workshop
+# Little Orbit - Space Study
 
-A native Godot 4 / GDScript single-player study game. No internet, assets, or external libraries are required to play.
+## Run the one active project
 
-## Open and play on Windows
+Double-click PLAY-GAME.cmd in this folder to launch the installed Godot 4.4.1 in a standalone window. Close an old run before reopening after a code update. The project remains in Downloads/Space_game/SpaceStudy; no additional ZIP or duplicate project is needed. Import project.godot in Godot if editing manually.
 
-For the larger standalone window on this PC, double-click `PLAY-GAME.cmd` in the project root. It uses the Godot executable already extracted in Downloads and starts the game maximized with a 1600×900 design canvas. This avoids the small embedded preview shown inside the editor. Stop any existing run before starting it. Godot's editor can still launch the project with F5.
+## Focus and navigation
 
-Names now autosave after a short typing pause, on leaving the form, and on clean exit. Enter or the form button saves and continues. New-game setup is marked complete only by continuing. A failed save is shown on the form rather than reporting success.
+Write what you are working on before starting. Blank/whitespace titles are rejected by Game as well as the UI. The compact bottom dock contains the task, countdown, duration presets and one primary Start/Pause/Resume action. Hide puts the dock away; Focus bar restores it. Shop and Robot modes hide it automatically while the same session continues. Names autosave in setup/settings. Study history stores the task with each completed session.
 
-The ship starts in a wide 420×240 camera. Scroll the mouse wheel over the ship to zoom from 0.65× to 2.8×, or use the Zoom and Fit ship buttons. Room selection preserves your chosen scale. The inspector no longer stretches the drawing area and enlarges the ship. A cyan outline identifies the selected room while its equipment appears in the inspector. Selecting a room automatically moves the companion into it with a stepping animation. Closed hatches block the companion in either direction. Open a hatch manually to resume the pending destination; the robot waits for its opening animation to clear. Movement changes no study rewards.
+Ship and Interior show the live cutaway. Hold left mouse and drag to move the world camera and background; wheel zooms; Fit ship resets pan and zoom. A click activates on release after ruling out a drag. Click the pilot chair to walk over and sit. Open closed hatches on the route. Stand up or select another room to leave. Camera gestures do not move the ship or grant rewards.
 
-1. Install Godot 4.4 or newer, standard edition (no .NET required).
-2. In the project manager choose **Import**, select `project.godot`, then **Import & Edit**.
-3. Press **F6** with `scenes/main.tscn` open, or **F5** to run the project.
-4. Choose **Begin your journey**, name your robot and ship, then start a session.
-5. Choose 25/45/60/90/120 minutes or type a custom whole-minute duration from 1–240. A completed 25-minute session earns 50 credits: open **Shop → Room repairs** to restore the engine. The engine room and exhaust visibly light up.
-6. For a quick manual check use a custom **1 minute** session. Pause, resume, and try the compact timer panel and its Hide timer button.
-7. Click a room in the ship or use the room buttons. The full ship remains visible and the room is highlighted; select equipment in the scene or its buttons to inspect it. Scroll down if necessary to see the full room panel. Choose **Back to overview** to clear the selection.
-8. Restore living quarters for 40 credits, the engine for 50, or the cockpit for 60. Each path is available immediately. View your companion's battery, expression and charging dock on **Robot**.
-9. Open **Drift** for a colorful exterior view: the hull gently rocks, soft white exhaust disperses, and shaded orange, turquoise and violet planets pass at different speeds. Your running study session continues and its status stays visible. Return to **Ship & study** to use the timer controls.
-10. Open **Interior** for the larger ship cutaway. Pick a room, then click the drawn equipment itself or its corresponding inspector button. Click either bulkhead hatch (or its sidebar button) to slide its shutters open/closed. Hatches block passage while closed and reset open when the view is recreated; purchased restoration states remain saved.
+Bridge is an immersive control-room scene with a larger live modular robot running diagnostics, working on navigation or resting. The 3D tab defaults to eight elevated pixel-art angle sprites; it is a directional art viewer, not continuous mesh rotation. Free-orbit mesh inspector is a separate mode. Drag turns, Shift + drag pans and the wheel zooms. Rendering/GPU appearance still needs visual review.
 
-The compact timer is a panel inside the main game, below navigation. Hide timer puts it away without pausing or canceling. It creates no native popup and never stays on top of other apps. Closing the main game saves and exits. The main window is resizable and its content scrolls on small displays. Names remain editable in Settings. Cancellation requires confirmation and awards no completion rewards.
+Shop is a game-style split view: a fixed ship/robot preview beside an independently scrolling upgrade panel. Robot directly opens the robot version of this shop. There are 21 ship designs and 15 robot designs across 12 slots. Preview never charges or grants ownership; purchases equip once, and owned parts swap freely. Robot parts compose 243 genuinely different mixed builds, with shared portrait scale and size-aware hatch clearance.
 
-## Included
+## Growing the starship
 
-- Main menu, first-run naming, overview/study screen, whole-ship room inspector, robot status, repair shop, study log, settings.
-- Countdown based on monotonic elapsed milliseconds, independent of frame rate and system date changes; keeps counting while minimized. Pause/resume/cancel, reward estimates, completion chime and window attention request.
-- Configurable credits (2/min), research XP (1/min), battery recharge (1%/min, capped at 100%). No passive depletion or missed-day penalties.
-- Three room repairs with centralized prices, requirements, ownership, insufficient-funds handling and linked visual states. Existing Phase 1 saves remain compatible without migration.
-- Original procedurally drawn pixel ship cutaway with three rooms, layered drifting stars and a dithered nebula. Rooms visibly lose rust and gain steady lighting as they are restored. The cockpit gains navigation lights and clean glass; quarters gain fresh bedding, a lamp and plant; the engine gains glowing coils and exhaust.
-- Clickable rooms, hover/selection outlines, stable overview framing, keyboard-accessible room and object buttons, and nine object descriptions that change with restoration.
-- Robot sad/idle expressions, blinking, charging-dock pulses during running study, a four-second completion celebration and a brief repair reaction. Artwork is isolated and replaceable. Charging animation is cosmetic: battery rewards remain completion-only.
-- Versioned JSON save, defaults, type validation, temporary-file replacement and validated previous-snapshot backup. Saves every ten seconds during sessions and on state changes/clean exit.
+Build & research adds connected lower decks at predefined sockets. The lab is beneath the living cabin, fabrication extends alongside it, and hydroponics adds a deeper level. These are not freely draggable rooms. The robot follows the central lift and connecting deck routes.
 
-## Architecture and files
+Research milestones unlock navigation software rebuilding, a deep-space scanner and closed-loop life support. Projects spend credits once; accumulated research XP is a gate and is not consumed. Navigation research changes the bridge work state, the scanner appears in the mesh inspector, and life support enables the habitat. See data/expansions.json and data/research.json for prices/prerequisites.
 
-- `project.godot`, `scenes/main.tscn`: entry point and project configuration.
-- `scripts/game.gd`: authoritative state, timer, transactions and persistence; autoloaded as Game.
-- `data/balance.json`: reward rates and repair catalog.
-- `data/rooms.json`: room bounds, names and damaged/restored inspection text.
-- `ui/main.gd`: responsive screen composition, input, compact native window, sound.
-- `assets/ship_view.gd`: original low-resolution drawing, no licensed third-party art.
-- `assets/space_backdrop.gd`: original seeded nebula and shaded planet textures; parallax scenery. User references informed the palette only; no reference image pixels or watermarks are bundled.
-- `assets/interior_art.gd`: modular wall/floor tiling, cockpit workstation, recessed bunk, locker, coolant system and animated bulkheads. Original code-drawn art inspired by the interior references; no third-party sprite sheet copied or embedded.
-- `assets/hull_art.gd`: shared shaped hull, swept stabilizers, forward strakes, chamfered cockpit, armor plates and twin engine pods. Exterior and cutaway share the same chassis; both retain white exhaust.
-- `assets/robot_art.gd`: articulated robot with helmet/visor, neck, tapered torso, shoulder/elbow joints, two-finger grippers, hip linkage, piston legs and distinct feet. Expressions still follow battery, study and repair/completion events.
-- `assets/robot_portrait.gd`: larger companion portrait on Robot status, drawn from the same robot artwork as the in-room companion.
-- `tests/test_interior.gd`: all nine in-room fixture hit tests, hatch shutter behavior, repair-aware inspection and isolation from study/save progress.
-- `tests/test_drift.gd`: motion, exhaust lifetime, moving-hull hit tests, scenery/timer isolation and optional real-frame render comparisons.
-- `tests/test_game.gd`: isolated headless logic and persistence checks.
-- `tests/test_rooms.gd`: room click/zoom/inspection, restoration persistence, companion reactions and timer independence checks; optional graphical screenshot capture.
-- `tests/test_minimized.gd`: real one-minute countdown acceptance test with a minimized native Windows window; takes about 65 seconds.
-- `tests/mutation_check.py`: verifies the suites reject five deliberately introduced regressions in isolated project copies; standard Python only.
-- `tests/run_checks.py`: runs import and the full regression suite; rejects GDScript errors even if Godot reports exit code zero. Use `--graphical` to capture current game screens and check native rendered-frame animation.
-- `tests/test_usability.gd`: actual file persistence for typed names, Enter/navigation save paths, window configuration, full-room framing, companion arrival/visibility, rapid room changes and timer continuity.
+## Economy and ambient flight
 
-The UI requests operations from Game and never grants study rewards. Catalog IDs link ownership to art. Future components/rooms can extend the catalog and visual layer; planetary discoveries can be added with a versioned save migration and deterministic seed field.
+Completed focus earns 2 credits, 1 research XP and 1% battery per minute (battery capped at 100%). Pause/cancel grant no reward and never drain battery. Starter room restoration costs 40 credits for quarters, 50 for the engine and 60 for the cockpit. Engine patches cost 10 for 25 condition; full overhaul unlocks replacement engines. Workshop purchases and construction/research roll back on save failure.
 
-## Persistence and timer policy
+Cruise scenery uses a dark distant cloud field, coherent star motion, passing planets and occasional asteroids. Encounters occur about every 100 open-app seconds. A quarter are contacts; only six percent of contacts cause two hull points of damage, applied once at contact time. Integrity cannot fall below 80. Study rewards and credits are unaffected. A 5-credit hull patch restores 10 points; automatic field repairs recover one point per 30 open-app seconds while damaged. Closed-app time produces no flight, damage or free repairs.
 
-Saves live under `%APPDATA%\Godot\app_userdata\Little Orbit — Space Study\` (`orbit_v1.json` and `.bak`). On reopen, the most recent active checkpoint resumes **paused**. Closed-app time earns nothing; a crash can lose up to ten seconds of timer progress. Completion currency, history and session consumption are committed in one snapshot. Repeated callbacks cannot award a session twice. There is no claim-reward button.
+Uncommanded robots maintain systems, observe space, sleep in the bunk, rest or charge during focus. Manual room/seat commands take priority. Charging remains cosmetic outside study completion. Steady instrument lights are the default, with the setting available in Settings. There are no animated selection borders or rapid diagnostic-bar effects.
 
-This is an offline local game: deliberate save editing/rollback is outside the anti-exploit scope. The OS date is used only as a history label. System suspend behavior depends on the OS monotonic clock and is not a guarantee of active studying. Disk-write failures are shown in the UI; in-memory progress survives until exit but cannot survive an unwritable disk.
+## Saves
 
-## Validation
+Version-1 JSON saves are compatible with previous builds. Optional expansion, research, task, hull and cruise fields receive defaults on old saves. Purchases/names/history/session checkpoints use the existing local atomic temporary-file and backup scheme. Closing resumes a saved active checkpoint paused on the next launch. Closed-app time earns nothing. Existing unlabeled paused checkpoints need a task before resume.
 
-From PowerShell, substituting the path to your Godot executable:
+## Verification and visual review
 
-```powershell
-& 'C:\Tools\Godot.exe' --headless --path . --editor --quit
-& 'C:\Tools\Godot.exe' --headless --path . --script res://tests/test_game.gd
-& 'C:\Tools\Godot.exe' --headless --path . --script res://tests/test_rooms.gd
-& 'C:\Tools\Godot.exe' --headless --path . --script res://tests/test_ui.gd
-```
+Run background checks with:
 
-The test uses a unique save filename and never writes to the player save. It covers invalid/overlapping sessions, long frame elapsed time, pause/cancel, rewards, repeat completion, purchase ownership, reload and corrupted-save recovery.
+python tests/run_checks.py --godot C:/Tools/Godot.exe --report results.json
 
-Preferred full regression command (Python standard library only):
+All suites use isolated save filenames. They exercise actual Game logic, signals, input callbacks, transaction persistence, atlas state selection, mixed robot geometry, seat routes, expansion lifts, camera movement, task gating, rare-contact handling and autonomous activities. They do not simulate the OS mouse or prove visual comfort. Current results are in docs/expedition-check-results.json and VALIDATION.md.
 
-```powershell
-python tests/run_checks.py --godot 'C:\Tools\Godot.exe' --graphical --report check-results.json
-```
+Do not launch the game or use --graphical without the user's explicit permission. No visible game launch was performed for this milestone. Asset images were inspected; the assembled UI, GPU output and comfort remain for user review. Historical screenshots in docs show earlier versions.
 
-Manual acceptance: launch and name companions; complete a one-minute timer while minimized; hear chime and see resources; cancel another session for zero reward; reopen during a paused session; edit names; complete 25 minutes and repair engine; verify the restored art and ownership persist. Verify compact-window topmost behavior in Windows. Automated results for this delivery are recorded in `VALIDATION.md`.
+More details: GROWING-STARSHIP.md, UI-REFERENCES.md, MODULAR-ROBOT.md, PIXEL-ART-ASSETS.md and SEAT-AND-CAMERA.md. Exact built-in image-tool prompts are saved in art-prompts.
 
-## Scope and next task
+## Later work
 
-This delivery includes the Phase 1 core and Phase 2 visual-restoration pass. A first ship workshop is included. Wishlist, technology tree, weekly bonuses, achievements, collectible planets and solar-system editor remain deferred. Research XP is stored but the three starter repairs have no research gate. Artwork is still procedural placeholder art rather than a finished commissioned sprite set. No Windows executable is bundled yet.
-
-The colorful planet fly-bys in Drift and room backgrounds are decorative scenery. Collectible discoveries, planet interaction and solar-system construction remain deferred. White exhaust is an atmospheric visual effect even before engine restoration; repaired engines emit a denser trail. Ship drift is cosmetic and never changes study rewards or battery use.
-
-Next: wishlist and a Windows export and full manual acceptance pass. Keep timer and saves independent of presentation.
-
-## Export
-
-In Godot install matching export templates via **Editor → Manage Export Templates**. Open **Project → Export**, add **Windows Desktop**, choose x86_64 and a destination outside source (for example `build/LittleOrbit.exe`). Export a debug build first and run the manual acceptance checks above. Signing and installer packaging are future release work.
-
-## Ship workshop and side-view themes
-
-Open **Shop** to select a ship component directly on the preview or choose a category. There are 21 designs across seven slots: engines, hull, fins/solar, paint, sensors, lighting and interior. Preview changes only the displayed ship. Buy & equip deducts credits once; owned designs can be swapped freely. Research XP gates some designs but is not spent. Equipped designs persist across restarts.
-
-The cutaway now has taller side walls and a narrow deck for a clearer side-on view. Industrial steel is the free original theme; Warm habitat adds bronze walls and amber lamps; Cyan laboratory adds cool panels and a glass tower. Select **Shop → Interior themes** to preview them. Room selection keeps the entire ship visible and the robot walks to the selected room.
-
-An engine patch costs 10 credits and restores 25 condition points, capped at 100%. A full overhaul costs 50 credits, restores 100%, and unlocks replacement engines. Patching does not grant overhaul ownership. Four patches can fill condition, after which an overhaul can still unlock replacements. Automatic asteroid damage is not implemented; condition never degrades as a study penalty. These components are cosmetic, not combat statistics.
-
-Old saves gain stock equipment automatically. Invalid, unowned or mismatched equipment IDs reset to the correct stock part. Workshop purchases and equipment changes roll back if saving fails. A successful retry clears the storage error notice. Test screenshots use isolated demonstration saves, not player progress.
-## Robot upgrades and revised ship controls
-
-Open **Shop → Robot upgrades** or **Robot → Customize robot in the shop**. Five slots offer 15 designs: shells, optics, arms, legs, and chest/backpack modules. Each card has an outfit illustration, price, research gate, Preview, and Buy & equip. Preview is temporary; purchases persist and owned parts swap freely. Cosmetic upgrades appear both in the large robot portrait and aboard the ship. They do not change study rewards or consume battery. Old saves receive the five free stock parts.
-
-The hull now includes broad swept wings, auxiliary nacelles, layered nose plating and segmented cooling surfaces. Damage artwork includes split engine piping with escaping vapor, a dark broken cell, a loose panel, blinking red engine alarm, cracked bridge glass, exposed console wiring and a hanging habitation cable. Restoration replaces those room fittings with intact pipes, clean glass and steady indicators. These are visual restoration states, not new asteroid penalties.
-
-Mouse-wheel zoom is limited to the ship drawing area; scrolling elsewhere scrolls the interface normally. Selecting rooms does not reset zoom. The compact countdown is an in-game panel that can stay visible across navigation or be hidden without affecting the session.
-
-## Detailed raster artwork
-
-The active ship renderer now uses three detailed original pixel-art PNG atlases for damaged cutaway, restored cutaway and closed exterior views. This replaces the previous flat procedural hull and room drawings. Room restoration selects clean atlas regions independently, while hatches, the robot, equipment previews, warning blink and exhaust remain interactive. See PIXEL-ART-ASSETS.md for the calibration, assets and exact generation prompts. Existing gameplay screenshots predate this art replacement; the game has remained closed during current testing at the user's request.
-
-
-## Modular robot bodies
-
-Robot upgrades now assemble separate detailed raster heads, chassis, paired arms, paired legs and equipment. Choose Shop → Robot upgrades. The salvage chassis is wider; survey legs and torso are taller. Different families can be combined in 243 outfits. Preview updates the assembled body without buying it, and the shop displays height/width relative to the original build. Existing owned parts and save IDs remain compatible. See MODULAR-ROBOT.md for the asset, prompt, attachment layout and validation scope.
-
-
-## Pilot chair and camera panning
-
-Hold left mouse and drag on the ship to move the view in either direction. Wheel zoom keeps your camera center; Fit ship restores the overview. Click the pilot chair to walk over and sit, waiting for any closed hatches. Use Stand up or choose another room to leave. The existing Pilot seat equipment button also activates seating. Drag gestures do not activate fixtures or doors. See SEAT-AND-CAMERA.md for behavior and test scope.
+Unrestricted ship building, collectible discoveries, a solar-system editor, combat, online features, wishlist/achievements and a packaged Windows executable remain future work. The current game is run through Godot. Exporting requires matching Godot export templates.

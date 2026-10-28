@@ -18,6 +18,10 @@ var action_buttons: Dictionary = {}
 var preview_buttons: Dictionary = {}
 var category_buttons: Dictionary = {}
 var repair_note: Label
+var category_picker: OptionButton
+var category_indices: Dictionary = {}
+var side_scroll: ScrollContainer
+var preview_stage: VBoxContainer
 
 func text(parent: Node, value: String, font_size: int = 17) -> Label:
 	var result := Label.new()
@@ -35,70 +39,81 @@ func button(parent: Node, value: String, callback: Callable) -> Button:
 	return result
 
 func _ready() -> void:
-	add_theme_constant_override("separation", 12)
+	add_theme_constant_override("separation",10)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text(self, "SHIP & ROBOT WORKSHOP / Build your own little home", 23)
-	text(self, "Choose ship parts or robot upgrades. Scroll over the ship to zoom. Preview first; credits are spent only when you buy.", 16)
-	var destinations := HBoxContainer.new()
-	add_child(destinations)
-	button(destinations, "Ship parts", func(): select_slot("engine"))
-	button(destinations, "Robot upgrades", func(): select_slot("robot_shell"))
-	var upper := HBoxContainer.new()
-	upper.add_theme_constant_override("separation", 16)
-	add_child(upper)
+	text(self,"ORBITAL DOCKYARD",24)
+	var stage_height := maxf(360,get_viewport_rect().size.y-250)
+	var split := HBoxContainer.new()
+	split.add_theme_constant_override("separation",16)
+	add_child(split)
+	preview_stage = VBoxContainer.new()
+	preview_stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_stage.custom_minimum_size.x = 340
+	split.add_child(preview_stage)
 	ship_view = ShipView.new()
 	ship_view.exterior = true
 	ship_view.interactive = true
 	ship_view.workshop_mode = true
-	upper.add_child(ship_view)
-	ship_view.custom_minimum_size = Vector2(500, 330)
-	ship_view.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	preview_stage.add_child(ship_view)
+	ship_view.custom_minimum_size = Vector2(340,stage_height-90)
 	ship_view.part_selected.connect(select_slot)
 	robot_preview = RobotPortrait.new()
 	robot_preview.preview_mode = true
-	robot_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	upper.add_child(robot_preview)
+	robot_preview.custom_minimum_size = Vector2(340,stage_height-90)
+	preview_stage.add_child(robot_preview)
 	robot_preview.hide()
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size.x = 280
-	upper.add_child(panel)
-	var aside := VBoxContainer.new()
-	aside.add_theme_constant_override("separation", 10)
-	panel.add_child(aside)
-	detail = text(aside, "", 17)
-	engine_title = text(aside, "Engine condition", 15)
-	condition = ProgressBar.new()
-	condition.custom_minimum_size.y = 24
-	aside.add_child(condition)
-	patch_button = button(aside, "", func(): service(false))
-	overhaul_button = button(aside, "", func(): service(true))
-	repair_note = text(aside, "A low-cost patch adds condition. A full overhaul unlocks replacement engines. No automatic damage or missed-day penalties.", 14)
-	button(aside, "Use equipped design", clear_preview)
-	var categories := HFlowContainer.new()
-	add_child(categories)
+	var destinations := HBoxContainer.new()
+	preview_stage.add_child(destinations)
+	button(destinations,"Ship upgrades",func(): select_slot("engine"))
+	button(destinations,"Robot upgrades",func(): select_slot("robot_shell"))
+	button(destinations,"Fit view",func(): ship_view.reset_zoom())
+	feedback = text(preview_stage,"Your equipped design is shown.",15)
+	feedback.modulate = Color("c8b98a")
+	side_scroll = ScrollContainer.new()
+	side_scroll.custom_minimum_size = Vector2(330,stage_height)
+	split.add_child(side_scroll)
+	var sidebar := VBoxContainer.new()
+	sidebar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sidebar.add_theme_constant_override("separation",10)
+	side_scroll.add_child(sidebar)
+	category_picker = OptionButton.new()
+	sidebar.add_child(category_picker)
 	for slot in SLOTS:
-		var id: String = slot
-		category_buttons[id] = button(categories, SLOTS[id], func(): select_slot(id))
-	feedback = text(self, "Your equipped design is shown.", 16)
-	feedback.modulate = Color("e8cf87")
+		category_indices[slot] = category_picker.item_count
+		category_picker.add_item(SLOTS[slot])
+	category_picker.item_selected.connect(func(index): select_slot(SLOTS.keys()[index]))
+	detail = text(sidebar,"",17)
+	engine_title = text(sidebar,"Engine condition",14)
+	condition = ProgressBar.new()
+	condition.custom_minimum_size.y = 20
+	sidebar.add_child(condition)
+	patch_button = button(sidebar,"",func(): service(false))
+	overhaul_button = button(sidebar,"",func(): service(true))
+	repair_note = text(sidebar,"Affordable engine patches and full overhauls. Most asteroid contacts cause no damage.",13)
+	button(sidebar,"Patch hull / 5 credits",func(): feedback.text = Game.patch_hull().message; refresh())
+	button(sidebar,"Use equipped design",clear_preview)
 	cards = GridContainer.new()
-	cards.columns = 2
+	cards.columns = 1
 	cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cards.add_theme_constant_override("h_separation", 12)
-	cards.add_theme_constant_override("v_separation", 12)
-	add_child(cards)
+	cards.add_theme_constant_override("v_separation",10)
+	sidebar.add_child(cards)
 	Game.changed.connect(refresh)
 	resized.connect(on_resized)
 	refresh()
 
 func on_resized() -> void:
-	if is_instance_valid(cards):
-		cards.columns = 2 if size.x >= 1000 else 1
+	if is_instance_valid(side_scroll):
+		side_scroll.custom_minimum_size.x = clampf(size.x*0.35,300,420)
+		var stage_height := maxf(360,get_viewport_rect().size.y-250)
+		side_scroll.custom_minimum_size.y = stage_height
+		ship_view.custom_minimum_size.y = stage_height-90
+		robot_preview.custom_minimum_size.y = stage_height-90
 
 func select_slot(slot: String) -> void:
 	if not SLOTS.has(slot):
 		return
 	selected_slot = slot
+	category_picker.select(category_indices[slot])
 	ship_view.selected_slot = slot
 	robot_preview.visible = slot.begins_with("robot_")
 	ship_view.visible = not robot_preview.visible
@@ -122,7 +137,7 @@ func preview_part(id: String) -> void:
 	robot_preview.preview_equipped = ship_view.preview_equipped.duplicate(true)
 	robot_preview.queue_redraw()
 	ship_view.queue_redraw()
-	feedback.text = "PREVIEW ONLY / " + item.name + " — no credits spent."
+	feedback.text = "PREVIEW ONLY / " + item.name + " - no credits spent."
 	detail.text = SLOTS[selected_slot] + "\nPreview: " + item.name
 
 func buy_part(id: String) -> void:
@@ -145,6 +160,7 @@ func refresh() -> void:
 	if selected_slot.begins_with("robot_"):
 		var outfit: Dictionary = robot_preview.preview_equipped if not robot_preview.preview_equipped.is_empty() else Game.state.equipped
 		detail.text += "\n" + robot_preview.art.build_description(outfit)
+	engine_title.text = "Engine condition / Hull %d%%" % Game.state.hull_integrity
 	condition.value = Game.state.engine_condition
 	condition.visible = not selected_slot.begins_with("robot_")
 	engine_title.visible = condition.visible
@@ -154,12 +170,11 @@ func refresh() -> void:
 	patch_button.visible = show_repairs
 	overhaul_button.visible = show_repairs
 	repair_note.visible = show_repairs
-	patch_button.text = "Patch +%d%% · %d credits" % [Game.balance.engine_patch_points, Game.balance.engine_patch_price]
+	patch_button.text = "Patch +%d%%  /  %d credits" % [Game.balance.engine_patch_points, Game.balance.engine_patch_price]
 	patch_button.disabled = Game.state.engine_condition >= 100
-	overhaul_button.text = "Full overhaul · %d credits" % Game.engine_overhaul_price()
+	overhaul_button.text = "Full overhaul  /  %d credits" % Game.engine_overhaul_price()
 	overhaul_button.disabled = Game.state.engine_condition >= 100 and "engine" in Game.state.owned
-	for slot in category_buttons:
-		category_buttons[slot].modulate = Color("7de1d6") if slot == selected_slot else Color.WHITE
+	
 	for child in cards.get_children():
 		cards.remove_child(child)
 		child.queue_free()
@@ -200,14 +215,14 @@ func build_card(item: Dictionary) -> void:
 	var owned: bool = Game.part_owned(item.id)
 	var equipped: bool = Game.state.equipped.get(item.slot) == item.id
 	var lock: String = Game.part_lock(item)
-	text(body, "Equipped" if equipped else "Owned · swap for free" if owned else "%d credits · %d research XP required" % [item.price, item.xp], 14)
+	text(body, "Equipped" if equipped else "Owned  /  swap for free" if owned else "%d credits  /  %d research XP required" % [item.price, item.xp], 14)
 	if not owned and not lock.is_empty():
 		text(body, lock, 14).modulate = Color("e8cf87")
 	var controls := HBoxContainer.new()
 	body.add_child(controls)
 	var id: String = item.id
 	preview_buttons[id] = button(controls, "Preview", func(): preview_part(id))
-	var action := button(controls, "Equipped" if equipped else "Equip free" if owned else "Buy & equip · %d" % item.price, func(): buy_part(id))
+	var action := button(controls, "Equipped" if equipped else "Equip free" if owned else "Buy & equip  /  %d" % item.price, func(): buy_part(id))
 	action.disabled = equipped or (not owned and not lock.is_empty())
 	action_buttons[id] = action
 
@@ -222,6 +237,6 @@ func build_repairs() -> void:
 		text(body, item.name, 20)
 		text(body, item.description, 15)
 		var id: String = item.id
-		var action := button(body, "Restored" if id in Game.state.owned else "Restore · %d credits" % item.price, func(): feedback.text = Game.purchase(id); refresh())
+		var action := button(body, "Restored" if id in Game.state.owned else "Restore  /  %d credits" % item.price, func(): feedback.text = Game.purchase(id); refresh())
 		action.disabled = id in Game.state.owned
 		action_buttons[id] = action

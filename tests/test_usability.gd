@@ -21,6 +21,7 @@ func run() -> void:
 	game.set_process(false)
 	game.save_path = "user://usability_test_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.active = {}
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
@@ -112,7 +113,7 @@ func run() -> void:
 	scene.show_page("ship")
 	game.start_session(25)
 	await process_frame
-	check(scene.timer_label.get_theme_font_size("font_size") >= 64 and scene.timer_label.text.contains("25:"), "large main timer displays the active countdown")
+	check(scene.timer_label.get_theme_font_size("font_size") >= 40 and scene.timer_label.text.contains("25:"), "compact readable main timer displays the active countdown")
 	scene.open_compact()
 	await process_frame
 	check(scene.compact_panel.get_parent() == scene.root and scene.compact_label.get_theme_font_size("font_size") >= 32, "timer is readable inside the game and creates no popup")

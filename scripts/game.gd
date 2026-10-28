@@ -16,20 +16,30 @@ var checkpoint: float = 0.0
 var save_path: String = SAVE_PATH
 var last_error: String = ""
 var parts: Array = []
+var expansion_catalog: Array = []
+var research_catalog: Array = []
+var asteroid_events: Array = []
+var encounter_clock: float = 0.0
+var field_repair_clock: float = 0.0
+var encounter_rng := RandomNumberGenerator.new()
 
 func default_equipment() -> Dictionary:
 	return {"engine":"engine_stock", "hull":"hull_stock", "wings":"wings_stock", "paint":"paint_stock", "antenna":"antenna_stock", "lights":"lights_stock", "interior":"interior_stock", "robot_shell":"robot_shell_stock", "robot_visor":"robot_visor_stock", "robot_arms":"robot_arms_stock", "robot_legs":"robot_legs_stock", "robot_core":"robot_core_stock"}
 
 func defaults() -> Dictionary:
-	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0}
+	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0, "expansions": [], "research": [], "focus_task": "", "hull_integrity": 100, "cruise_seconds": 0.0, "calm_lights": true}
 
 func _ready() -> void:
+	encounter_rng.randomize()
 	balance = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
 	parts = JSON.parse_string(FileAccess.get_file_as_string("res://data/ship_parts.json"))
+	expansion_catalog = JSON.parse_string(FileAccess.get_file_as_string("res://data/expansions.json"))
+	research_catalog = JSON.parse_string(FileAccess.get_file_as_string("res://data/research.json"))
 	load_progress()
 	last_tick = Time.get_ticks_msec()
 
 func _process(delta: float) -> void:
+	advance_flight(delta)
 	advance(Time.get_ticks_msec())
 	checkpoint += delta
 	if checkpoint >= 10.0:
@@ -47,9 +57,9 @@ func advance(now: int) -> void:
 		finish_session()
 
 func start_session(minutes: int) -> bool:
-	if not active.is_empty() or minutes < 1 or minutes > 240:
+	if not active.is_empty() or minutes < 1 or minutes > 240 or state.focus_task.strip_edges().is_empty():
 		return false
-	active = {"id": str(Time.get_unix_time_from_system()) + "-" + str(Time.get_ticks_usec()), "minutes": minutes, "remaining_ms": minutes * 60000, "paused": false}
+	active = {"id": str(Time.get_unix_time_from_system()) + "-" + str(Time.get_ticks_usec()), "minutes": minutes, "remaining_ms": minutes * 60000, "paused": false, "task": state.focus_task.strip_edges().left(160)}
 	last_tick = Time.get_ticks_msec()
 	save_progress()
 	changed.emit()
@@ -59,6 +69,9 @@ func toggle_pause() -> void:
 	advance(Time.get_ticks_msec())
 	if active.is_empty():
 		return
+	if active.paused and active.get("task","" ).strip_edges().is_empty():
+		if state.focus_task.strip_edges().is_empty(): return
+		active.task = state.focus_task.strip_edges().left(160)
 	active.paused = not active.paused
 	save_progress()
 	changed.emit()
@@ -83,7 +96,7 @@ func finish_session() -> void:
 	state.xp += xp
 	state.battery = mini(100, int(state.battery) + minutes * int(balance.battery_per_minute))
 	state.total_seconds += minutes * 60
-	state.history.append({"id": session.id, "minutes": minutes, "credits": credits, "xp": xp, "date": Time.get_datetime_string_from_system()})
+	state.history.append({"id": session.id, "minutes": minutes, "credits": credits, "xp": xp, "task": session.get("task", ""), "date": Time.get_datetime_string_from_system()})
 	save_progress() # Reward and consumed session persist in one snapshot.
 	changed.emit()
 	completed.emit(credits, xp)
@@ -97,7 +110,7 @@ func purchase(id: String) -> String:
 		if state.xp < item.xp:
 			return "More research is needed."
 		if state.credits < item.price:
-			return "Keep studying — you need %d more credits." % (item.price - state.credits)
+			return "Keep studying - you need %d more credits." % (item.price - state.credits)
 		state.credits -= int(item.price)
 		state.owned.append(id)
 		if id == "engine":
@@ -212,18 +225,24 @@ func rename_companions(robot: String, ship: String) -> bool:
 func valid_snapshot(value: Variant) -> bool:
 	if not value is Dictionary or value.get("version", 0) != VERSION:
 		return false
-	for key in ["credits", "xp", "battery", "total_seconds"]:
+	for key in ["credits", "xp", "battery", "total_seconds", "hull_integrity", "cruise_seconds"]:
 		if value.has(key) and (not (value[key] is float or value[key] is int) or value[key] < 0 or value[key] > 1000000000):
 			return false
-	for key in ["robot", "ship"]:
+	for key in ["robot", "ship", "focus_task"]:
 		if value.has(key) and not value[key] is String:
 			return false
-	for key in ["started", "sound"]:
+	for key in ["started", "sound", "calm_lights"]:
 		if value.has(key) and not value[key] is bool:
 			return false
-	for key in ["owned", "history"]:
+	for key in ["owned", "history", "expansions", "research"]:
 		if value.has(key) and not value[key] is Array:
 			return false
+	for field in ["expansions", "research"]:
+		for id in value.get(field, []):
+			if not id is String:
+				return false
+	if value.get("hull_integrity",100) > 100:
+		return false
 	if value.has("engine_condition") and (not (value.engine_condition is float or value.engine_condition is int) or value.engine_condition < 0 or value.engine_condition > 100):
 		return false
 	if value.has("equipped"):
@@ -258,6 +277,8 @@ func load_progress() -> void:
 			if equipment.has(slot) and not item.is_empty() and item.slot == slot and part_owned(id):
 				equipment[slot] = id
 		state.equipped = equipment
+		state.expansions = state.expansions.filter(func(id): return not catalog_item(expansion_catalog,id).is_empty())
+		state.research = state.research.filter(func(id): return not catalog_item(research_catalog,id).is_empty())
 		# Closed time never earns rewards. Resume a checkpoint paused.
 		var saved: Variant = state.get("session", {})
 		if saved is Dictionary and saved.get("id") is String and (saved.get("minutes") is float or saved.get("minutes") is int) and (saved.get("remaining_ms") is float or saved.get("remaining_ms") is int):
@@ -299,3 +320,100 @@ func fail_save() -> bool:
 	last_error = "Could not save progress. Check disk space and permissions."
 	storage_error.emit(last_error)
 	return false
+
+func catalog_item(catalog: Array, id: String) -> Dictionary:
+	for item in catalog:
+		if item.id == id:
+			return item
+	return {}
+
+func has_unlock(id: String) -> bool:
+	return id in state.owned or id in state.expansions or id in state.research
+
+func unlock_requirement(item: Dictionary) -> String:
+	if item.is_empty():
+		return "Unknown project."
+	for requirement in item.requires:
+		if not has_unlock(requirement):
+			var required := catalog_item(expansion_catalog,requirement)
+			if required.is_empty():
+				required = catalog_item(research_catalog,requirement)
+			return "Requires " + (required.name if not required.is_empty() else requirement.capitalize() + " restoration") + "."
+	if state.xp < item.xp:
+		return "Requires %d accumulated research XP." % item.xp
+	return ""
+
+func unlock_project(field: String, catalog: Array, id: String) -> Dictionary:
+	var item := catalog_item(catalog,id)
+	if item.is_empty():
+		return {"ok":false,"message":"Unknown project."}
+	if id in state[field]:
+		return {"ok":false,"message":"Already completed."}
+	var requirement := unlock_requirement(item)
+	if not requirement.is_empty():
+		return {"ok":false,"message":requirement}
+	if state.credits < item.price:
+		return {"ok":false,"message":"Need %d more credits." % (item.price-state.credits)}
+	var before := state.duplicate(true)
+	state.credits -= int(item.price)
+	state[field].append(id)
+	if not commit_purchase(before):
+		return {"ok":false,"message":last_error}
+	repaired.emit(id)
+	return {"ok":true,"message":item.name + " complete."}
+
+func build_expansion(id: String) -> Dictionary:
+	return unlock_project("expansions",expansion_catalog,id)
+
+func research_project(id: String) -> Dictionary:
+	return unlock_project("research",research_catalog,id)
+
+func advance_flight(delta: float) -> void:
+	if not state.started:
+		return
+	var elapsed := clampf(delta,0.0,1.0)
+	state.cruise_seconds += elapsed
+	for event in asteroid_events:
+		event.age += elapsed
+		if event.age >= 5.0: apply_contact(event)
+	asteroid_events = asteroid_events.filter(func(event): return event.age < 14.0)
+	encounter_clock += elapsed
+	if encounter_clock >= 100.0:
+		encounter_clock = 0
+		resolve_encounter(encounter_rng.randf(),encounter_rng.randf())
+	if state.hull_integrity < 100 and robot_activity() == "field_repair":
+		field_repair_clock += elapsed
+		if field_repair_clock >= 30.0:
+			field_repair_clock = 0
+			state.hull_integrity = mini(100,int(state.hull_integrity)+1)
+			save_progress()
+			changed.emit()
+
+func resolve_encounter(impact_roll: float, damage_roll: float) -> Dictionary:
+	var impact := impact_roll < 0.25
+	var damage := 2 if impact and damage_roll < 0.06 else 0
+	var event := {"age":0.0,"impact":impact,"damage":damage,"resolved":false,"lane":81.0 if impact else -20.0+impact_roll*200.0,"radius":2.0+damage_roll*3.0}
+	asteroid_events.append(event)
+	return event
+
+func apply_contact(event: Dictionary) -> void:
+	if event.get("resolved",false): return
+	event.resolved = true
+	if event.damage > 0:
+		var before := state.duplicate(true)
+		state.hull_integrity = maxi(80,int(state.hull_integrity)-int(event.damage))
+		if not commit_purchase(before): event.damage = 0
+
+func patch_hull() -> Dictionary:
+	if state.hull_integrity >= 100: return {"ok":false,"message":"Hull is already sound."}
+	if state.credits < 5: return {"ok":false,"message":"Hull patch costs 5 credits. Your robot can also make slow free field repairs."}
+	var before := state.duplicate(true)
+	state.credits -= 5
+	state.hull_integrity = mini(100,int(state.hull_integrity)+10)
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Hull patched."}
+
+func robot_activity() -> String:
+	if state.hull_integrity < 100: return "field_repair"
+	if not active.is_empty() and not active.paused: return "charging"
+	return ["maintenance","resting","sleeping","observing"][int(state.cruise_seconds/40.0)%4]

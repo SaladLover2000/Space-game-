@@ -16,6 +16,7 @@ func run() -> void:
 	var game := root.get_node("Game")
 	game.save_path = "user://ui_test_%s.json" % Time.get_ticks_usec()
 	game.state = game.defaults()
+	game.state.focus_task = "Test focus task"
 	game.active = {}
 	var scene: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(scene)
