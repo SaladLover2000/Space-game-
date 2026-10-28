@@ -47,3 +47,5 @@ More details: GROWING-STARSHIP.md, UI-REFERENCES.md, MODULAR-ROBOT.md, PIXEL-ART
 ## Later work
 
 Unrestricted ship building, collectible discoveries, a solar-system editor, combat, online features, wishlist/achievements and a packaged Windows executable remain future work. The current game is run through Godot. Exporting requires matching Godot export templates.
+
+The perspective viewer now shares the side view's drifting space renderer and saved repair state. Unrepaired parts show the damaged angle atlas; purchased repairs restore their regions. See DIORAMA-SPACE-DAMAGE.md for the artwork, source prompt and review limits.

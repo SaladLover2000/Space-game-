@@ -1,6 +1,6 @@
 # Current validation - 2026-10-28
 
-The strict headless runner passed editor import and **300 assertions across 13 suites**, with no GDScript compile/runtime errors. Current report: expedition-check-results.json. Historical entries below describe earlier builds and are superseded by this milestone.
+The strict headless runner passed editor import and **318 assertions across 14 suites**, with no GDScript compile/runtime errors. Current report: diorama-damage-check-results.json. Historical entries below describe earlier builds and are superseded by this milestone.
 
 The 27-check expedition suite verifies prerequisite and affordability gates, no double charges, save-failure rollback, actual Build callbacks, preview isolation, construction/research disk reload, connected lower-deck routes, hatch blocking, return to the pilot chair, bridge software state, real mesh construction, eight separate pixel-art angles, camera-only orbit input and the optional researched scanner.
 
@@ -136,3 +136,8 @@ The new parts atlas was visually inspected. The assembled robot in the running g
 The strict headless runner passed editor import and **244 assertions** across eleven suites with no script errors. See seat-pan-check-results.json. The new 23-check suite drives the actual GUI press, motion and release callbacks: diagonal pan, suppression of chair/hatch/shop clicks during drag, release outside the canvas, lost-button cancellation, pan-preserving zoom/room selection and Fit ship reset. It also tests blocked seating routes through both hatches, arrival-only seating, articulated seated limbs, hip alignment for all three leg styles, description-refresh isolation, actual Stand up and Pilot seat button callbacks, room-follow resumption and unchanged session/progress state.
 
 Existing fixture/hotspot tests now send complete press/release clicks because actions deliberately occur after release. These are production callback tests, not OS-level mouse automation. No visible game window was opened or captured; the assembled seated pose still needs graphical acceptance review.
+
+
+## Shared-space damaged-angle validation
+
+The new 18-check diorama suite verifies use of the same backdrop class and planet trajectory as the side view, camera pan/reset, time-dependent drift, transparent optional mesh viewport configuration, registered alpha/damaged atlas differences, default broken-system selection, per-repair overlays, actual engine-fault mesh removal, saved restoration reload, patch bounds for all eight angles, clean full-restoration state and separate minor hull wear. The complete strict headless regression passed 318 assertions plus editor import with no script errors. No game window was opened; actual rendered background compositing and repair-region appearance still need visual review.

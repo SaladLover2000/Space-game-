@@ -10,6 +10,7 @@ var focus_dock: Control
 var bridge_view: Control
 var bridge_work_label: Label
 var ship_3d: Control
+var diorama_status: Label
 var expedition_panel: Control
 var nav_buttons: Dictionary = {}
 var page_transition: Tween
@@ -158,6 +159,7 @@ func show_page(page: String) -> void:
 	bridge_view = null
 	bridge_work_label = null
 	ship_3d = null
+	diorama_status = null
 	expedition_panel = null
 	ship_view = null
 	room_panel = null
@@ -203,6 +205,9 @@ func show_page(page: String) -> void:
 			ship_3d = Ship3D.new()
 			content.add_child(ship_3d)
 			button(content,"Fit 3D view",func(): ship_3d.reset_view())
+			diorama_status = label("",14)
+			diorama_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			content.add_child(diorama_status)
 			var modes := HBoxContainer.new()
 			content.add_child(modes)
 			button(modes,"Pixel-art diorama",func(): ship_3d.set_pixel_style(true))
@@ -306,6 +311,8 @@ func submit_names() -> void:
 
 func _process(_delta: float) -> void:
 	update_timer()
+	if is_instance_valid(diorama_status) and is_instance_valid(ship_3d):
+		diorama_status.text = ship_3d.damage_description()
 	if is_instance_valid(bridge_work_label) and is_instance_valid(bridge_view):
 		bridge_work_label.text = bridge_view.work_state()
 	if is_instance_valid(drift_status):

@@ -1,5 +1,9 @@
 extends Control
 ## Real mesh-based inspector: mouse input changes the camera, never the ship.
+const DioramaArt = preload("res://assets/diorama_art.gd")
+const SpaceBackdrop = preload("res://assets/space_backdrop.gd")
+var diorama_art := DioramaArt.new()
+var backdrop: RefCounted
 const MODULE_ATLAS = preload("res://assets/art/expansion-modules-v1.png")
 const PIXEL_ATLAS = preload("res://assets/art/ship-pixel-angles-v2.png")
 var pixel_frames: Array = JSON.parse_string(FileAccess.get_file_as_string("res://data/ship_angle_frames.json"))
@@ -72,6 +76,7 @@ func prism(points: PackedVector2Array, depth: float, position: Vector3, mat: Mat
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(600,460)
+	backdrop = SpaceBackdrop.new()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var container := SubViewportContainer.new()
@@ -84,12 +89,13 @@ func _ready() -> void:
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(960,540)
 	viewport.own_world_3d = true
+	viewport.transparent_bg = true
 	container.add_child(viewport)
 	var world := Node3D.new()
 	viewport.add_child(world)
 	var environment_node := WorldEnvironment.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
+	environment.background_mode = Environment.BG_CLEAR_COLOR
 	environment.background_color = Color("070d20")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color("a3b9d0")
@@ -127,7 +133,7 @@ func _ready() -> void:
 	update_camera()
 
 func refresh_model() -> void:
-	var key := str(Game.state.equipped)+str(Game.state.expansions)+str(Game.state.research)
+	var key := str(Game.state.equipped)+str(Game.state.expansions)+str(Game.state.research)+str(Game.state.owned)+str(Game.state.engine_condition)+str(Game.state.hull_integrity)
 	if key == model_key:
 		return
 	model_key = key
@@ -140,6 +146,7 @@ func refresh_model() -> void:
 	var dark := material("263649")
 	var paint := material("a56c50" if Game.state.equipped.paint == "paint_copper" else "2c5181")
 	var cyan := material("66e6e3",true)
+	var engine_light := cyan if Game.state.engine_condition >= 25 else material("425767")
 	var brass := material("bd9766")
 	prism(PackedVector2Array([Vector2(-5,0),Vector2(-3,1),Vector2(1.5,1.2),Vector2(4,0.8),Vector2(5,0.3),Vector2(5,-0.6),Vector2(2,-1),Vector2(-3,-0.8)]),2.4,Vector3.ZERO,steel)
 	for side in [-1,1]:
@@ -156,11 +163,27 @@ func refresh_model() -> void:
 		cylinder(Vector3(4.8,-0.1,side*1.0),engine_radius,1.6,dark)
 		for i in range(7):
 			cylinder(Vector3(4.2+i*0.18,-0.1,side*1.0),engine_radius+0.05,0.06,bright)
-		cylinder(Vector3(5.65,-0.1,side*1.0),engine_radius*0.75,0.06,cyan)
-		cylinder(Vector3(6.3,-0.1,side*1.0),engine_radius*0.42,1.2,material("d1fcff",true))
+		cylinder(Vector3(5.65,-0.1,side*1.0),engine_radius*0.75,0.06,engine_light)
+		if "engine" in Game.state.owned:
+			cylinder(Vector3(6.3,-0.1,side*1.0),engine_radius*0.42,1.2,material("d1fcff",true))
+		else:
+			var fault := BoxMesh.new()
+			fault.size = Vector3(0.7,0.5,0.08)
+			var panel := add_mesh(fault,Vector3(4.3,-0.7,side*1.25),brass,Vector3(0.2,0,0.35))
+			panel.add_to_group("ship_engine_fault")
+			box(Vector3(4.2,-0.2,side*1.3),Vector3(0.15,0.9,0.08),brass)
 		if Game.state.equipped.wings == "wings_solar":
 			for i in range(3):
 				box(Vector3(1.0+i*0.6,-0.3,side*2.7),Vector3(0.5,0.07,1.3),material("315d9f"))
+	if "cockpit" not in Game.state.owned:
+		var crack := BoxMesh.new()
+		crack.size = Vector3(0.7,0.025,0.02)
+		add_mesh(crack,Vector3(-3,0.6,1.27),dark,Vector3(0,0,0.55)).add_to_group("ship_cockpit_fault")
+	if "quarters" not in Game.state.owned:
+		var service := BoxMesh.new()
+		service.size = Vector3(1,0.55,0.08)
+		add_mesh(service,Vector3(0,0.4,1.27),dark).add_to_group("ship_cabin_fault")
+		box(Vector3(0,0.3,1.33),Vector3(0.07,0.8,0.04),brass)
 	for x in range(-2,4):
 		box(Vector3(x,1.15,0),Vector3(0.65,0.15,1.1),bright)
 		for z in [-0.3,0.3]:
@@ -228,21 +251,22 @@ func frame_index() -> int:
 	return order[posmod(roundi((yaw+0.85)/TAU*8),8)]
 
 func _process(_delta: float) -> void:
-	if pixel_style: queue_redraw()
+	queue_redraw()
 
 func _draw() -> void:
+	if backdrop == null: return
+	var area := background_camera()
+	var factor := size.y/area.size.y
+	draw_set_transform(size/2-area.get_center()*factor,0,Vector2.ONE*factor)
+	backdrop.draw_world(self,Game.state.cruise_seconds,area)
+	draw_set_transform(Vector2.ZERO,0,Vector2.ONE)
 	if not pixel_style: return
-	draw_rect(Rect2(Vector2.ZERO,size),Color("030611"))
-	for i in range(80):
-		var x := fposmod(i*139.7+Game.state.cruise_seconds*(2+i%3)-target.x*12,maxf(size.x,1))
-		var y := fposmod(i*53.3+target.y*12,maxf(size.y,1))
-		draw_line(Vector2(x,y),Vector2(x+1+i%2,y),Color("8495a9"),0.7)
 	var r: Array = pixel_frames[frame_index()]
 	var source := Rect2(r[0],r[1],r[2],r[3])
 	var scale := minf(size.x*0.9/source.size.x,size.y*0.9/source.size.y)*17.0/distance
 	var extent := source.size*scale
-	var center := size/2+Vector2(-target.x,target.y)*30
-	draw_texture_rect_region(PIXEL_ATLAS,Rect2(center-extent/2,extent),source)
+	var center := size/2+Vector2(-target.x,target.y)*30+drift_offset(Game.state.cruise_seconds)
+	diorama_art.draw(self,frame_index(),source,Rect2(center-extent/2,extent),Game.state.owned,Game.state.hull_integrity)
 	for id in Game.state.expansions:
 		var offset := Vector2(20,extent.y*0.3)
 		if id == "fabrication": offset.x += 60
@@ -256,3 +280,18 @@ func _draw() -> void:
 		var uv := PackedVector2Array([source_rect.position,Vector2(source_rect.end.x,source_rect.position.y),source_rect.end,Vector2(source_rect.position.x,source_rect.end.y)])
 		for i in range(uv.size()): uv[i] /= Vector2(1536,1024)
 		draw_polygon(vertices,PackedColorArray([Color.WHITE]),uv,MODULE_ATLAS)
+
+func background_camera() -> Rect2:
+	var height := 240.0*distance/17.0
+	var extent := Vector2(height*maxf(size.x,1)/maxf(size.y,1),height)
+	var center := Vector2(140,75)+Vector2(target.x,-target.y)*12
+	return Rect2(center-extent/2,extent)
+
+func drift_offset(time: float) -> Vector2:
+	return Vector2(sin(time*0.2)*2.5,sin(time*0.17)*1.5)
+
+func damage_description() -> String:
+	var state: Dictionary = diorama_art.damage_state(Game.state.owned,Game.state.hull_integrity)
+	if state.broken.is_empty():
+		return "Primary systems restored." + (" Minor hull scuffs remain." if state.hull_wear else "")
+	return "Visible faults: " + ", ".join(state.broken) + ". Restore them in Shop / Room repairs."
