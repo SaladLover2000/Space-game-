@@ -16,8 +16,8 @@ var robot_oil_button: Button
 var robot_repair_button: Button
 var rack_button: Button
 var rack_status: Label
-var ship_view: Control
-var robot_preview: Control
+var ship_view: ShipView
+var robot_preview: RobotPortrait
 var engine_title: Label
 var cards: GridContainer
 var detail: Label
@@ -133,9 +133,9 @@ func _ready() -> void:
 	patch_button = button(sidebar,"",func(): service(false))
 	overhaul_button = button(sidebar,"",func(): service(true))
 	repair_note = text(sidebar,"Affordable engine patches and full overhauls. Most asteroid contacts cause no damage.",13)
-	hull_patch_button = button(sidebar,"Patch hull / 5 credits",func(): feedback.text = Game.patch_hull().message; refresh())
-	robot_oil_button = button(sidebar,"Oil joints / 8 credits",func(): care_robot(false))
-	robot_repair_button = button(sidebar,"Repair robot frame / 30 credits",func(): care_robot(true))
+	hull_patch_button = button(sidebar,"Patch hull / %d credits" % Game.balance.hull_patch_price,func(): feedback.text = Game.patch_hull().message; refresh())
+	robot_oil_button = button(sidebar,"Oil joints / %d credits" % Game.balance.robot_care.oil_price,func(): care_robot(false))
+	robot_repair_button = button(sidebar,"Repair robot frame / %d credits" % Game.balance.robot_care.full_price,func(): care_robot(true))
 	button(sidebar,"Use equipped design",clear_preview)
 	graffiti_panel = VBoxContainer.new()
 	sidebar.add_child(graffiti_panel)

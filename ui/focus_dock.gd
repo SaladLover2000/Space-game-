@@ -59,7 +59,8 @@ func _ready() -> void:
 	reward.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var controls := VBoxContainer.new()
 	row.add_child(controls)
-	start_button = action(controls,"Start focus",func(): flush_task(); Game.start_session(int(duration.value)))
+	start_button = action(controls,"Start focus",func():
+		if flush_task(): Game.start_session(int(duration.value)))
 	pause_button = action(controls,"Pause",func(): Game.toggle_pause())
 	var secondary := HBoxContainer.new()
 	controls.add_child(secondary)
@@ -77,10 +78,9 @@ func _ready() -> void:
 	Game.changed.connect(refresh)
 	refresh()
 
-func flush_task() -> void:
-	if not is_instance_valid(task) or task.text == Game.state.focus_task: return
-	Game.state.focus_task = task.text.strip_edges().left(160)
-	Game.save_progress()
+func flush_task() -> bool:
+	if not is_instance_valid(task): return false
+	return Game.set_focus_task(task.text)
 
 func _process(_delta: float) -> void:
 	refresh()
@@ -109,4 +109,3 @@ func refresh() -> void:
 func reveal() -> void:
 	dismissed = false
 	refresh()
-

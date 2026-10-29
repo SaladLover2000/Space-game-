@@ -5,8 +5,51 @@
   "engine_patch_price": 10,
   "engine_patch_points": 25,
   "repairs": [
-    {"id":"engine", "name":"Wake the engine", "description":"Replace the burnt coils and restore the engine room's warm glow.", "price":50, "xp":0},
-    {"id":"cockpit", "name":"Bring the bridge online", "description":"Clean the windows, mend the console and restore the navigation lights.", "price":60, "xp":0},
-    {"id":"quarters", "name":"Make a cozy corner", "description":"Patch the loose wiring, renew the bunk and add a small living plant.", "price":40, "xp":0}
-  ]
+    {
+      "id": "engine",
+      "name": "Wake the engine",
+      "description": "Replace the burnt coils and restore the engine room's warm glow.",
+      "price": 50,
+      "xp": 0
+    },
+    {
+      "id": "cockpit",
+      "name": "Bring the bridge online",
+      "description": "Clean the windows, mend the console and restore the navigation lights.",
+      "price": 60,
+      "xp": 0
+    },
+    {
+      "id": "quarters",
+      "name": "Make a cozy corner",
+      "description": "Patch the loose wiring, renew the bunk and add a small living plant.",
+      "price": 40,
+      "xp": 0
+    }
+  ],
+  "ports": {
+    "station": {
+      "price": 350,
+      "level": 3,
+      "engine_condition": 75,
+      "hull_integrity": 90
+    },
+    "planet": {
+      "price": 500,
+      "level": 4
+    }
+  },
+  "quarters_decor": {
+    "terrarium": 20,
+    "tool_rack": 25,
+    "relay_project": 30
+  },
+  "hull_patch_price": 5,
+  "hull_patch_points": 10,
+  "robot_care": {
+    "oil_price": 8,
+    "full_price": 30,
+    "oil_points": 15,
+    "full_points": 40
+  }
 }

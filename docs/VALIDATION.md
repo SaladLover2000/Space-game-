@@ -1,3 +1,12 @@
+# Current validation - structural refactor, 2026-10-29
+
+The strict background runner passed headless editor import and **499 assertions across 19 suites**, with no GDScript compile/runtime errors. See [structure-check-results.json](structure-check-results.json) and [STRUCTURE.md](STRUCTURE.md).
+
+The additional 48 assertions cover page teardown for all 16 destinations, preservation of the shared focus dock, settings persistence and actual-toggle rollback, failed undocking, modified balance prices in transactions and UI, effect-cache reload behavior, clear invalid-data diagnostics, unsafe decal-path migration, failed imports and artwork retained by recovery backups. The runner now creates fresh isolated save directories itself. Invalid-data fixtures intentionally emit their expected contextual diagnostics.
+
+Full study history, save version and backup validation are preserved. Existing assets and game rules remain intact. No visible game/editor window was opened; the existing software previews remain asset compositions, not new gameplay screenshots. See the prior interactive-room milestone below for visual acceptance limits.
+
+---
 # Current validation - 2026-10-28
 
 The strict headless runner passed editor import and **318 assertions across 14 suites**, with no GDScript compile/runtime errors. Current report: diorama-damage-check-results.json. Historical entries below describe earlier builds and are superseded by this milestone.

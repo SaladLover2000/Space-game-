@@ -1,6 +1,7 @@
 extends HBoxContainer
+const EngineView = preload("res://ui/engine_bay_view.gd")
 signal exit_requested
-var view: Control
+var view: EngineView
 var sidebar: VBoxContainer
 var note: Label
 var upgrade_buttons: Dictionary = {}
@@ -49,8 +50,8 @@ func refresh() -> void:
 	preview_buttons.clear()
 	text(sidebar,"PROPULSION / Ship level %d" % Game.ship_level())
 	text(sidebar,"Engine %d%% / Hull %d%%" % [Game.state.engine_condition,Game.state.hull_integrity])
-	button(sidebar,"Patch engine / 10 credits",func(): note.text = Game.service_engine(false).message)
-	button(sidebar,"Engine overhaul / 50 credits",func(): note.text = Game.service_engine(true).message)
+	button(sidebar,"Patch engine / %d credits" % Game.balance.engine_patch_price,func(): note.text = Game.service_engine(false).message)
+	button(sidebar,"Engine overhaul / %d credits" % Game.engine_overhaul_price(),func(): note.text = Game.service_engine(true).message)
 	for item in Game.engine_modules:
 		var id: String = item.id
 		var tier: int = Game.state.engine_modules[id]

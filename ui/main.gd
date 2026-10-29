@@ -1,29 +1,53 @@
 extends Control
 
+const PAGE_SCRIPTS = {
+	"menu":preload("res://ui/pages/menu_page.gd"),
+	"setup":preload("res://ui/pages/setup_page.gd"),
+	"interior":preload("res://ui/pages/interior_page.gd"),
+	"ship":preload("res://ui/pages/ship_page.gd"),
+	"3d":preload("res://ui/pages/3d_page.gd"),
+	"bridge":preload("res://ui/pages/bridge_page.gd"),
+	"engine_bay":preload("res://ui/pages/engine_bay_page.gd"),
+	"quarters":preload("res://ui/pages/quarters_page.gd"),
+	"charging":preload("res://ui/pages/charging_page.gd"),
+	"stations":preload("res://ui/pages/stations_page.gd"),
+	"planet":preload("res://ui/pages/planet_page.gd"),
+	"build":preload("res://ui/pages/build_page.gd"),
+	"shop":preload("res://ui/pages/shop_page.gd"),
+	"robot":preload("res://ui/pages/robot_page.gd"),
+	"stats":preload("res://ui/pages/stats_page.gd"),
+	"settings":preload("res://ui/pages/settings_page.gd"),
+}
+var active_page: RefCounted
+
+const ChargingView = preload("res://ui/charging_dock_view.gd")
+const EnginePanel = preload("res://ui/engine_bay_panel.gd")
 const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
 const FocusDock = preload("res://ui/focus_dock.gd")
 const Ship3D = preload("res://ui/ship_3d.gd")
 const BridgeView = preload("res://ui/bridge_view.gd")
 const ExpeditionPanel = preload("res://ui/expedition_panel.gd")
-var focus_dock: Control
+var focus_dock: FocusDock
 var contact_button: Button
 var station_signature: String = ""
-var charging_view: Control
-var engine_panel: Control
+var contact_elapsed: float = 1.0
+var contact_label: String = ""
+var charging_view: ChargingView
+var engine_panel: EnginePanel
 var room_hatches := {"bridge":true,"engine":true}
 var companion_room: String = "quarters"
 var companion_seated: bool = false
 var entering_room: bool = false
-var bridge_view: Control
+var bridge_view: BridgeView
 var bridge_work_label: Label
-var ship_3d: Control
+var ship_3d: Ship3D
 var diorama_status: Label
-var expedition_panel: Control
+var expedition_panel: ExpeditionPanel
 var nav_buttons: Dictionary = {}
 var page_transition: Tween
 const Workshop = preload("res://ui/workshop.gd")
-var workshop: Control
+var workshop: Workshop
 var root: VBoxContainer
 var content: VBoxContainer
 var timer_label: Label
@@ -41,7 +65,7 @@ var compact_hide_button: Button
 var compact_pause_button: Button
 var compact_label: Label
 var sound_player: AudioStreamPlayer
-var ship_view: Control
+var ship_view: ShipView
 var room_panel: VBoxContainer
 var selected_room: String = ""
 var robot_mood: Label
@@ -55,26 +79,15 @@ var name_hint: Label
 var names_dirty: bool = false
 
 func _ready() -> void:
-	var theme_resource := Theme.new()
-	theme_resource.default_font_size = 16
-	for kind in ["Button", "LineEdit", "SpinBox", "PanelContainer"]:
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color("18283f")
-		style.border_color = Color("344553")
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(7)
-		style.content_margin_left = 14
-		style.content_margin_right = 14
-		style.content_margin_top = 8
-		style.content_margin_bottom = 8
-		theme_resource.set_stylebox("normal" if kind != "PanelContainer" else "panel", kind, style)
-		var hover := style.duplicate()
-		hover.bg_color = Color("25445b")
-		theme_resource.set_stylebox("hover", kind, hover)
-		var focus_style := style.duplicate()
-		focus_style.border_color = Color("70818c")
-		theme_resource.set_stylebox("focus",kind,focus_style)
-	theme = theme_resource
+	if not Game.data_error.is_empty():
+		var error_label := Label.new()
+		error_label.text = "Game data could not be loaded.\n"+Game.data_error
+		error_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		error_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		add_child(error_label)
+		set_process(false)
+		return
+	theme = preload("res://ui/orbit_theme.tres")
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge in ["left", "right", "top", "bottom"]:
@@ -120,6 +133,7 @@ func _ready() -> void:
 			refresh())
 	sound_player = AudioStreamPlayer.new()
 	add_child(sound_player)
+	build_chime()
 	name_autosave = Timer.new()
 	name_autosave.one_shot = true
 	name_autosave.wait_time = 0.45
@@ -160,6 +174,8 @@ func show_page(page: String) -> void:
 	if page in ["shop","robot"] and is_instance_valid(compact_panel): compact_panel.hide()
 	for target in nav_buttons:
 		nav_buttons[target].modulate = Color("7de1d6") if target == page else Color.WHITE
+	if page_transition: page_transition.kill()
+	if active_page: active_page.teardown()
 	for child in content.get_children():
 		content.remove_child(child)
 		child.queue_free()
@@ -169,142 +185,8 @@ func show_page(page: String) -> void:
 	pause_button = focus_dock.pause_button
 	duration = focus_dock.duration
 	presets = focus_dock.presets
-	charging_view = null
-	engine_panel = null
-	bridge_view = null
-	bridge_work_label = null
-	ship_3d = null
-	diorama_status = null
-	expedition_panel = null
-	ship_view = null
-	room_panel = null
-	robot_mood = null
-	drift_status = null
-	inspection_label = null
-	workshop = null
-	robot_name_edit = null
-	ship_name_edit = null
-	name_save_button = null
-	name_hint = null
-	match page:
-		"menu":
-			content.add_child(ShipView.new())
-			paragraph("A quiet corner of the universe. A small companion. One session at a time.")
-			button(content, "Continue your journey" if Game.state.started else "Begin your journey", func(): show_page("ship" if Game.state.started else "setup"))
-			paragraph("Your progress stays with you. Missing a day never hurts your robot.")
-		"setup":
-			names_form(true)
-		"interior":
-			paragraph("INSIDE / " + Game.state.ship)
-			build_ship_explorer()
-			ship_view.custom_minimum_size.y = clampf(get_viewport_rect().size.y-400,300,620)
-			drift_status = label("")
-			content.add_child(drift_status)
-			button(content, "Study controls", func(): show_page("ship"))
-		"ship":
-			build_ship_explorer()
-		"3d":
-			paragraph("3D SHIP / Drag to orbit freely. Shift + drag pans; wheel zooms.")
-			ship_3d = Ship3D.new()
-			content.add_child(ship_3d)
-			button(content,"Fit 3D view",func(): ship_3d.reset_view())
-			diorama_status = label("",14)
-			diorama_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			content.add_child(diorama_status)
-			var modes := HBoxContainer.new()
-			content.add_child(modes)
-			button(modes,"Illustrated angles (2D)",func(): ship_3d.set_pixel_style(true))
-			button(modes,"3D model / Free orbit",func(): ship_3d.set_pixel_style(false))
-		"bridge":
-			paragraph("MAIN CONTROL / A quiet watch between the stars")
-			bridge_view = BridgeView.new()
-			bridge_view.actor_present = room_access("cockpit")
-			content.add_child(bridge_view)
-			var tasks := HBoxContainer.new()
-			content.add_child(tasks)
-			button(tasks,"Run diagnostics",func(): bridge_view.set_mode("diagnostics"))
-			button(tasks,"Work on navigation",func(): bridge_view.set_mode("navigation"))
-			button(tasks,"Watch the stars",func(): bridge_view.set_mode("rest"))
-			bridge_work_label = label("",16)
-			content.add_child(bridge_work_label)
-			button(content,"Exit control room / Return to ship",return_to_ship)
-			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("cockpit"))
-			button(content,"Engine bay",func(): enter_room("engine"))
-			button(content,"Passing stations",func(): show_page("stations"))
-		"engine_bay":
-			paragraph("ENGINE BAY / Propulsion and thermal systems")
-			engine_panel = preload("res://ui/engine_bay_panel.gd").new()
-			content.add_child(engine_panel)
-			engine_panel.view.actor_present = room_access("engine")
-			engine_panel.exit_requested.connect(return_to_ship)
-			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("engine"))
-		"quarters":
-			paragraph("COMPANION QUARTERS / Electronics workbench")
-			charging_view = preload("res://ui/charging_dock_view.gd").new()
-			charging_view.mode = "workbench"
-			charging_view.actor_present = room_access("quarters")
-			content.add_child(charging_view)
-			button(content,"Use charging cradle",func(): show_page("charging"))
-			button(content,"Open parts locker / Robot workshop",func(): show_page("robot"))
-			button(content,"Restore companion quarters / 40 credits",func(): notice = Game.purchase("quarters"); show_page("quarters"))
-			for decoration in ["terrarium","tool_rack","relay_project"]:
-				var id: String = decoration
-				button(content,"Add "+id.replace("_"," ")+" / "+str({"terrarium":20,"tool_rack":25,"relay_project":30}[id])+" credits",func(): notice = Game.buy_quarters_decor(id).message; show_page("quarters"))
-			button(content,"Exit quarters / Return to ship",return_to_ship)
-		"charging":
-			paragraph("CHARGING CRADLE / Battery %d%%" % Game.state.battery)
-			charging_view = preload("res://ui/charging_dock_view.gd").new()
-			charging_view.actor_present = room_access("quarters")
-			content.add_child(charging_view)
-			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("quarters"))
-			paragraph("Completed focus sessions recharge the robot. Docking itself grants no battery or study rewards.")
-			button(content,"Open robot parts locker / Workshop",func(): show_page("robot"))
-			button(content,"Exit charging area / Return to ship",return_to_ship)
-		"stations":
-			build_station_page()
-		"planet":
-			paragraph("PLANETARY APPROACH / Ship level %d" % Game.ship_level())
-			var planet: Dictionary = Game.planet_contact()
-			paragraph("No planetary port in approach range." if planet.is_empty() else planet.name+" / Port clearance 500 credits / Level 4")
-			var planet_view := preload("res://ui/station_view.gd").new()
-			planet_view.planet_index = planet.get("index",0)
-			content.add_child(planet_view)
-			paragraph(Game.landing_lock())
-			button(content,"Request planetary entry / 500 credits",func(): notice = Game.land_planet().message; show_page("stations"))
-			button(content,"Return to ship",return_to_ship)
-
-		"build":
-			expedition_panel = ExpeditionPanel.new()
-			content.add_child(expedition_panel)
-		"shop":
-			workshop = Workshop.new()
-			content.add_child(workshop)
-		"robot":
-			workshop = Workshop.new()
-			content.add_child(workshop)
-			workshop.select_slot("robot_shell")
-			paragraph("Autopilot: " + Game.robot_activity().replace("_"," ") + ". Your robot rests, charges or works when you leave him to it.")
-		"stats":
-			paragraph("YOUR STUDY LOG")
-			paragraph("%d completed sessions  /  %d minutes studied" % [Game.state.history.size(), int(Game.state.total_seconds / 60)])
-			if Game.state.history.is_empty():
-				paragraph("A blank log is a beginning. Your first session can be a small one.")
-			for i in range(Game.state.history.size() - 1, -1, -1):
-				var entry: Dictionary = Game.state.history[i]
-				paragraph("%s  /  %d minutes  /  +%d credits" % [entry.date, entry.minutes, int(entry.get("credits", 0))])
-		"settings":
-			names_form(false)
-			var calm := CheckButton.new()
-			calm.text = "Calm, steady instrument lights"
-			calm.button_pressed = Game.state.calm_lights
-			calm.toggled.connect(func(value): Game.state.calm_lights = value; Game.save_progress())
-			content.add_child(calm)
-			var sound := CheckButton.new()
-			sound.text = "Play completion chime"
-			sound.button_pressed = Game.state.sound
-			sound.toggled.connect(func(enabled: bool): Game.state.sound = enabled; Game.save_progress())
-			content.add_child(sound)
-			paragraph("Saves are local and automatic. Closing pauses the saved session; reopening never grants time spent away. While running, minimizing keeps the timer counting.")
+	active_page = PAGE_SCRIPTS.get(page,PAGE_SCRIPTS.menu).new(self)
+	active_page.build()
 	refresh()
 	if page in ["shop","robot"]:
 		if page_transition: page_transition.kill()
@@ -360,16 +242,10 @@ func submit_names() -> void:
 		show_page("ship")
 
 func _process(_delta: float) -> void:
-	if is_instance_valid(contact_button):
-		var contact: Dictionary = Game.station_contact()
-		var planet: Dictionary = Game.planet_contact()
-		contact_button.text = contact.name+" / 350 cr / level 3" if not contact.is_empty() else planet.name+" / 500 cr / level 4" if not planet.is_empty() else "Contacts / none in range"
-
-	if current_page == "stations":
-		var signature: String = str(Game.station_contact().get("id",""))+str(Game.planet_contact().get("id",""))+Game.state.docked_station
-		if signature != station_signature:
-			station_signature = signature
-			call_deferred("show_page","stations")
+	contact_elapsed += _delta
+	if contact_elapsed >= 0.25:
+		contact_elapsed = 0.0
+		refresh_contacts()
 	update_timer()
 	if is_instance_valid(diorama_status) and is_instance_valid(ship_3d):
 		diorama_status.text = ship_3d.damage_description()
@@ -566,17 +442,6 @@ func on_completed(credits: int, xp: int) -> void:
 	notice = "Session complete. +%d credits, +%d XP. Your companion feels brighter." % [credits, xp]
 	DisplayServer.window_request_attention()
 	if Game.state.sound:
-		var wave := AudioStreamWAV.new()
-		wave.format = AudioStreamWAV.FORMAT_16_BITS
-		wave.mix_rate = 22050
-		var samples := PackedByteArray()
-		samples.resize(22050)
-		for i in range(11025):
-			var t := float(i) / 22050.0
-			var value := int(sin(TAU * (660.0 if t < 0.25 else 880.0) * t) * 7000 * (1.0 - t * 2))
-			samples.encode_s16(i * 2, value)
-		wave.data = samples
-		sound_player.stream = wave
 		sound_player.play()
 	refresh()
 
@@ -627,20 +492,43 @@ func return_to_ship() -> void:
 	show_page("ship")
 
 func build_station_page() -> void:
-	station_signature = str(Game.station_contact().get("id",""))+str(Game.planet_contact().get("id",""))+Game.state.docked_station
-	paragraph("PASSING STATIONS / Ship level %d" % Game.ship_level())
+	PAGE_SCRIPTS.stations.new(self).build()
+
+func apply_setting(toggle: CheckButton, key: String, value: bool) -> void:
+	if not Game.set_setting(key,value):
+		toggle.set_pressed_no_signal(Game.state[key])
+		notice = Game.last_error
+		refresh()
+
+func depart_station() -> void:
+	if Game.undock_station(): return_to_ship()
+	else:
+		notice = Game.last_error
+		refresh()
+
+func refresh_contacts() -> void:
 	var contact: Dictionary = Game.station_contact()
 	var planet: Dictionary = Game.planet_contact()
-	if not planet.is_empty():
-		button(content,planet.name+" / Planetary port / 500 credits / Level 4",func(): show_page("planet"))
-	paragraph("Docked at "+Game.state.docked_station if not Game.state.docked_station.is_empty() else "No station in range yet." if contact.is_empty() else contact.name+" / Docking 350 credits / Level 3")
-	var station := preload("res://ui/station_view.gd").new()
-	content.add_child(station)
-	if Game.state.docked_station.is_empty():
-		paragraph(Game.docking_lock())
-		button(content,"Request docking / 350 credits",func(): notice = Game.dock_station().message; show_page("stations"))
-	else:
-		button(content,"Visit robot services",func(): show_page("robot"))
-		button(content,"Visit engine services",func(): show_page("engine_bay"))
-		button(content,"Undock and continue",func(): Game.undock_station(); return_to_ship())
-	button(content,"Return to ship",return_to_ship)
+	var nearest: Dictionary = contact if not contact.is_empty() else planet
+	var text := "Contacts / none in range" if nearest.is_empty() else "%s / %d cr / level %d" % [nearest.name,nearest.price,nearest.level]
+	if is_instance_valid(contact_button) and text != contact_label:
+		contact_button.text = text
+		contact_label = text
+	if current_page == "stations":
+		var signature: String = str(contact.get("id",""))+str(planet.get("id",""))+Game.state.docked_station
+		if signature != station_signature:
+			station_signature = signature
+			call_deferred("show_page","stations")
+
+func build_chime() -> void:
+	var wave := AudioStreamWAV.new()
+	wave.format = AudioStreamWAV.FORMAT_16_BITS
+	wave.mix_rate = 22050
+	var samples := PackedByteArray()
+	samples.resize(22050)
+	for i in range(11025):
+		var t := float(i) / 22050.0
+		var value := int(sin(TAU * (660.0 if t < 0.25 else 880.0) * t) * 7000 * (1.0 - t * 2))
+		samples.encode_s16(i * 2, value)
+	wave.data = samples
+	sound_player.stream = wave

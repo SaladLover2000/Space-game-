@@ -1,0 +1,64 @@
+[gd_resource type="Theme" load_steps=4 format=3]
+
+[sub_resource type="StyleBoxFlat" id="normal"]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.09411765, 0.15686275, 0.24705882, 1)
+border_color = Color(0.20392157, 0.27058824, 0.3254902, 1)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_left = 7
+corner_radius_bottom_right = 7
+
+[sub_resource type="StyleBoxFlat" id="hover"]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.14509804, 0.26666667, 0.35686275, 1)
+border_color = Color(0.20392157, 0.27058824, 0.3254902, 1)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_left = 7
+corner_radius_bottom_right = 7
+
+[sub_resource type="StyleBoxFlat" id="focus"]
+content_margin_left = 14.0
+content_margin_right = 14.0
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.09411765, 0.15686275, 0.24705882, 1)
+border_color = Color(0.43921569, 0.50588235, 0.54901961, 1)
+border_width_left = 1
+border_width_right = 1
+border_width_top = 1
+border_width_bottom = 1
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_left = 7
+corner_radius_bottom_right = 7
+
+[resource]
+default_font_size = 16
+Button/styles/normal = SubResource("normal")
+Button/styles/hover = SubResource("hover")
+Button/styles/focus = SubResource("focus")
+LineEdit/styles/normal = SubResource("normal")
+LineEdit/styles/hover = SubResource("hover")
+LineEdit/styles/focus = SubResource("focus")
+SpinBox/styles/normal = SubResource("normal")
+SpinBox/styles/hover = SubResource("hover")
+SpinBox/styles/focus = SubResource("focus")
+PanelContainer/styles/panel = SubResource("normal")
+PanelContainer/styles/hover = SubResource("hover")
+PanelContainer/styles/focus = SubResource("focus")

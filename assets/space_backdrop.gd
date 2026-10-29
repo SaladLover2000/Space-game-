@@ -102,4 +102,4 @@ func draw_world(canvas: CanvasItem, time: float, camera: Rect2) -> void:
 		canvas.draw_texture_rect(planets[i],Rect2(center-Vector2.ONE*radii[i],Vector2.ONE*radii[i]*2),false)
 
 func cruise_planet_position(index: int, time: float) -> Vector2:
-	return Vector2(fposmod(-150+index*480+time*(0.7+index*0.25)+500,1500)-500,[-25.0,180.0,70.0][index])
+	return Vector2(preload("res://scripts/contact_geometry.gd").planet_x(index,time),[-25.0,180.0,70.0][index])
