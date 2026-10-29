@@ -9,6 +9,7 @@ var view_angle: int = 0
 var turn_dragging: bool = false
 var drag_origin: float = 0
 var maintenance := preload("res://assets/maintenance_art.gd").new()
+var service_art := preload("res://assets/service_art.gd").new()
 var art := RobotArt.new()
 var subject: Control
 var preview_equipped: Dictionary = {}
@@ -30,6 +31,7 @@ func _draw() -> void:
 	if service_mode:
 		draw_texture_rect(preload("res://assets/art/robot-workshop-v1.png"),Rect2(Vector2.ZERO,size),false)
 	else: draw_rect(Rect2(Vector2.ZERO,size),Color("101923"))
+	if service_mode: service_art.draw(self,"spares",Rect2(size*Vector2(0.76,0.78),size*Vector2(0.19,0.19)))
 	var outfit: Dictionary = Game.state.equipped
 	var mood: String = "idle"
 	var time: float = clock
@@ -112,4 +114,3 @@ func _gui_input(event: InputEvent) -> void:
 		drag_origin = event.position.x
 		queue_redraw()
 		accept_event()
-

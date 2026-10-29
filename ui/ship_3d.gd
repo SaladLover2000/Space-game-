@@ -30,7 +30,7 @@ func material(color: String, glow: bool = false) -> StandardMaterial3D:
 	result.roughness = 1.0
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	if not glow and color in ["c4c7bd","fff4db","6285b3","c7d7e8","bb875e","ead1ad","a56c50","2c5181"]:
+	if not glow and (color in ["c4c7bd","fff4db","6285b3","c7d7e8","bb875e","ead1ad","a56c50","2c5181"] or color in preload("res://assets/material_finish.gd").JOBS.values()):
 		result.albedo_texture = panel_texture(Color(color))
 	if glow:
 		result.emission_enabled = true
@@ -182,7 +182,7 @@ func _ready() -> void:
 	update_camera()
 
 func refresh_model() -> void:
-	var key := str(Game.state.equipped)+str(Game.state.expansions)+str(Game.state.research)+str(Game.state.owned)+str(Game.state.engine_condition)+str(Game.state.hull_integrity)
+	var key := str(Game.state.equipped)+str(Game.state.expansions)+str(Game.state.research)+str(Game.state.owned)+str(Game.state.engine_condition)+str(Game.state.hull_integrity)+str(Game.state.flight_mode)+str(Game.state.engine_modules)+str(Game.state.sensor_mounts)
 	if key == model_key:
 		return
 	model_key = key
@@ -191,7 +191,7 @@ func refresh_model() -> void:
 		child.queue_free()
 	mesh_count = 0
 	var hull_coat: String = Game.state.equipped.paint
-	var steel := material("6285b3" if hull_coat == "paint_cobalt" else "bb875e" if hull_coat == "paint_copper" else "c4c7bd")
+	var steel := material(preload("res://assets/material_finish.gd").JOBS.get(hull_coat,"c4c7bd"))
 	var bright := material("c7d7e8" if hull_coat == "paint_cobalt" else "ead1ad" if hull_coat == "paint_copper" else "fff4db")
 	var dark := material("263649")
 	var paint := material("a56c50" if Game.state.equipped.paint == "paint_copper" else "2c5181")
@@ -202,7 +202,8 @@ func refresh_model() -> void:
 	for side in [-1,1]:
 		prism(PackedVector2Array([Vector2(-4.4,0.1),Vector2(-3,0.95),Vector2(-1.5,0.9),Vector2(-1.5,0.25)]),0.05,Vector3(0,0,side*1.22),material("2b7e9b"))
 		prism(PackedVector2Array([Vector2(-0.7,0),Vector2(2.4,2.7),Vector2(3.5,2.7),Vector2(2.9,-0.1)]),0.2,Vector3(0,-0.45,side*1.2),paint,Vector3(side*PI/2,0,0))
-		prism(PackedVector2Array([Vector2(0.5,0),Vector2(2.7,2.3),Vector2(3.5,2.3),Vector2(3.5,0)]),0.18,Vector3(0,0.8,side*0.9),paint)
+		if side == 1:
+			prism(PackedVector2Array([Vector2(0.5,0),Vector2(2.7,2.3),Vector2(3.5,2.3),Vector2(3.5,0)]),0.18,Vector3(0,0.8,0),paint)
 		for x in range(-2,4):
 			box(Vector3(x,0.1,side*1.23),Vector3(0.5,0.32,0.07),dark)
 			box(Vector3(x,0.15,side*1.28),Vector3(0.32,0.12,0.04),cyan)
@@ -210,12 +211,18 @@ func refresh_model() -> void:
 		for x in range(-1,4):
 			box(Vector3(x,-0.6,side*1.22),Vector3(0.65,0.1,0.06),brass)
 		var engine_radius := 0.68 if Game.state.equipped.engine == "engine_hauler" else 0.55
-		cylinder(Vector3(4.8,-0.1,side*1.0),engine_radius,1.6,dark)
+		cylinder(Vector3(4.8,side*0.6,0),engine_radius,1.6,dark)
 		for i in range(7):
-			cylinder(Vector3(4.2+i*0.18,-0.1,side*1.0),engine_radius+0.05,0.06,bright)
-		cylinder(Vector3(5.65,-0.1,side*1.0),engine_radius*0.75,0.06,engine_light)
+			cylinder(Vector3(4.2+i*0.18,side*0.6,0),engine_radius+0.05,0.06,bright)
+		cylinder(Vector3(5.65,side*0.6,0),engine_radius*0.75,0.06,engine_light)
+		var bell := CylinderMesh.new()
+		bell.top_radius = engine_radius*0.65
+		bell.bottom_radius = engine_radius*(1.0+Game.state.engine_modules.nozzle*0.06)
+		bell.height = 0.6
+		bell.radial_segments = 16
+		add_mesh(bell,Vector3(5.45,side*0.6,0),dark,Vector3(0,0,PI/2)).add_to_group("ship_stacked_nozzle")
 		if "engine" in Game.state.owned:
-			cylinder(Vector3(6.3,-0.1,side*1.0),engine_radius*0.42,1.2,material("d1fcff",true))
+			cylinder(Vector3(7.0 if Game.state.flight_mode == "burn" else 6.3,side*0.6,0),engine_radius*0.42,3.0 if Game.state.flight_mode == "burn" else 1.2,material("f2b9ec" if Game.state.flight_mode == "burn" else "d1fcff",true))
 		else:
 			var fault := BoxMesh.new()
 			fault.size = Vector3(0.7,0.5,0.08)
@@ -285,6 +292,25 @@ func refresh_model() -> void:
 		box(position+Vector3(0,0.8,0),Vector3(0.4,0.8,0.4),dark)
 		for side in [-1,1]:
 			box(position+Vector3(0,0.15,side*1.07),Vector3(1.9,0.45,0.04),material("6dbb91" if id == "habitat" else "5fbcc7",true))
+	var mounts: Dictionary = Game.effective_sensor_mounts()
+	for mount in mounts:
+		var sensor: String = mounts[mount]
+		var position: Vector3 = {"fore":Vector3(-2.8,1.35,0),"dorsal":Vector3(-1,1.6,0),"aft":Vector3(3.5,1.6,0)}[mount]
+		var start := model.get_child_count()
+		if sensor == "antenna_dish":
+			cylinder(position,0.22,0.8,bright)
+			cylinder(position+Vector3(-0.45,0,0),0.19,0.08,dark)
+		elif sensor == "antenna_sensor":
+			box(position,Vector3(0.7,0.45,0.65),bright)
+			for z in [-0.18,0.18]: cylinder(position+Vector3(-0.4,0,z),0.10,0.10,dark)
+		elif sensor == "antenna_radar":
+			var dish := CylinderMesh.new()
+			dish.top_radius = 0.55
+			dish.bottom_radius = 0.12
+			dish.height = 0.22
+			add_mesh(dish,position+Vector3(0,0.3,0),bright)
+			box(position,Vector3(0.1,0.5,0.1),brass)
+		for index in range(start,model.get_child_count()): model.get_child(index).add_to_group("sensor_mount_"+mount)
 	var sphere := SphereMesh.new()
 	sphere.radius = 6
 	sphere.height = 12
@@ -385,4 +411,3 @@ func damage_description() -> String:
 	if state.broken.is_empty():
 		return "Primary systems restored." + (" Minor hull scuffs remain." if state.hull_wear else "")
 	return "Visible faults: " + ", ".join(state.broken) + ". Restore them in Shop / Room repairs."
-

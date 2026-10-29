@@ -1,8 +1,10 @@
 extends Control
 ## Original procedural pixel art on a fixed low-resolution canvas.
+var immersive_routes: bool = false
+var thought: PanelContainer
 var clock: float = 0.0
 signal seating_changed(seated: bool)
-const PILOT_SEAT = Vector2(58, 103)
+const PILOT_SEAT = Vector2(65, 103)
 const PILOT_CUSHION_Y = 91.0
 const DRAG_THRESHOLD = 6.0
 var robot_seated: bool = false
@@ -79,6 +81,8 @@ func part_at(local_position: Vector2) -> String:
 	return ""
 
 func _ready() -> void:
+	thought = preload("res://ui/robot_thought.gd").new()
+	add_child(thought)
 	custom_minimum_size = Vector2(560, 300)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clip_contents = true
@@ -93,10 +97,15 @@ func _ready() -> void:
 	Game.completed.connect(func(_credits: int, _xp: int): reaction_left = 4.0; upgrade_reaction = false)
 	Game.repaired.connect(func(_id: String): reaction_left = 2.5; upgrade_reaction = true)
 	mouse_exited.connect(func(): hovered_room = ""; hovered_object = -1; queue_redraw())
-	tooltip_text = "Drag with left mouse to pan. Mouse wheel zooms. Click the pilot seat to sit."
+	tooltip_text = ""
 	get_window().focus_exited.connect(cancel_pan)
 
 func _process(delta: float) -> void:
+	if thought != null:
+		thought.room = "engine" if robot_position.x > 178 else "cockpit" if robot_position.x < 98 else "quarters"
+		if expression() in ["charging","sleeping"]: thought.room = "charging"
+		thought.follow(view_transform()*(robot_position+Vector2(0,-35)),size,clock)
+		thought.visible = thought.visible and not exterior
 	clock += delta
 	advance_autonomy(delta)
 	advance_robot(delta)
@@ -295,6 +304,15 @@ func activate_at(local_position: Vector2) -> void:
 		toggle_door(door)
 		return
 	var world := view_transform().affine_inverse() * local_position
+	if immersive_routes:
+		for room in ["cockpit","quarters","engine"]:
+			for index in range(rooms[room].objects.size()):
+				if object_bounds(room,index).has_point(world):
+					object_selected.emit(room,index)
+					return
+		var room_id := room_at(local_position)
+		if not room_id.is_empty(): room_selected.emit(room_id)
+		return
 	if not exterior and object_bounds("cockpit",2).has_point(world):
 		if selected_room != "cockpit":
 			room_selected.emit("cockpit")
@@ -359,12 +377,13 @@ func expression() -> String:
 	if manual_hold > 0 and manual_task == "maintenance" and robot_position.distance_to(robot_destination) < 0.1 and robot_route.is_empty(): return "working"
 	if manual_hold <= 0 and autonomous_activity in ["maintenance","field_repair"]:
 		return "working"
+	if autonomous_activity == "charging" and robot_position.distance_to(Vector2(115,103)) < 1 and Game.state.battery < 100: return "charging"
 	if manual_hold <= 0 and autonomous_activity == "sleeping":
 		return "sleeping"
 	if reaction_left > 0:
 		return "upgraded" if upgrade_reaction else "happy"
 	if not Game.active.is_empty() and not Game.active.paused:
-		return "charging"
+		return "working"
 	return "sad" if Game.state.battery < 20 else "idle"
 
 func box(x: float, y: float, w: float, h: float, color: String) -> void:
@@ -399,6 +418,11 @@ func _draw() -> void:
 			draw_rect(region.grow(1), Color("f4d18b"), false, 1)
 
 func draw_smoke() -> void:
+	if Game.state.flight_mode in ["cruise","burn"]:
+		var length := 65.0 if Game.state.flight_mode == "burn" else 35.0
+		for y in [66,100]:
+			draw_colored_polygon(PackedVector2Array([Vector2(294,y-3),Vector2(294+length,y-1),Vector2(294+length+8,y),Vector2(294+length,y+1),Vector2(294,y+3)]),Color("b56cd6"))
+			draw_colored_polygon(PackedVector2Array([Vector2(294,y-1.3),Vector2(294+length*0.85,y),Vector2(294,y+1.3)]),Color("fff0ea"))
 	# Soft white vent wisps remain visible even while the damaged ship drifts.
 	var count := 12 if Game.state.engine_condition >= 25 else 7
 	for nozzle in range(2):
@@ -467,6 +491,7 @@ func advance_autonomy(delta: float) -> void:
 	var destination := Vector2(143,103)
 	if next in ["maintenance","field_repair"]: destination = Vector2(205,103)
 	if next == "observing": destination = Vector2(80,103)
+	if next in ["charging","sleeping"]: destination = Vector2(115,103)
 	seat_requested = false
 	set_robot_route(destination)
 
@@ -484,4 +509,3 @@ func draw_asteroids() -> void:
 		draw_colored_polygon(points,Color("52616c"))
 		points.append(points[0])
 		draw_polyline(points,Color("82919b"),0.5)
-

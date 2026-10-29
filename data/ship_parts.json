@@ -134,8 +134,8 @@
   {
     "id": "antenna_dish",
     "slot": "antenna",
-    "name": "Deep-space dish",
-    "description": "A larger articulated communications dish.",
+    "name": "Baffled star tracker",
+    "description": "Optical star camera with a stray-light baffle and attitude electronics. Helps navigation research.",
     "price": 50,
     "xp": 0,
     "effects": {
@@ -145,8 +145,8 @@
   {
     "id": "antenna_sensor",
     "slot": "antenna",
-    "name": "Sensor crown",
-    "description": "Twin sensor masts and violet-lit receiver bars.",
+    "name": "Docking LiDAR package",
+    "description": "Paired ranging apertures and gimbaled housing for station approach. Detects docking contacts earlier.",
     "price": 90,
     "xp": 50,
     "effects": {
@@ -157,7 +157,7 @@
     "id": "lights_stock",
     "slot": "lights",
     "name": "Original marker lamps",
-    "description": "The ship's original understated lamps.",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
     "price": 0,
     "xp": 0,
     "effects": {}
@@ -166,7 +166,7 @@
     "id": "lights_teal",
     "slot": "lights",
     "name": "Turquoise marker fixtures",
-    "description": "Recessed industrial lamps in armored housings. Cosmetic; steady light, no neon strips.",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
     "price": 30,
     "xp": 0,
     "effects": {}
@@ -175,7 +175,7 @@
     "id": "lights_violet",
     "slot": "lights",
     "name": "Lavender marker fixtures",
-    "description": "Small contained navigation lamps with warm metal mounting brackets. Cosmetic; no outline lighting.",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
     "price": 30,
     "xp": 0,
     "effects": {}
@@ -525,6 +525,62 @@
     "name": "Warm brass",
     "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
     "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "antenna_radar",
+    "slot": "antenna",
+    "name": "Rendezvous radar",
+    "description": "Gimbaled dish and radio feed for relative station range. Enables docking clearance.",
+    "price": 140,
+    "xp": 80,
+    "effects": {
+      "cruise_percent": 5
+    }
+  },
+  {
+    "id": "paint_ivory",
+    "slot": "paint",
+    "name": "Ivory expedition",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_crimson",
+    "slot": "paint",
+    "name": "Crimson rescue",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_sage",
+    "slot": "paint",
+    "name": "Sage survey",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_violet",
+    "slot": "paint",
+    "name": "Violet nebula",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_charcoal",
+    "slot": "paint",
+    "name": "Charcoal stealth",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
     "xp": 0,
     "effects": {}
   }

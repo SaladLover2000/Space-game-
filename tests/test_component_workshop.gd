@@ -67,7 +67,7 @@ func run() -> void:
 	check(installed.filter(func(item): return item.id == "engine_hauler").size() == 2 and game.state == before,"engine preview renders both selected detailed nacelles without buying them")
 	check(parts_art.source("engine_ion") != parts_art.source("engine_hauler"),"ion and hauler cards and ship overlays use distinct mechanical art regions")
 	var lamp_parts: Array = parts_art.installed_parts({"lights":"lights_teal"})
-	check(lamp_parts.size() == 3 and lamp_parts[0].rect.size == Vector2(5,5),"lighting upgrades use three small contained pixel fixtures rather than neon outline strips")
+	check(lamp_parts.size() == 11 and lamp_parts[0].rect.size == Vector2(4,4),"lighting upgrades use coordinated small fixtures across the upper and lower exterior rather than neon outline strips")
 	game.state.credits = 3000
 	game.state.xp = 100
 	game.purchase("engine")
@@ -128,4 +128,3 @@ func run() -> void:
 		if FileAccess.file_exists(game.save_path+suffix): DirAccess.remove_absolute(game.save_path+suffix)
 	print("COMPONENT WORKSHOP RESULT: ",failures," failures; assembled GPU rendering still needs player review")
 	quit(0 if failures == 0 else 1)
-

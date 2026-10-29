@@ -7,6 +7,14 @@ const Ship3D = preload("res://ui/ship_3d.gd")
 const BridgeView = preload("res://ui/bridge_view.gd")
 const ExpeditionPanel = preload("res://ui/expedition_panel.gd")
 var focus_dock: Control
+var contact_button: Button
+var station_signature: String = ""
+var charging_view: Control
+var engine_panel: Control
+var room_hatches := {"bridge":true,"engine":true}
+var companion_room: String = "quarters"
+var companion_seated: bool = false
+var entering_room: bool = false
 var bridge_view: Control
 var bridge_work_label: Label
 var ship_3d: Control
@@ -83,9 +91,10 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HFlowContainer.new()
 	root.add_child(nav)
-	for entry in [["Home","menu"],["Ship","ship"],["Interior","interior"],["Bridge","bridge"],["3D view","3d"],["Build & research","build"],["Robot","robot"],["Shop","shop"],["Study log","stats"],["Settings","settings"]]:
+	for entry in [["Ship","ship"],["Bridge","bridge"],["3D view","3d"],["Build & research","build"],["Robot","robot"],["Shop","shop"],["Study log","stats"],["Settings","settings"]]:
 		var target: String = entry[1]
 		nav_buttons[target] = button(nav,entry[0],func(): show_page(target))
+	contact_button = button(nav,"Contacts",func(): show_page("stations"))
 	button(nav,"Focus bar",func(): focus_dock.reveal())
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -117,7 +126,7 @@ func _ready() -> void:
 	name_autosave.timeout.connect(flush_name_edits)
 	add_child(name_autosave)
 	notice = Game.last_error
-	show_page("menu")
+	show_page("ship" if Game.state.started else "menu")
 	get_tree().auto_accept_quit = false
 
 func label(text: String, font_size: int = 18) -> Label:
@@ -139,6 +148,10 @@ func button(parent: Node, text: String, action: Callable) -> Button:
 	return result
 
 func show_page(page: String) -> void:
+	if is_instance_valid(ship_view) and not entering_room:
+		room_hatches = ship_view.door_open.duplicate()
+		companion_room = "cockpit" if ship_view.robot_position.x < 95 else "engine" if ship_view.robot_position.x > 172 else "quarters"
+		companion_seated = ship_view.robot_seated
 	flush_name_edits()
 	if not Game.state.started and page != "menu":
 		page = "setup"
@@ -156,6 +169,8 @@ func show_page(page: String) -> void:
 	pause_button = focus_dock.pause_button
 	duration = focus_dock.duration
 	presets = focus_dock.presets
+	charging_view = null
+	engine_panel = null
 	bridge_view = null
 	bridge_work_label = null
 	ship_3d = null
@@ -203,6 +218,7 @@ func show_page(page: String) -> void:
 		"bridge":
 			paragraph("MAIN CONTROL / A quiet watch between the stars")
 			bridge_view = BridgeView.new()
+			bridge_view.actor_present = room_access("cockpit")
 			content.add_child(bridge_view)
 			var tasks := HBoxContainer.new()
 			content.add_child(tasks)
@@ -211,6 +227,52 @@ func show_page(page: String) -> void:
 			button(tasks,"Watch the stars",func(): bridge_view.set_mode("rest"))
 			bridge_work_label = label("",16)
 			content.add_child(bridge_work_label)
+			button(content,"Exit control room / Return to ship",return_to_ship)
+			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("cockpit"))
+			button(content,"Engine bay",func(): enter_room("engine"))
+			button(content,"Passing stations",func(): show_page("stations"))
+		"engine_bay":
+			paragraph("ENGINE BAY / Propulsion and thermal systems")
+			engine_panel = preload("res://ui/engine_bay_panel.gd").new()
+			content.add_child(engine_panel)
+			engine_panel.view.actor_present = room_access("engine")
+			engine_panel.exit_requested.connect(return_to_ship)
+			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("engine"))
+		"quarters":
+			paragraph("COMPANION QUARTERS / Electronics workbench")
+			charging_view = preload("res://ui/charging_dock_view.gd").new()
+			charging_view.mode = "workbench"
+			charging_view.actor_present = room_access("quarters")
+			content.add_child(charging_view)
+			button(content,"Use charging cradle",func(): show_page("charging"))
+			button(content,"Open parts locker / Robot workshop",func(): show_page("robot"))
+			button(content,"Restore companion quarters / 40 credits",func(): notice = Game.purchase("quarters"); show_page("quarters"))
+			for decoration in ["terrarium","tool_rack","relay_project"]:
+				var id: String = decoration
+				button(content,"Add "+id.replace("_"," ")+" / "+str({"terrarium":20,"tool_rack":25,"relay_project":30}[id])+" credits",func(): notice = Game.buy_quarters_decor(id).message; show_page("quarters"))
+			button(content,"Exit quarters / Return to ship",return_to_ship)
+		"charging":
+			paragraph("CHARGING CRADLE / Battery %d%%" % Game.state.battery)
+			charging_view = preload("res://ui/charging_dock_view.gd").new()
+			charging_view.actor_present = room_access("quarters")
+			content.add_child(charging_view)
+			button(content,"Open connecting hatches / Call robot",func(): open_room_hatches("quarters"))
+			paragraph("Completed focus sessions recharge the robot. Docking itself grants no battery or study rewards.")
+			button(content,"Open robot parts locker / Workshop",func(): show_page("robot"))
+			button(content,"Exit charging area / Return to ship",return_to_ship)
+		"stations":
+			build_station_page()
+		"planet":
+			paragraph("PLANETARY APPROACH / Ship level %d" % Game.ship_level())
+			var planet: Dictionary = Game.planet_contact()
+			paragraph("No planetary port in approach range." if planet.is_empty() else planet.name+" / Port clearance 500 credits / Level 4")
+			var planet_view := preload("res://ui/station_view.gd").new()
+			planet_view.planet_index = planet.get("index",0)
+			content.add_child(planet_view)
+			paragraph(Game.landing_lock())
+			button(content,"Request planetary entry / 500 credits",func(): notice = Game.land_planet().message; show_page("stations"))
+			button(content,"Return to ship",return_to_ship)
+
 		"build":
 			expedition_panel = ExpeditionPanel.new()
 			content.add_child(expedition_panel)
@@ -298,6 +360,16 @@ func submit_names() -> void:
 		show_page("ship")
 
 func _process(_delta: float) -> void:
+	if is_instance_valid(contact_button):
+		var contact: Dictionary = Game.station_contact()
+		var planet: Dictionary = Game.planet_contact()
+		contact_button.text = contact.name+" / 350 cr / level 3" if not contact.is_empty() else planet.name+" / 500 cr / level 4" if not planet.is_empty() else "Contacts / none in range"
+
+	if current_page == "stations":
+		var signature: String = str(Game.station_contact().get("id",""))+str(Game.planet_contact().get("id",""))+Game.state.docked_station
+		if signature != station_signature:
+			station_signature = signature
+			call_deferred("show_page","stations")
 	update_timer()
 	if is_instance_valid(diorama_status) and is_instance_valid(ship_3d):
 		diorama_status.text = ship_3d.damage_description()
@@ -315,7 +387,7 @@ func build_ship_explorer() -> void:
 	button(room_nav, "Overview", func(): select_room(""))
 	for entry in [["cockpit", "Cockpit"], ["quarters", "Living quarters"], ["engine", "Engine room"]]:
 		var id: String = entry[0]
-		button(room_nav, entry[1], func(): select_room(id))
+		button(room_nav, entry[1], func(): enter_room(id))
 	for item in Game.expansion_catalog:
 		if item.id in Game.state.expansions:
 			var room_id: String = item.id
@@ -329,14 +401,24 @@ func build_ship_explorer() -> void:
 	ship_view.custom_minimum_size = Vector2(420,clampf(get_viewport_rect().size.y-400,300,620))
 	# Inspector height must never enlarge the ship when a room is selected.
 	ship_view.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	ship_view.room_selected.connect(select_room)
-	ship_view.object_selected.connect(inspect_object)
+	ship_view.immersive_routes = true
+	ship_view.door_open = room_hatches.duplicate()
+	for key in room_hatches: ship_view.door_progress[key] = 1.0 if room_hatches[key] else 0.0
+	ship_view.robot_position = {"cockpit":Vector2(80,103),"quarters":Vector2(115,103),"engine":Vector2(205,103)}.get(companion_room,Vector2(115,103))
+	ship_view.robot_destination = ship_view.robot_position
+	if companion_room == "cockpit" and companion_seated:
+		ship_view.robot_position = ship_view.PILOT_SEAT
+		ship_view.robot_seated = true
+		ship_view.manual_task = "navigation"
+	ship_view.room_selected.connect(enter_room)
+	ship_view.object_selected.connect(route_object)
 	var zoom_controls := HBoxContainer.new()
 	content.add_child(zoom_controls)
 	button(zoom_controls, "- Zoom out", func(): ship_view.change_zoom(1.0 / 1.15))
 	button(zoom_controls, "+ Zoom in", func(): ship_view.change_zoom(1.15))
 	button(zoom_controls, "Fit ship", func(): ship_view.reset_zoom())
 	zoom_controls.add_child(label("Drag left mouse to pan  /  wheel to zoom", 14))
+	button(zoom_controls,"Passing stations",func(): show_page("stations"))
 	ship_view.seating_changed.connect(func(_seated: bool): update_room_panel())
 	ship_view.door_toggled.connect(func(_id: String, _opened: bool): update_room_panel())
 	var panel := PanelContainer.new()
@@ -506,3 +588,59 @@ func _notification(what: int) -> void:
 		Game.save_progress()
 		get_tree().quit()
 
+func room_access(id: String) -> bool:
+	if companion_room == id: return true
+	if (companion_room == "engine" or id == "engine") and not room_hatches.engine: return false
+	if (companion_room == "cockpit" or id == "cockpit") and not room_hatches.bridge: return false
+	return true
+
+func enter_room(id: String) -> void:
+	if is_instance_valid(ship_view): room_hatches = ship_view.door_open.duplicate()
+	var allowed := room_access(id)
+	if allowed: companion_room = id
+	entering_room = true
+	selected_room = ""
+	show_page("bridge" if id == "cockpit" else "engine_bay" if id == "engine" else "quarters" if id == "quarters" else "build")
+	entering_room = false
+
+func route_object(id: String, index: int) -> void:
+	if id == "quarters" and index == 0:
+		enter_room(id)
+		show_page("charging")
+		return
+	if id == "quarters" and index == 2:
+		show_page("robot")
+		return
+	enter_room(id)
+
+func open_room_hatches(id: String) -> void:
+	room_hatches.bridge = true
+	room_hatches.engine = true
+	companion_room = id
+	if is_instance_valid(bridge_view): bridge_view.actor_present = true
+	if is_instance_valid(engine_panel): engine_panel.view.actor_present = true
+	if is_instance_valid(charging_view): charging_view.actor_present = true
+
+func return_to_ship() -> void:
+	if is_instance_valid(bridge_view): companion_seated = bridge_view.actor_present and bridge_view.mode in ["navigation","rest"]
+	selected_room = ""
+	show_page("ship")
+
+func build_station_page() -> void:
+	station_signature = str(Game.station_contact().get("id",""))+str(Game.planet_contact().get("id",""))+Game.state.docked_station
+	paragraph("PASSING STATIONS / Ship level %d" % Game.ship_level())
+	var contact: Dictionary = Game.station_contact()
+	var planet: Dictionary = Game.planet_contact()
+	if not planet.is_empty():
+		button(content,planet.name+" / Planetary port / 500 credits / Level 4",func(): show_page("planet"))
+	paragraph("Docked at "+Game.state.docked_station if not Game.state.docked_station.is_empty() else "No station in range yet." if contact.is_empty() else contact.name+" / Docking 350 credits / Level 3")
+	var station := preload("res://ui/station_view.gd").new()
+	content.add_child(station)
+	if Game.state.docked_station.is_empty():
+		paragraph(Game.docking_lock())
+		button(content,"Request docking / 350 credits",func(): notice = Game.dock_station().message; show_page("stations"))
+	else:
+		button(content,"Visit robot services",func(): show_page("robot"))
+		button(content,"Visit engine services",func(): show_page("engine_bay"))
+		button(content,"Undock and continue",func(): Game.undock_station(); return_to_ship())
+	button(content,"Return to ship",return_to_ship)

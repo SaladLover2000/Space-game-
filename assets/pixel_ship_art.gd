@@ -6,6 +6,9 @@ const EXTERIOR = preload("res://assets/art/ship-exterior-v1.png")
 const CORE_EXTERIOR = preload("res://assets/art/ship-core-exterior-v1.png")
 const CORE_RESTORED = preload("res://assets/art/ship-core-restored-v1.png")
 const CORE_DAMAGED = preload("res://assets/art/ship-core-damaged-v1.png")
+const QUARTERS = preload("res://assets/art/companion-quarters-v1.png")
+var decals := preload("res://assets/decal_art.gd").new()
+var service := preload("res://assets/service_art.gd").new()
 var finish := preload("res://assets/material_finish.gd").new()
 const SPRITE_RECT = Rect2(-33, -39, 333, 228)
 const SOURCE_SIZE = Vector2(1536, 1024)
@@ -26,16 +29,17 @@ func skin_texture(raw: Texture2D, equipment: Dictionary, exterior: bool) -> Text
 	var selected: Texture2D = raw
 	if equipment.get("wings","wings_stock") != "wings_stock":
 		selected = CORE_EXTERIOR if exterior else CORE_RESTORED if raw == RESTORED else CORE_DAMAGED
-	return finish.painted(selected,equipment.get("paint","paint_stock"),{},not exterior)
+	return finish.exterior_lights(finish.painted(selected,equipment.get("paint","paint_stock"),{},not exterior),equipment.get("lights","lights_stock"),not exterior)
 
 func draw(canvas: CanvasItem, owned: Array, exterior: bool, equipment: Dictionary, time: float, condition: float, calm_lights: bool = true, hull_integrity: float = 100) -> void:
 	if exterior:
-		canvas.draw_texture_rect(skin_texture(EXTERIOR,equipment,true), SPRITE_RECT, false)
+		draw_skin(canvas,skin_texture(EXTERIOR,equipment,true),equipment)
+		decals.draw(canvas,Rect2(106,72,36,18))
 		if hull_integrity < 100: draw_scuffs(canvas)
 		return
 	var status := system_status(owned,time,calm_lights)
 	var fully_restored: bool = not status.engine_broken and not status.bridge_broken and not status.quarters_broken
-	canvas.draw_texture_rect(skin_texture(RESTORED if fully_restored else DAMAGED,equipment,false), SPRITE_RECT, false)
+	draw_skin(canvas,skin_texture(RESTORED if fully_restored else DAMAGED,equipment,false),equipment)
 	var theme: String = equipment.get("interior", "interior_stock")
 	var tint := Color.WHITE
 	if theme == "interior_habitat":
@@ -44,7 +48,14 @@ func draw(canvas: CanvasItem, owned: Array, exterior: bool, equipment: Dictionar
 		tint = Color(0.72, 0.94, 1.0)
 	for id in ROOM_SOURCES:
 		var region: Rect2 = ROOM_SOURCES[id]
-		canvas.draw_texture_rect_region(skin_texture(texture_for_room(id, owned),equipment,false), source_to_world(region), region, tint)
+		if id == "quarters":
+			canvas.draw_texture_rect(quarters_texture(owned),source_to_world(region),false,tint)
+		else: canvas.draw_texture_rect_region(skin_texture(texture_for_room(id, owned),equipment,false), source_to_world(region), region, tint)
+	service.draw_cabin(canvas,"dock",Rect2(99,61,34,43))
+	service.draw_cabin(canvas,"bench",Rect2(132,58,24,46))
+	if "quarters" not in owned: service.draw(canvas,"spares",Rect2(158,97,15,8))
+	draw_decor(canvas,Rect2(99,55,77,49))
+	decals.draw(canvas,Rect2(115,110,30,7))
 	if hull_integrity < 100: draw_scuffs(canvas)
 	if status.engine_broken:
 		draw_fault_effects(canvas,time,condition,calm_lights)
@@ -68,3 +79,28 @@ func draw_scuffs(canvas: CanvasItem) -> void:
 		canvas.draw_line(p,p+Vector2(5,2),Color("5b4c49"),0.8)
 		canvas.draw_line(p+Vector2(1,1),p+Vector2(4,2),Color("ad8c70"),0.5)
 
+func skin_regions(equipment: Dictionary) -> Array[Rect2]:
+	if equipment.get("engine","engine_stock") == "engine_stock": return [SPRITE_RECT]
+	# Mount socket is x252; only those two old engine pods are removed.
+	return [Rect2(-33,-39,285,228),Rect2(252,-39,48,87),Rect2(252,114,48,75)]
+func draw_skin(canvas: CanvasItem, texture: Texture2D, equipment: Dictionary) -> void:
+	for rect in skin_regions(equipment):
+		var uv := Rect2((rect.position-SPRITE_RECT.position)/SPRITE_RECT.size*SOURCE_SIZE,rect.size/SPRITE_RECT.size*SOURCE_SIZE)
+		canvas.draw_texture_rect_region(texture,rect,uv)
+
+func draw_decor(canvas: CanvasItem, area: Rect2) -> void:
+	var decorations: Array = Engine.get_main_loop().root.get_node("Game").state.get("quarters_decor",[])
+	var origin := area.position
+	var scale := area.size/Vector2(77,49)
+	if "terrarium" in decorations:
+		canvas.draw_rect(Rect2(origin+Vector2(65,31)*scale,Vector2(7,8)*scale),Color("283d46"))
+		canvas.draw_rect(Rect2(origin+Vector2(67,28)*scale,Vector2(2,8)*scale),Color("698b66"))
+		canvas.draw_rect(Rect2(origin+Vector2(64,30)*scale,Vector2(7,2)*scale),Color("91ae77"))
+	if "tool_rack" in decorations:
+		for i in range(4): canvas.draw_line(origin+Vector2(40+i*3,3)*scale,origin+Vector2(40+i*3,8)*scale,Color("b2a78e"),maxf(0.4,scale.x))
+	if "relay_project" in decorations:
+		canvas.draw_rect(Rect2(origin+Vector2(42,20)*scale,Vector2(9,4)*scale),Color("34584b"))
+		for i in range(3): canvas.draw_rect(Rect2(origin+Vector2(43+i*2,21)*scale,Vector2.ONE*scale),Color("d4ad61"))
+
+func quarters_texture(owned: Array) -> Texture2D:
+	return finish.worn(QUARTERS,100 if "quarters" in owned else 25)

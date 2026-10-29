@@ -1,5 +1,6 @@
 extends RefCounted
 ## Original seeded pixel scenery. These fly-bys are decorative, not discoveries.
+var service := preload("res://assets/service_art.gd").new()
 var nebula: ImageTexture
 var planets: Array[ImageTexture] = []
 const PALETTES = [
@@ -92,7 +93,9 @@ func draw_world(canvas: CanvasItem, time: float, camera: Rect2) -> void:
 				var speed: float = 2.0+(i%3)*2.0
 				var position := Vector2(tile_x*420+fposmod(seed_value+time*speed,420),tile_y*240+fposmod(i*31.71+tile_x*11,240))
 				var color := Color("6b7e96" if i%3 else "b1c5d5")
-				canvas.draw_line(position,position+Vector2(0.7+i%3*0.4,0),color,0.5)
+				canvas.draw_line(position,position+Vector2((0.7+i%3*0.4)*(2.5 if Game.state.flight_mode == "burn" else 1.5 if Game.state.flight_mode == "cruise" else 1),0),color,0.5)
+	var station_phase := fposmod(time,240)
+	if station_phase > 120: service.draw(canvas,"station",Rect2(Vector2(420-(station_phase-120)*3,-20),Vector2(60,46)))
 	var radii := [70.0,26.0,17.0]
 	for i in range(3):
 		var center := cruise_planet_position(i,time)

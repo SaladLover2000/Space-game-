@@ -15,6 +15,7 @@ var last_tick: int = 0
 var checkpoint: float = 0.0
 var save_path: String = SAVE_PATH
 var last_error: String = ""
+var engine_modules: Array = []
 var parts: Array = []
 var expansion_catalog: Array = []
 var research_catalog: Array = []
@@ -27,11 +28,12 @@ func default_equipment() -> Dictionary:
 	return {"engine":"engine_stock", "hull":"hull_stock", "wings":"wings_stock", "paint":"paint_stock", "antenna":"antenna_stock", "lights":"lights_stock", "interior":"interior_stock", "robot_shell":"robot_shell_stock", "robot_visor":"robot_visor_stock", "robot_arms":"robot_arms_stock", "robot_legs":"robot_legs_stock", "robot_core":"robot_core_stock", "robot_paint":"robot_paint_stock"}
 
 func defaults() -> Dictionary:
-	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0, "expansions": [], "research": [], "focus_task": "", "hull_integrity": 100, "cruise_seconds": 0.0, "calm_lights": true}
+	return {"version": VERSION, "started": false, "robot": "Pip", "ship": "Little Orbit", "credits": 0, "xp": 0, "battery": 8, "owned": [], "history": [], "total_seconds": 0, "sound": true, "equipped": default_equipment(), "engine_condition": 0, "expansions": [], "research": [], "focus_task": "", "hull_integrity": 100, "cruise_seconds": 0.0, "calm_lights": true, "quarters_decor":[], "sensor_mounts_configured":false, "sensor_mounts":{}, "robot_light":"cyan", "robot_condition":25, "robot_part_condition":{}, "engine_modules":{"pump":0,"injector":0,"cooling":0,"nozzle":0}, "flight_mode":"coast", "docked_station":"", "station_visits":0, "graffiti":"none", "callsign":"", "custom_decal":""}
 
 func _ready() -> void:
 	encounter_rng.randomize()
 	balance = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance.json"))
+	engine_modules = JSON.parse_string(FileAccess.get_file_as_string("res://data/engine_modules.json"))
 	parts = JSON.parse_string(FileAccess.get_file_as_string("res://data/ship_parts.json"))
 	expansion_catalog = JSON.parse_string(FileAccess.get_file_as_string("res://data/expansions.json"))
 	research_catalog = JSON.parse_string(FileAccess.get_file_as_string("res://data/research.json"))
@@ -163,7 +165,14 @@ func buy_part(id: String) -> Dictionary:
 	var before := state.duplicate(true)
 	state.credits -= int(item.price)
 	state.owned.append(id)
+	if item.slot.begins_with("robot_") and item.slot != "robot_paint":
+		state.robot_condition = mini(100,int(state.robot_condition)+5)
+		state.robot_part_condition[id] = 100
 	state.equipped[item.slot] = id
+	if item.slot == "antenna":
+		state.sensor_mounts_configured = true
+		if id == "antenna_stock": state.sensor_mounts.erase("dorsal")
+		else: state.sensor_mounts.dorsal = id
 	if not commit_purchase(before):
 		return {"ok": false, "message": last_error}
 	repaired.emit(id)
@@ -177,6 +186,10 @@ func equip_part(id: String) -> Dictionary:
 		return {"ok": true, "message": "Already equipped."}
 	var before := state.duplicate(true)
 	state.equipped[item.slot] = id
+	if item.slot == "antenna":
+		state.sensor_mounts_configured = true
+		if id == "antenna_stock": state.sensor_mounts.erase("dorsal")
+		else: state.sensor_mounts.dorsal = id
 	if not commit_purchase(before):
 		return {"ok": false, "message": last_error}
 	return {"ok": true, "message": item.name + " equipped. No charge."}
@@ -246,6 +259,30 @@ func valid_snapshot(value: Variant) -> bool:
 		return false
 	if value.has("engine_condition") and (not (value.engine_condition is float or value.engine_condition is int) or value.engine_condition < 0 or value.engine_condition > 100):
 		return false
+	if value.has("robot_condition") and (not (value.robot_condition is int or value.robot_condition is float) or value.robot_condition < 0 or value.robot_condition > 100): return false
+	if value.has("robot_part_condition"):
+		if not value.robot_part_condition is Dictionary: return false
+		for id in value.robot_part_condition:
+			var condition: Variant = value.robot_part_condition[id]
+			if not id is String or not (condition is int or condition is float) or condition < 0 or condition > 100: return false
+	if value.has("engine_modules"):
+		if not value.engine_modules is Dictionary: return false
+		for key in value.engine_modules:
+			if key not in ["pump","injector","cooling","nozzle"] or not (value.engine_modules[key] is int or value.engine_modules[key] is float) or value.engine_modules[key] != int(value.engine_modules[key]) or value.engine_modules[key] < 0 or value.engine_modules[key] > 3: return false
+	if value.has("flight_mode") and value.flight_mode not in ["coast","cruise","burn"]: return false
+	if value.has("station_visits") and (not (value.station_visits is int or value.station_visits is float) or value.station_visits < 0 or value.station_visits != int(value.station_visits)): return false
+	for key in ["docked_station","graffiti","callsign","custom_decal"]:
+		if value.has(key) and not value[key] is String: return false
+	if value.has("quarters_decor"):
+		if not value.quarters_decor is Array: return false
+		for decoration in value.quarters_decor:
+			if decoration not in ["terrarium","tool_rack","relay_project"]: return false
+	if value.has("sensor_mounts_configured") and not value.sensor_mounts_configured is bool: return false
+	if value.has("sensor_mounts"):
+		if not value.sensor_mounts is Dictionary: return false
+		for mount in value.sensor_mounts:
+			if mount not in ["fore","dorsal","aft"] or value.sensor_mounts[mount] not in ["antenna_dish","antenna_sensor","antenna_radar"]: return false
+	if value.has("robot_light") and value.robot_light not in ["cyan","blue","green","violet","white"]: return false
 	if value.has("equipped"):
 		if not value.equipped is Dictionary:
 			return false
@@ -268,6 +305,15 @@ func load_progress() -> void:
 			last_error = "Save was unreadable; checking the backup."
 			continue
 		state.merge(parsed, true)
+		var assemblies: Dictionary = defaults().engine_modules
+		assemblies.merge(state.engine_modules,true)
+		for key in assemblies: assemblies[key] = int(assemblies[key])
+		state.engine_modules = assemblies
+		if not parsed.has("robot_part_condition"):
+			for id in state.owned:
+				var module := part_by_id(id)
+				if not module.is_empty() and module.slot.begins_with("robot_") and module.slot != "robot_paint": state.robot_part_condition[id] = 100
+
 		state.battery = clampi(int(state.battery), 0, 100)
 		if not parsed.has("engine_condition"):
 			state.engine_condition = 100 if "engine" in state.owned else 0
@@ -373,7 +419,9 @@ func advance_flight(delta: float) -> void:
 	if not state.started:
 		return
 	var elapsed := clampf(delta,0.0,1.0)
-	state.cruise_seconds += elapsed*(1.0+equipment_effects().cruise_percent/100.0)
+	if not state.docked_station.is_empty(): return
+	if not flight_lock(state.flight_mode).is_empty(): state.flight_mode = "coast"
+	state.cruise_seconds += elapsed*(1.0+equipment_effects().cruise_percent/100.0)*flight_speed()
 	for event in asteroid_events:
 		event.age += elapsed
 		if event.age >= 5.0: apply_contact(event)
@@ -437,3 +485,196 @@ func effect_lines(item: Dictionary) -> Array[String]:
 	if lines.is_empty(): lines.append("Appearance only / no stat change" if item.slot in ["robot_paint","paint","lights","interior"] else "Standard hardware / baseline performance")
 	return lines
 
+func service_robot(full: bool = false) -> Dictionary:
+	if state.robot_condition >= 100: return {"ok":false,"message":"Robot is already serviced."}
+	var price := 30 if full else 8
+	if state.credits < price: return {"ok":false,"message":"Need %d credits for robot care." % price}
+	var before := state.duplicate(true)
+	state.credits -= price
+	state.robot_condition = mini(100,int(state.robot_condition)+(40 if full else 15))
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Frame repaired and cleaned." if full else "Joints oiled and contacts cleaned."}
+
+func upgrade_engine_module(id: String) -> Dictionary:
+	var item := catalog_item(engine_modules,id)
+	if item.is_empty(): return {"ok":false,"message":"Unknown engine assembly."}
+	if "engine" not in state.owned: return {"ok":false,"message":"Restore the engine before upgrading its assemblies."}
+	var tier: int = state.engine_modules.get(id,0)
+	if tier >= 3: return {"ok":false,"message":"Assembly already at maximum tier."}
+	if state.xp < item.xp[tier]: return {"ok":false,"message":"Requires %d research XP." % item.xp[tier]}
+	if state.credits < item.price[tier]: return {"ok":false,"message":"Requires %d credits." % item.price[tier]}
+	var before := state.duplicate(true)
+	state.credits -= int(item.price[tier])
+	state.engine_modules[id] = tier+1
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":item.name+" upgraded to tier %d." % (tier+1)}
+
+func ship_level() -> int:
+	var tiers := 0
+	for tier in state.engine_modules.values(): tiers += int(tier)
+	return mini(5,1+(1 if "engine" in state.owned else 0)+tiers/4+(1 if state.equipped.hull == "hull_shielded" else 0))
+
+func flight_lock(mode: String) -> String:
+	if mode == "coast": return ""
+	if "engine" not in state.owned or state.engine_condition < 75: return "Restore the engine and reach 75% engine condition."
+	if mode == "cruise":
+		return "Upgrade turbopump and nozzle to tier 1." if state.engine_modules.pump < 1 or state.engine_modules.nozzle < 1 else ""
+	if mode == "burn":
+		for tier in state.engine_modules.values():
+			if tier < 3: return "Maximum thrust requires all four engine assemblies at tier 3."
+		if state.engine_condition < 100 or state.equipped.hull != "hull_shielded": return "Maximum thrust requires full engine condition and ceramic thermal cladding."
+		if "navigation_patch" not in state.research: return "Install the navigation software rebuild."
+		return ""
+	return "Unknown flight mode."
+
+func flight_speed() -> float:
+	return 6.0 if state.flight_mode == "burn" else 2.5 if state.flight_mode == "cruise" else 1.0
+
+func set_flight_mode(mode: String) -> Dictionary:
+	var lock := flight_lock(mode)
+	if not lock.is_empty(): return {"ok":false,"message":lock}
+	if not state.docked_station.is_empty(): return {"ok":false,"message":"Undock before engaging propulsion."}
+	var before := state.duplicate(true)
+	state.flight_mode = mode
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Flight mode: "+mode}
+
+func station_contact() -> Dictionary:
+	var phase := fposmod(state.cruise_seconds,240)
+	var sensor_range := 130.0 if has_docking_sensor() else 180.0
+	if phase < sensor_range: return {}
+	return {"id":"station_%d" % (int(state.cruise_seconds/240)%3),"name":["Wayfarer Exchange","Kepler Repair Dock","Aster Research Port"][int(state.cruise_seconds/240)%3],"price":350,"level":3}
+
+func docking_lock() -> String:
+	if not state.docked_station.is_empty(): return "Already docked."
+	if station_contact().is_empty(): return "No station is currently in sensor range."
+	if ship_level() < 3: return "Station approach requires overall ship level 3."
+	if not has_docking_sensor(): return "Fit docking LiDAR or rendezvous radar for approach."
+	if state.engine_condition < 75 or state.hull_integrity < 90: return "Approach requires engine 75% and hull 90%."
+	if state.credits < 350: return "Station docking costs 350 credits."
+	return ""
+
+func dock_station() -> Dictionary:
+	var lock := docking_lock()
+	if not lock.is_empty(): return {"ok":false,"message":lock}
+	var before := state.duplicate(true)
+	state.credits -= 350
+	state.docked_station = station_contact().id
+	state.station_visits += 1
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Docking complete. Focus time continues."}
+
+func undock_station() -> void:
+	var before := state.duplicate(true)
+	state.docked_station = ""
+	commit_purchase(before)
+
+func set_robot_light(value: String) -> bool:
+	if value not in ["cyan","blue","green","violet","white"]: return false
+	var before := state.duplicate(true)
+	state.robot_light = value
+	return commit_purchase(before)
+
+func robot_thought(room: String = "ship", time: float = 0) -> String:
+	var lines: Array = []
+	if room == "charging":
+		lines = ["Battery topped up. Ready when you are.","Systems rested. Your chosen lights are back."] if state.battery >= 100 else ["Recharge cycle engaged. Good night...","Saving power while you focus...","Wake me after a little more study."]
+	elif room == "engine":
+		lines = ["Checking the coolant pressure.","This loose coupling needs a careful reseat.","I will sort these spare parts before the next burn.","A better turbopump would help our next cruise."] if state.engine_condition < 75 else ["Pressure steady. Checking the injector seals.","Logging nozzle temperatures.","Putting the tools back, then another inspection."]
+	elif room == "cockpit":
+		lines = ["Legacy navigation is offline. Tracing the fault.","Testing the next control circuit.","Rebuilding the route table, one line at a time.","Coasting safely while I check the console."] if "navigation_patch" not in state.research else ["Plotting a clear course.","Checking traffic beyond the next planet.","Navigation checks complete. Watching the instruments."]
+	elif room == "quarters":
+		lines = ["Let me assemble this little relay.","Sorting the spare fasteners.","Testing the workbench power supply.","A tidy bench makes the next repair easier."]
+	else:
+		lines = ["Another quiet mile between the stars.","I will check the workshop next.","Keeping an eye on the ship while you focus.","There is always a little circuit to mend."]
+		if state.battery < 20: lines.append("Low battery... I should visit my charging cradle.")
+		if state.robot_condition < 45: lines.append("A little oil would make these joints happier.")
+	return lines[int(time/14)%lines.size()]
+
+func set_graffiti(design: String, callsign: String) -> bool:
+	if design not in ["none","orbit","comet","constellation"]: return false
+	var before := state.duplicate(true)
+	state.graffiti = design
+	state.callsign = callsign.strip_edges().to_upper().left(12)
+	return commit_purchase(before)
+
+func import_decal(path: String) -> Dictionary:
+	if path.get_extension().to_lower() != "png" or not FileAccess.file_exists(path): return {"ok":false,"message":"Choose a local PNG image."}
+	var image := Image.load_from_file(path)
+	if image == null or image.is_empty() or image.get_width() > 2048 or image.get_height() > 2048: return {"ok":false,"message":"Choose a PNG image no larger than 2048 pixels per side."}
+	var directory := ProjectSettings.globalize_path("user://decals")
+	if DirAccess.make_dir_recursive_absolute(directory) != OK: return {"ok":false,"message":"Could not create the local decal folder."}
+	var destination := "user://decals/art_%s.png" % Time.get_ticks_usec()
+	if image.save_png(destination) != OK: return {"ok":false,"message":"Could not save the imported artwork."}
+	var before := state.duplicate(true)
+	state.custom_decal = destination
+	state.graffiti = "custom"
+	if not commit_purchase(before):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(destination))
+		return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Personal artwork imported locally."}
+
+func mount_sensor(mount: String, id: String) -> Dictionary:
+	if mount not in ["fore","dorsal","aft"]: return {"ok":false,"message":"Unknown sensor hardpoint."}
+	if id not in ["antenna_dish","antenna_sensor","antenna_radar"] or not part_owned(id): return {"ok":false,"message":"Purchase the sensor before mounting it."}
+	if id == "antenna_sensor" and mount == "aft": return {"ok":false,"message":"Docking LiDAR needs a forward or dorsal approach sightline."}
+	var before := state.duplicate(true)
+	state.sensor_mounts_configured = true
+	for existing in state.sensor_mounts.keys():
+		if state.sensor_mounts[existing] == id: state.sensor_mounts.erase(existing)
+	state.sensor_mounts[mount] = id
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Sensor installed at the "+mount+" hardpoint."}
+
+func unmount_sensor(mount: String) -> bool:
+	var before := state.duplicate(true)
+	state.sensor_mounts_configured = true
+	state.sensor_mounts.erase(mount)
+	return commit_purchase(before)
+
+func buy_quarters_decor(id: String) -> Dictionary:
+	var prices := {"terrarium":20,"tool_rack":25,"relay_project":30}
+	if not prices.has(id): return {"ok":false,"message":"Unknown workshop decoration."}
+	if "quarters" not in state.owned: return {"ok":false,"message":"Restore the companion quarters before adding decor."}
+	if id in state.quarters_decor: return {"ok":true,"message":"Already installed."}
+	if state.credits < prices[id]: return {"ok":false,"message":"More credits needed."}
+	var before := state.duplicate(true)
+	state.credits -= prices[id]
+	state.quarters_decor.append(id)
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Workshop decoration installed."}
+
+func effective_sensor_mounts() -> Dictionary:
+	if state.get("sensor_mounts_configured",false): return state.sensor_mounts.duplicate()
+	var id: String = state.equipped.antenna
+	return {"dorsal":id} if id in ["antenna_dish","antenna_sensor","antenna_radar"] else {}
+func has_docking_sensor() -> bool:
+	var mounts := effective_sensor_mounts()
+	for mount in mounts:
+		if mounts[mount] == "antenna_radar" or (mount in ["fore","dorsal"] and mounts[mount] == "antenna_sensor"): return true
+	return false
+
+func planet_contact() -> Dictionary:
+	for index in range(3):
+		var x := fposmod(-150+index*480+state.cruise_seconds*(0.7+index*0.25)+500,1500)-500
+		if x >= -70 and x <= 350:
+			return {"id":"planet_%d" % index,"index":index,"name":["Copper Reach","Thalassa","Amethyst Moon"][index],"price":500,"level":4}
+	return {}
+func landing_lock() -> String:
+	if not state.docked_station.is_empty(): return "Depart the current port before approaching another destination."
+	if planet_contact().is_empty(): return "No planetary port is within approach range."
+	if ship_level() < 4: return "Planetary approach requires overall ship level 4."
+	if state.engine_condition < 100 or state.hull_integrity < 100: return "Atmospheric approach requires full engine and hull condition."
+	if state.equipped.hull != "hull_shielded" or state.engine_modules.cooling < 2: return "Fit ceramic thermal cladding and tier 2 cooling for entry."
+	if "navigation_patch" not in state.research or not has_docking_sensor(): return "Install navigation software and an approach sensor."
+	if state.credits < 500: return "Planetary port clearance costs 500 credits."
+	return ""
+func land_planet() -> Dictionary:
+	var lock := landing_lock()
+	if not lock.is_empty(): return {"ok":false,"message":lock}
+	var before := state.duplicate(true)
+	state.credits -= 500
+	state.docked_station = planet_contact().id
+	state.station_visits += 1
+	if not commit_purchase(before): return {"ok":false,"message":last_error}
+	return {"ok":true,"message":"Planetary port reached. Your focus session continues."}

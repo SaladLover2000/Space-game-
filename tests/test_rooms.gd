@@ -32,6 +32,12 @@ func run() -> void:
 	await process_frame
 	await process_frame
 	var view: Control = scene.ship_view
+	# Exercise the low-level overview rig/inspector independently; immersive UI routing has its own end-to-end suite.
+	view.immersive_routes = false
+	view.room_selected.disconnect(scene.enter_room)
+	view.room_selected.connect(scene.select_room)
+	view.object_selected.disconnect(scene.route_object)
+	view.object_selected.connect(scene.inspect_object)
 	check(view.expression() == "sad", "low battery companion starts sad")
 	check(view.room_at(Vector2(-10, -10)).is_empty(), "outside canvas is not a room")
 	for id in ["cockpit", "quarters", "engine"]:
@@ -61,7 +67,7 @@ func run() -> void:
 	view.stand_up() # End the previous explicit maintenance command before testing dock moods.
 	game.start_session(25)
 	var session_id: String = game.active.id
-	check(view.expression() == "charging", "running study animates charging dock")
+	check(view.expression() == "working", "running study keeps the companion working away from its cradle")
 	game.toggle_pause()
 	check(view.expression() == "sad", "paused session stops charging animation")
 	game.toggle_pause()
@@ -120,4 +126,3 @@ func run() -> void:
 	await process_frame
 	print("ROOM RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
-

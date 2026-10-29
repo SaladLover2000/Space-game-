@@ -49,7 +49,7 @@ func run() -> void:
 	game.state.owned.append("cockpit")
 	check(bridge.background_texture() == bridge.BACKPLATE,"bridge repair switches its actual background to restored equipment")
 	bridge.set_mode("diagnostics")
-	check(not bridge.actor_state().seated and bridge.actor_state().angle == 1 and bridge.actor_state().mood == "working","diagnostics turns a full-size articulated robot toward the service console")
+	check(not bridge.actor_state().seated and bridge.actor_state().angle == 1 and bridge.actor_state().mood == "inspecting","diagnostics bends a full-size articulated robot toward the service console")
 	scene.show_page("robot")
 	var bay: Control = scene.workshop.robot_preview
 	bay.set_process(false)
@@ -99,4 +99,3 @@ func run() -> void:
 		if FileAccess.file_exists(game.save_path+suffix): DirAccess.remove_absolute(game.save_path+suffix)
 	print("VISUAL REBUILD RESULT: ",failures," failures; GPU appearance still needs player review")
 	quit(0 if failures == 0 else 1)
-

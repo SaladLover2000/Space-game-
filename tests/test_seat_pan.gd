@@ -42,6 +42,12 @@ func run() -> void:
 	scene.show_page("interior")
 	await process_frame
 	var view: Control = scene.ship_view
+	# Exercise the low-level overview rig/inspector independently; immersive UI routing has its own end-to-end suite.
+	view.immersive_routes = false
+	view.room_selected.disconnect(scene.enter_room)
+	view.room_selected.connect(scene.select_room)
+	view.object_selected.disconnect(scene.route_object)
+	view.object_selected.connect(scene.inspect_object)
 	view.set_process(false)
 	var seat: Vector2 = view.object_bounds("cockpit",2).get_center()
 	var cursor: Vector2 = view.view_transform()*seat
@@ -138,4 +144,3 @@ func run() -> void:
 			DirAccess.remove_absolute(game.save_path+suffix)
 	print("SEAT PAN RESULT: ", failures, " failures; actual input callbacks are exercised without OS mouse automation")
 	quit(0 if failures == 0 else 1)
-

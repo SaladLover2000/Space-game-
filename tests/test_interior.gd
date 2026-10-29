@@ -40,6 +40,12 @@ func run() -> void:
 	scene.show_page("interior")
 	await process_frame
 	var view: Control = scene.ship_view
+	# Exercise the low-level overview rig/inspector independently; immersive UI routing has its own end-to-end suite.
+	view.immersive_routes = false
+	view.room_selected.disconnect(scene.enter_room)
+	view.room_selected.connect(scene.select_room)
+	view.object_selected.disconnect(scene.route_object)
+	view.object_selected.connect(scene.inspect_object)
 	await capture("interior-damaged")
 	for id in ["cockpit", "quarters", "engine"]:
 		scene.select_room(id)

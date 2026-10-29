@@ -90,7 +90,7 @@ func run() -> void:
 	view.advance_robot(10)
 	view.queue_redraw()
 	await process_frame
-	check(view.autonomous_activity == "sleeping" and view.robot_position == Vector2(143,103),"uncommanded robot goes to the habitation area to sleep")
+	check(view.autonomous_activity == "sleeping" and view.robot_position == Vector2(115,103),"uncommanded robot rests at the charging cradle rather than the former bunk")
 	view.follow_robot("cockpit")
 	var target: Vector2 = view.robot_destination
 	view.advance_autonomy(1)

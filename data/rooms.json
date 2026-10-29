@@ -38,56 +38,56 @@
         19
       ],
       [
-        49,
+        55,
         74,
-        18,
+        19,
         25
       ]
     ]
   },
   "quarters": {
-    "name": "Living quarters",
+    "name": "Companion quarters",
     "bounds": [
       97,
       56,
       73,
       46
     ],
-    "damaged": "A threadbare bunk and a dangling cable. There is room for a little warmth.",
-    "restored": "Fresh bedding, a repaired lamp and one small plant. This is becoming home.",
+    "damaged": "An old charging cradle and loose cables need attention. The tall locker stores robot tools and parts.",
+    "restored": "Clean charging contacts, repaired power lines and a stocked robot service locker.",
     "objects": [
-      "Sleeping nook",
-      "Wall shelf",
-      "Charging dock"
+      "Charging cradle",
+      "Electronics workbench",
+      "Robot parts locker"
     ],
     "damaged_objects": [
-      "A faded blanket covers the old bunk.",
-      "A few abandoned containers gather dust.",
-      "The dock is worn but safe to use during study sessions."
+      "Worn contacts. Complete focus sessions to replenish battery.",
+      "Dusty maintenance supplies.",
+      "Open the workshop to service and customize the robot."
     ],
     "restored_objects": [
-      "A soft blue blanket is ready for a break.",
-      "A little green plant reaches toward the lamp.",
-      "The tidy dock pulses gently while your companion studies with you."
+      "Serviced cradle. Battery comes from completed focus sessions.",
+      "Organized maintenance supplies.",
+      "Robot service locker and workshop access."
     ],
     "object_bounds": [
       [
-        100,
-        74,
-        30,
-        25
+        99,
+        65,
+        35,
+        39
       ],
       [
         132,
         53,
-        32,
+        25,
         12
       ],
       [
-        132,
-        91,
-        23,
-        12
+        152,
+        65,
+        16,
+        37
       ]
     ]
   },
@@ -99,7 +99,7 @@
       62,
       46
     ],
-    "damaged": "The old coils are burnt out. The ship drifts quietly without propulsion.",
+    "damaged": "Turbopump, injector and cooling faults. Open the engine bay to inspect and repair.",
     "restored": "Coolant flows and the coils glow. The ship finally has a heartbeat.",
     "objects": [
       "Main engine",

@@ -3,8 +3,17 @@ const ShipView = preload("res://assets/ship_view.gd")
 const RobotPortrait = preload("res://assets/robot_portrait.gd")
 const PartIcon = preload("res://ui/component_icon.gd")
 const SLOTS = {"engine":"Engines", "hull":"Hull", "wings":"Fins & solar", "paint":"Paint", "antenna":"Sensors", "lights":"Lighting", "interior":"Interior themes", "repairs":"Room repairs", "robot_shell":"Robot / Chassis", "robot_visor":"Robot / Heads", "robot_arms":"Robot / Arms", "robot_legs":"Robot / Legs", "robot_core":"Robot / Chest & packs", "robot_paint":"Robot / Paint"}
+var sensor_panel: VBoxContainer
+var sensor_mount_picker: OptionButton
+var graffiti_panel: VBoxContainer
+var graffiti_picker: OptionButton
+var callsign_input: LineEdit
+var graffiti_dialog: FileDialog
 var robot_tabs: GridContainer
 var turn_buttons: Array[Button] = []
+var hull_patch_button: Button
+var robot_oil_button: Button
+var robot_repair_button: Button
 var rack_button: Button
 var rack_status: Label
 var ship_view: Control
@@ -106,6 +115,15 @@ func _ready() -> void:
 		var tab_slot: String = slot
 		category_buttons[slot] = button(robot_tabs,{"robot_visor":"Heads","robot_shell":"Chassis","robot_arms":"Arms","robot_legs":"Legs","robot_core":"Packs","robot_paint":"Paint"}[slot],func(): select_slot(tab_slot))
 	robot_tabs.hide()
+	var light_row := HBoxContainer.new()
+	robot_tabs.add_child(light_row)
+	text(light_row,"Optics",13)
+	var light_picker := OptionButton.new()
+	var colors := ["cyan","blue","green","violet","white"]
+	for color in colors: light_picker.add_item(color.capitalize())
+	light_picker.select(maxi(0,colors.find(Game.state.robot_light)))
+	light_picker.item_selected.connect(func(index): Game.set_robot_light(colors[index]); robot_preview.queue_redraw())
+	light_row.add_child(light_picker)
 
 	detail = text(sidebar,"",17)
 	engine_title = text(sidebar,"Engine condition",14)
@@ -115,8 +133,35 @@ func _ready() -> void:
 	patch_button = button(sidebar,"",func(): service(false))
 	overhaul_button = button(sidebar,"",func(): service(true))
 	repair_note = text(sidebar,"Affordable engine patches and full overhauls. Most asteroid contacts cause no damage.",13)
-	button(sidebar,"Patch hull / 5 credits",func(): feedback.text = Game.patch_hull().message; refresh())
+	hull_patch_button = button(sidebar,"Patch hull / 5 credits",func(): feedback.text = Game.patch_hull().message; refresh())
+	robot_oil_button = button(sidebar,"Oil joints / 8 credits",func(): care_robot(false))
+	robot_repair_button = button(sidebar,"Repair robot frame / 30 credits",func(): care_robot(true))
 	button(sidebar,"Use equipped design",clear_preview)
+	graffiti_panel = VBoxContainer.new()
+	sidebar.add_child(graffiti_panel)
+	text(graffiti_panel,"SPRAY STENCILS & PERSONAL ART",14)
+	graffiti_picker = OptionButton.new()
+	for value in ["none","orbit","comet","constellation"]: graffiti_picker.add_item(value.capitalize())
+	graffiti_panel.add_child(graffiti_picker)
+	callsign_input = LineEdit.new()
+	callsign_input.placeholder_text = "Personal callsign / up to 12 characters"
+	callsign_input.max_length = 12
+	callsign_input.text = Game.state.callsign
+	graffiti_panel.add_child(callsign_input)
+	button(graffiti_panel,"Apply stencil and callsign",func(): Game.set_graffiti(["none","orbit","comet","constellation"][graffiti_picker.selected],callsign_input.text); feedback.text = "Personal stencil applied.")
+	button(graffiti_panel,"Import personal PNG artwork",open_art_dialog)
+
+	sensor_panel = VBoxContainer.new()
+	sidebar.add_child(sensor_panel)
+	text(sensor_panel,"SENSOR HARDPOINTS",14)
+	sensor_mount_picker = OptionButton.new()
+	for value in ["Fore / clear approach sightline","Dorsal / wide sky coverage","Aft / rear communications"]: sensor_mount_picker.add_item(value)
+	sensor_panel.add_child(sensor_mount_picker)
+	button(sensor_panel,"Mount selected sensor here",func():
+		var id: String = preview_id if not preview_id.is_empty() else Game.state.equipped.antenna
+		feedback.text = Game.mount_sensor(["fore","dorsal","aft"][sensor_mount_picker.selected],id).message
+		ship_view.queue_redraw())
+	button(sensor_panel,"Clear this hardpoint",func(): Game.unmount_sensor(["fore","dorsal","aft"][sensor_mount_picker.selected]); ship_view.queue_redraw())
 	cards = GridContainer.new()
 	cards.columns = 1
 	cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -124,7 +169,7 @@ func _ready() -> void:
 	sidebar.add_child(cards)
 	Game.changed.connect(refresh)
 	resized.connect(on_resized)
-	refresh()
+	select_slot(selected_slot)
 
 func on_resized() -> void:
 	if is_instance_valid(side_scroll):
@@ -190,14 +235,22 @@ func service(full: bool) -> void:
 func refresh() -> void:
 	if not is_instance_valid(cards):
 		return
+	sensor_panel.visible = selected_slot == "antenna"
+	graffiti_panel.visible = selected_slot in ["paint","robot_paint"]
 	update_rack_status()
 	detail.text = SLOTS[selected_slot] + ("\nPreview: " + Game.part_by_id(preview_id).name if not preview_id.is_empty() else "\nEquipped design")
 	if selected_slot.begins_with("robot_"):
 		var outfit: Dictionary = robot_preview.preview_equipped if not robot_preview.preview_equipped.is_empty() else Game.state.equipped
 		detail.text += "\n" + robot_preview.art.build_description(outfit)
-	engine_title.text = "Engine condition / Hull %d%%" % Game.state.hull_integrity
-	condition.value = Game.state.engine_condition
-	condition.visible = not selected_slot.begins_with("robot_")
+	var robot_mode := selected_slot.begins_with("robot_")
+	hull_patch_button.visible = not robot_mode
+	robot_oil_button.visible = robot_mode
+	robot_repair_button.visible = robot_mode
+	robot_oil_button.disabled = not robot_preview.service_ready() or Game.state.robot_condition >= 100
+	robot_repair_button.disabled = robot_oil_button.disabled
+	engine_title.text = "Robot condition / %d%%" % Game.state.robot_condition if robot_mode else "Engine condition / Hull %d%%" % Game.state.hull_integrity
+	condition.value = Game.state.robot_condition if robot_mode else Game.state.engine_condition
+	condition.visible = true
 	engine_title.visible = condition.visible
 	if preview_id.is_empty():
 		robot_preview.preview_equipped = {}
@@ -300,3 +353,21 @@ func update_rack_status() -> void:
 	rack_button.disabled = status in ["installing","racking","releasing"]
 	rack_status.text = "CHAIN HOIST / " + status.to_upper() + (" - choose parts or paint" if status == "racked" else " - hoist to install upgrades" if status == "free" else "")
 
+func care_robot(full: bool) -> void:
+	if not robot_preview.service_ready():
+		feedback.text = "Hoist the robot before oiling or repairing the frame."
+		return
+	var result: Dictionary = Game.service_robot(full)
+	feedback.text = result.message
+	if result.ok: robot_preview.begin_install()
+	refresh()
+
+func open_art_dialog() -> void:
+	if graffiti_dialog == null:
+		graffiti_dialog = FileDialog.new()
+		graffiti_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+		graffiti_dialog.access = FileDialog.ACCESS_FILESYSTEM
+		graffiti_dialog.filters = PackedStringArray(["*.png ; PNG artwork"])
+		graffiti_dialog.file_selected.connect(func(path): feedback.text = Game.import_decal(path).message)
+		add_child(graffiti_dialog)
+	graffiti_dialog.popup_centered_ratio(0.65)
