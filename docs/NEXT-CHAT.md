@@ -4,7 +4,7 @@ Godot 4.4.1 study game. Read [INTERACTIVE-ROOMS.md](INTERACTIVE-ROOMS.md), [VALI
 
 ## Repository workflow
 
-Continue on `dev/phase-1-prototype` in `SaladLover2000/Space-game-`. Existing PR: https://github.com/SaladLover2000/Space-game-/pull/1. Do not merge it. Inspect the live branch head before publishing and use an expected-head lease when updating the ref.
+Continue on `dev/phase-1-prototype` in `SaladLover2000/Space-game-`. Active review (draft): https://github.com/SaladLover2000/Space-game-/pull/2. PR #1 is historical and was merged by the repository owner before this refactor was published. Do not merge pull requests automatically. Inspect the live branch head before publishing and use an expected-head lease when updating the ref.
 
 ## Preserve behavior and player progress
 
