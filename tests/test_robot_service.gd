@@ -27,6 +27,7 @@ func run() -> void:
 	var art: RefCounted = bay.art
 	check(game.state.equipped.robot_paint == "robot_paint_stock" and art.finish_color({}) == Color("fff3dc"),"new and legacy outfits default to a single warm white ceramic finish")
 	var palette_ok := true
+	var cream_pixels: int = 0
 	var alpha_ok := true
 	for id in ["robot_visor_stock","robot_legs_boots","robot_shell_cobalt","robot_shell_loader"]:
 		var img: Image = art.texture_for(id).get_image()
@@ -35,8 +36,8 @@ func run() -> void:
 		for y in range(int(region.position.y),int(region.end.y),9):
 			for x in range(int(region.position.x),int(region.end.x),9):
 				var c := img.get_pixel(x,y)
-				if c.a > 0.1: palette_ok = palette_ok and absf(c.r-c.g) < 0.01 and absf(c.g-c.b) < 0.01
-	check(palette_ok and alpha_ok,"actual old blue/orange and new hardware textures are neutral grayscale with preserved transparency")
+				if c.a > 0.1 and c.r > 0.7 and c.g > 0.65 and c.b > 0.5 and c.r >= c.b: cream_pixels += 1
+	check(cream_pixels > 100 and alpha_ok,"actual hardware textures contain authored cream-white armor and preserve transparent margins")
 	var variants := {}
 	for item in game.parts:
 		if item.slot in ["robot_shell","robot_visor","robot_arms","robot_legs","robot_core"]:

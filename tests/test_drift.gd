@@ -45,12 +45,12 @@ func run() -> void:
 	var original_state: Dictionary = game.state.duplicate(true)
 	game.start_session(25)
 	var session_id: String = game.active.id
-	scene.show_page("drift")
+	scene.show_page("interior")
 	await process_frame
-	check(scene.ship_view.exterior and scene.drift_status.text.contains("Study"), "exterior drift screen opens with study status")
+	check(scene.find_children("*","Button",true,false).filter(func(node): return node.text == "Drift").is_empty() and scene.drift_status.text.contains("Study"), "normal ship interior retains cruise scenery and the obsolete Drift navigation is removed")
 	game.last_tick = 1000
 	game.advance(61000)
-	check(game.active.id == session_id and game.active.remaining_ms == 1440000, "exterior view preserves the running study timer")
+	check(game.active.id == session_id and game.active.remaining_ms == 1440000, "ship view preserves the running study timer")
 	check(game.state.credits == original_state.credits and game.state.xp == original_state.xp and game.state.owned == original_state.owned, "scenery grants no rewards or discoveries")
 	game.cancel_session()
 	scene.ship_view.clock = 6
@@ -74,3 +74,4 @@ func run() -> void:
 	await process_frame
 	print("DRIFT RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
+

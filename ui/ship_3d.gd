@@ -26,11 +26,11 @@ var scanner: MeshInstance3D
 func material(color: String, glow: bool = false) -> StandardMaterial3D:
 	var result := StandardMaterial3D.new()
 	result.albedo_color = Color(color)
-	result.metallic = 0.6 if not glow else 0.0
-	result.roughness = 0.75
+	result.metallic = 0.0
+	result.roughness = 1.0
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
-	if not glow:
+	if not glow and color in ["c4c7bd","fff4db","6285b3","c7d7e8","bb875e","ead1ad","a56c50","2c5181"]:
 		result.albedo_texture = panel_texture(Color(color))
 	if glow:
 		result.emission_enabled = true
@@ -39,11 +39,20 @@ func material(color: String, glow: bool = false) -> StandardMaterial3D:
 	return result
 
 func panel_texture(_base: Color) -> ImageTexture:
-	# Reuse the approved pixel artwork as an actual UV-mapped metal finish.
-	# This is a surface texture on solid meshes, not a camera-facing ship image.
+	# Small authored pixel-scale metal panels instead of repeating a photo-like hull crop.
 	if armor_texture == null:
-		var image: Image = preload("res://assets/art/ship-exterior-v1.png").get_image()
-		armor_texture = ImageTexture.create_from_image(image.get_region(Rect2i(640,445,260,170)))
+		var image := Image.create(32,32,false,Image.FORMAT_RGBA8)
+		image.fill(Color("e7e1cf"))
+		for y in range(32):
+			for x in range(32):
+				var shade := Color("d6d2c4")
+				if x == 0 or y == 0: shade = Color("48525a")
+				elif x == 1 or y == 1: shade = Color("fff3d6")
+				elif x == 30 or y == 30: shade = Color("889095")
+				elif x in [4,27] and y in [4,27]: shade = Color("53616a")
+				elif x > 10 and x < 23 and y > 21 and y < 25: shade = Color("56636b")
+				image.set_pixel(x,y,shade)
+		armor_texture = ImageTexture.create_from_image(image)
 	return armor_texture
 
 func add_mesh(mesh: Mesh, position: Vector3, mat: Material, rotation: Vector3 = Vector3.ZERO) -> MeshInstance3D:
@@ -102,7 +111,7 @@ func hull_shell(steel: Material, bright: Material, dark: Material, glass: Materi
 				vertices.append(Vector3(section.x,point.y*section.y,point.x*section.z))
 			var surface := SurfaceTool.new()
 			surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-			var uv := [Vector2(0,0),Vector2(2,0),Vector2(2,1),Vector2(0,1)]
+			var uv := [Vector2(0,0),Vector2(1,0),Vector2(1,1),Vector2(0,1)]
 			for index in [0,1,2,0,2,3]:
 				surface.set_uv(uv[index])
 				surface.add_vertex(vertices[index])
@@ -132,6 +141,7 @@ func _ready() -> void:
 	viewport_container = container
 	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	container.stretch = true
+	container.stretch_shrink = 2
 	container.visible = not pixel_style
 	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(container)
@@ -180,8 +190,9 @@ func refresh_model() -> void:
 		model.remove_child(child)
 		child.queue_free()
 	mesh_count = 0
-	var steel := material("8296a5")
-	var bright := material("c8d3cf")
+	var hull_coat: String = Game.state.equipped.paint
+	var steel := material("6285b3" if hull_coat == "paint_cobalt" else "bb875e" if hull_coat == "paint_copper" else "c4c7bd")
+	var bright := material("c7d7e8" if hull_coat == "paint_cobalt" else "ead1ad" if hull_coat == "paint_copper" else "fff4db")
 	var dark := material("263649")
 	var paint := material("a56c50" if Game.state.equipped.paint == "paint_copper" else "2c5181")
 	var cyan := material("66e6e3",true)

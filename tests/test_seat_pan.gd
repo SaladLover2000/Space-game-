@@ -98,7 +98,7 @@ func run() -> void:
 	view.advance_robot(10)
 	check(view.robot_seated and not view.seat_requested and view.robot_position == view.PILOT_SEAT, "robot sits only after reaching the chair through open hatches")
 	var pose: Array = view.robot_art.pose(view.equipment(),0,"idle",false,true)
-	check(pose.size() == 9 and pose.filter(func(part): return absf(part.rotation) > 0.5).size() >= 4, "seated renderer bends separate leg sections and brings the hands forward")
+	check(pose.size() == 13 and pose.filter(func(part): return absf(part.rotation) > 0.5).size() >= 4, "seated renderer articulates thighs, shins, upper arms, forearms and hands")
 	var hip_alignment := true
 	for legs in ["robot_legs_stock","robot_legs_boots","robot_legs_strider"]:
 		var outfit: Dictionary = view.equipment().duplicate(true)
@@ -138,3 +138,4 @@ func run() -> void:
 			DirAccess.remove_absolute(game.save_path+suffix)
 	print("SEAT PAN RESULT: ", failures, " failures; actual input callbacks are exercised without OS mouse automation")
 	quit(0 if failures == 0 else 1)
+

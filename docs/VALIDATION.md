@@ -151,3 +151,6 @@ Latest robot service update: 25 hardware designs, 3,125 mixed builds, six indepe
 
 Latest component workshop update: warm white base armor with no low-battery paint dimming; isolated component cards and direct robot slot tabs; four directional robot views with separate profile/rear artwork; pixel-art workshop and detailed installed engines/fins/contained marker fixtures; real equipment effects with snapshotted focus rewards. Final background runner passed editor import plus 369 assertions across 16 suites, without script errors. See COMPONENT-WORKSHOP.md and component-workshop-check-results.json. No visible game window was opened.
 
+
+Latest visual rebuild: authored cream-white robot armor and panel-based paint; articulated tool/typing poses; large seated bridge pilot and damaged bridge state; detailed blocking doors and chain hoist; actual fin replacement with wingless hulls; full-hull paint; pixel-scale matte 3D materials; obsolete Drift tab removed. Strict background runner passed editor import and 392 assertions across 17 suites without script errors. See VISUAL-REBUILD.md, visual-rebuild-check-results.json and previews/. Software previews use actual game data; no visible game window was opened.
+

@@ -3,6 +3,10 @@ extends RefCounted
 const RESTORED = preload("res://assets/art/ship-cutaway-restored-v1.png")
 const DAMAGED = preload("res://assets/art/ship-cutaway-damaged-v1.png")
 const EXTERIOR = preload("res://assets/art/ship-exterior-v1.png")
+const CORE_EXTERIOR = preload("res://assets/art/ship-core-exterior-v1.png")
+const CORE_RESTORED = preload("res://assets/art/ship-core-restored-v1.png")
+const CORE_DAMAGED = preload("res://assets/art/ship-core-damaged-v1.png")
+var finish := preload("res://assets/material_finish.gd").new()
 const SPRITE_RECT = Rect2(-33, -39, 333, 228)
 const SOURCE_SIZE = Vector2(1536, 1024)
 const ROOM_SOURCES = {
@@ -18,14 +22,20 @@ func source_to_world(source: Rect2) -> Rect2:
 func texture_for_room(id: String, owned: Array) -> Texture2D:
 	return RESTORED if id in owned else DAMAGED
 
+func skin_texture(raw: Texture2D, equipment: Dictionary, exterior: bool) -> Texture2D:
+	var selected: Texture2D = raw
+	if equipment.get("wings","wings_stock") != "wings_stock":
+		selected = CORE_EXTERIOR if exterior else CORE_RESTORED if raw == RESTORED else CORE_DAMAGED
+	return finish.painted(selected,equipment.get("paint","paint_stock"),{},not exterior)
+
 func draw(canvas: CanvasItem, owned: Array, exterior: bool, equipment: Dictionary, time: float, condition: float, calm_lights: bool = true, hull_integrity: float = 100) -> void:
 	if exterior:
-		canvas.draw_texture_rect(EXTERIOR, SPRITE_RECT, false)
+		canvas.draw_texture_rect(skin_texture(EXTERIOR,equipment,true), SPRITE_RECT, false)
 		if hull_integrity < 100: draw_scuffs(canvas)
 		return
 	var status := system_status(owned,time,calm_lights)
 	var fully_restored: bool = not status.engine_broken and not status.bridge_broken and not status.quarters_broken
-	canvas.draw_texture_rect(RESTORED if fully_restored else DAMAGED, SPRITE_RECT, false)
+	canvas.draw_texture_rect(skin_texture(RESTORED if fully_restored else DAMAGED,equipment,false), SPRITE_RECT, false)
 	var theme: String = equipment.get("interior", "interior_stock")
 	var tint := Color.WHITE
 	if theme == "interior_habitat":
@@ -34,7 +44,7 @@ func draw(canvas: CanvasItem, owned: Array, exterior: bool, equipment: Dictionar
 		tint = Color(0.72, 0.94, 1.0)
 	for id in ROOM_SOURCES:
 		var region: Rect2 = ROOM_SOURCES[id]
-		canvas.draw_texture_rect_region(texture_for_room(id, owned), source_to_world(region), region, tint)
+		canvas.draw_texture_rect_region(skin_texture(texture_for_room(id, owned),equipment,false), source_to_world(region), region, tint)
 	if hull_integrity < 100: draw_scuffs(canvas)
 	if status.engine_broken:
 		draw_fault_effects(canvas,time,condition,calm_lights)
@@ -57,3 +67,4 @@ func draw_scuffs(canvas: CanvasItem) -> void:
 	for p in [Vector2(125,108),Vector2(177,44)]:
 		canvas.draw_line(p,p+Vector2(5,2),Color("5b4c49"),0.8)
 		canvas.draw_line(p+Vector2(1,1),p+Vector2(4,2),Color("ad8c70"),0.5)
+

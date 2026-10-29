@@ -1,4 +1,5 @@
 extends RefCounted
+var maintenance := preload("res://assets/maintenance_art.gd").new()
 ## Original modular interior artwork; no reference sprites are embedded.
 var canvas: CanvasItem
 var theme_palette: Dictionary = {}
@@ -173,22 +174,15 @@ func draw(target: CanvasItem, rooms: Dictionary, owned: Array, time: float, door
 	draw_doors(target, doors)
 
 func draw_doors(target: CanvasItem, doors: Dictionary) -> void:
-	canvas = target
-	theme_palette = {}
-	# Real animated shutters overlay the calibrated sprite passages.
 	for id in doors:
-		var x: int = 91 if id == "bridge" else 168
+		var x: float = 95 if id == "bridge" else 172
 		var openness: float = doors[id]
-		box(x, 73, 8, 30, "142638")
-		box(x, 72, 8, 2, "b3c0b8")
-		box(x, 74, 1, 29, "7f9ba5")
-		box(x + 7, 74, 1, 29, "7f9ba5")
-		var shutter := ceilf(3.0 * (1.0 - openness))
-		if shutter > 0:
-			box(x + 1, 75, shutter, 26, "768b96")
-			box(x + 7 - shutter, 75, shutter, 26, "768b96")
-		box(x + 1, 101, 6, 2, "e3bd73")
-		box(x + 6, 69, 2, 2, "7fe8be" if openness > 0.9 else "e2a770")
+		maintenance.draw(target,"frame",Rect2(x-6,53,12,51))
+		if openness < 0.99:
+			var src: Rect2 = maintenance.SOURCES.door
+			var fraction := 1-openness
+			src.size.y *= fraction
+			target.draw_texture_rect_region(maintenance.ATLAS,Rect2(x-4.6,55,9.2,47*fraction),src)
 
 func system_status(owned: Array, time: float) -> Dictionary:
 	return {"engine_broken": "engine" not in owned, "bridge_broken": "cockpit" not in owned, "quarters_broken": "quarters" not in owned, "warning_on": fposmod(time, 1.2) < 0.6}
@@ -254,3 +248,4 @@ func draw_system_detail(owned: Array, time: float) -> void:
 		box(153,94,5,3,"788f9b")
 	for x in [38,73,105,158,180,226]:
 		box(x,96,2,1,"b2c2bd")
+

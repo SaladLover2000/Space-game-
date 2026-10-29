@@ -8,6 +8,7 @@ var install_left: float = 0.0
 var view_angle: int = 0
 var turn_dragging: bool = false
 var drag_origin: float = 0
+var maintenance := preload("res://assets/maintenance_art.gd").new()
 var art := RobotArt.new()
 var subject: Control
 var preview_equipped: Dictionary = {}
@@ -46,8 +47,8 @@ func _draw() -> void:
 	draw_rect(Rect2(-16,1,32,1),Color("294d60"))
 	if service_mode:
 		draw_lift(outfit)
-		mood = "working" if service_state == "installing" else "idle"
-	art.draw(self,Vector2(0,-rack_progress*2) if service_mode else Vector2.ZERO,time,mood,false,outfit,false,view_angle)
+		mood = "idle"
+	art.draw(self,Vector2(0,-maintenance.hoist_lift(rack_progress)) if service_mode else Vector2.ZERO,time,mood,false,outfit,false,view_angle)
 
 func service_ready() -> bool:
 	return service_mode and service_state == "racked"
@@ -84,21 +85,21 @@ func advance_service(delta: float) -> void:
 			service_state = "racked"
 			service_changed.emit()
 
-func draw_lift(outfit: Dictionary) -> void:
+func lift_layout(outfit: Dictionary) -> Array:
 	var bounds := art.bounds(outfit)
-	var top := minf(-48,bounds.position.y-6)
-	var half := maxf(24,bounds.size.x/2+7)
+	var top := minf(-53,bounds.position.y-14)
+	var lift: float = maintenance.hoist_lift(rack_progress)
+	var shoulder := bounds.position.y+art.part_size(art.resolve("robot_visor",outfit)).y+2-lift
+	var width := art.part_size(art.resolve("robot_shell",outfit)).x+10
+	var pieces := [{"id":"winch","rect":Rect2(-17,top-5,34,12)}]
 	for side in [-1,1]:
-		var x: float = half*side
-		draw_rect(Rect2(x-2,top,4,-top+4),Color("526773"))
-		draw_rect(Rect2(x-0.5,top,1,-top+4),Color("a9bec7"))
-		for y in range(int(top)+4,0,6): draw_rect(Rect2(x-1,y,2,2),Color("223746"))
-		var clamp_x := lerpf(half-2,bounds.size.x/2-1,rack_progress)
-		draw_line(Vector2(x,top*0.45),Vector2(side*clamp_x,top*0.45),Color("d3ac61"),2)
-		draw_rect(Rect2(side*clamp_x-1,top*0.45-3,2,6),Color("97b9c4"))
-	draw_rect(Rect2(-half-3,top-3,half*2+6,4),Color("7e969f"))
-	draw_rect(Rect2(-half-3,2-rack_progress*2,half*2+6,4),Color("687e88"))
-	for x in range(-int(half),int(half),5): draw_rect(Rect2(x,3-rack_progress*2,2,1),Color("d3ac61"))
+		var x: float = side*width*0.43
+		pieces.append({"id":"chain","rect":Rect2(x-0.8,top+5,1.6,maxf(3,shoulder-top-5))})
+	pieces.append({"id":"spreader","rect":Rect2(-width/2,shoulder-3,width,14)})
+	return pieces
+
+func draw_lift(outfit: Dictionary) -> void:
+	for piece in lift_layout(outfit): maintenance.draw(self,piece.id,piece.rect)
 
 func _gui_input(event: InputEvent) -> void:
 	if not service_mode: return

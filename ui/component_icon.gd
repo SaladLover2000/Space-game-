@@ -18,7 +18,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO,size),Color("101923"))
 	draw_rect(Rect2(Vector2.ONE*3,size-Vector2.ONE*6),Color("50616b"),false,1)
 	if slot == "robot_paint":
-		draw_rect(Rect2(size*0.2,size*0.6),robot_art.finish_color({"robot_paint":item_id}))
+		draw_texture_rect_region(robot_art.finished_texture("robot_shell_stock",{"robot_paint":item_id}),Rect2(Vector2.ONE*8,size-Vector2.ONE*16),robot_art.source("robot_shell_stock"))
 		return
 	if not slot.begins_with("robot_"):
 		ship_art.draw_component(self,item_id,Rect2(Vector2.ONE*8,size-Vector2.ONE*16))
@@ -30,5 +30,5 @@ func _draw() -> void:
 		var factor := minf((cell_width-4)/source.size.x,(size.y-16)/source.size.y)
 		var extent := source.size*factor
 		var center := Vector2(8+cell_width*(index+0.5),size.y/2)
-		draw_texture_rect_region(robot_art.texture_for(item_id),Rect2(center-extent/2,extent),source,robot_art.finish_color(Game.state.equipped))
+		draw_texture_rect_region(robot_art.finished_texture(item_id,Game.state.equipped),Rect2(center-extent/2,extent),source)
 

@@ -76,7 +76,7 @@ func _ready() -> void:
 		turn_buttons.append(turn_button)
 
 	rack_status = text(preview_stage,"",16)
-	rack_button = button(preview_stage,"Rack robot in lift",toggle_rack)
+	rack_button = button(preview_stage,"Hoist robot for service",toggle_rack)
 	rack_button.hide()
 	rack_status.hide()
 	var destinations := HBoxContainer.new()
@@ -296,7 +296,7 @@ func toggle_rack() -> void:
 
 func update_rack_status() -> void:
 	var status: String = robot_preview.service_state
-	rack_button.text = "Rack robot in lift" if status == "free" else "Release robot" if status == "racked" else "Installing..." if status == "installing" else "Lift moving..."
+	rack_button.text = "Hoist robot for service" if status == "free" else "Lower robot" if status == "racked" else "Installing..." if status == "installing" else "Lift moving..."
 	rack_button.disabled = status in ["installing","racking","releasing"]
-	rack_status.text = "MAINTENANCE LIFT / " + status.to_upper() + (" - choose parts or paint" if status == "racked" else " - rack to install upgrades" if status == "free" else "")
+	rack_status.text = "CHAIN HOIST / " + status.to_upper() + (" - choose parts or paint" if status == "racked" else " - hoist to install upgrades" if status == "free" else "")
 

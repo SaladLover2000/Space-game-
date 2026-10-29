@@ -83,7 +83,7 @@ func _ready() -> void:
 	root.add_child(status)
 	var nav := HFlowContainer.new()
 	root.add_child(nav)
-	for entry in [["Home","menu"],["Ship","ship"],["Interior","interior"],["Bridge","bridge"],["3D view","3d"],["Drift","drift"],["Build & research","build"],["Robot","robot"],["Shop","shop"],["Study log","stats"],["Settings","settings"]]:
+	for entry in [["Home","menu"],["Ship","ship"],["Interior","interior"],["Bridge","bridge"],["3D view","3d"],["Build & research","build"],["Robot","robot"],["Shop","shop"],["Study log","stats"],["Settings","settings"]]:
 		var target: String = entry[1]
 		nav_buttons[target] = button(nav,entry[0],func(): show_page(target))
 	button(nav,"Focus bar",func(): focus_dock.reveal())
@@ -186,18 +186,6 @@ func show_page(page: String) -> void:
 			drift_status = label("")
 			content.add_child(drift_status)
 			button(content, "Study controls", func(): show_page("ship"))
-		"drift":
-			paragraph("OUTSIDE / " + Game.state.ship)
-			ship_view = ShipView.new()
-			ship_view.exterior = true
-			content.add_child(ship_view)
-			ship_view.custom_minimum_size.y = clampf(get_viewport_rect().size.y-400,300,620)
-			drift_status = label("")
-			content.add_child(drift_status)
-			paragraph("Drag left mouse to pan; use the wheel to zoom.")
-			button(content,"Fit ship",func(): ship_view.reset_zoom())
-			button(content, "Customize robot in the shop", func(): show_page("shop"); workshop.select_slot("robot_shell"))
-			button(content, "Return to ship & study", func(): show_page("ship"))
 		"ship":
 			build_ship_explorer()
 		"3d":
@@ -318,7 +306,7 @@ func _process(_delta: float) -> void:
 	if is_instance_valid(drift_status):
 		drift_status.text = "Study / " + time_text()
 	if is_instance_valid(robot_mood) and is_instance_valid(ship_view):
-		var descriptions := {"sad": "Resting  /  low battery", "idle": "At ease  /  watching the stars", "charging": "Charging dock active  /  studying alongside you", "happy": "Happy  /  a session well spent", "upgraded": "Delighted  /  another piece of home restored"}
+		var descriptions := {"working": "Working / " + ship_view.robot_art.work_action(ship_view.clock).description, "sleeping":"Sleeping / resting in the bunk", "sad": "Resting  /  low battery", "idle": "At ease  /  watching the stars", "charging": "Charging dock active  /  studying alongside you", "happy": "Happy  /  a session well spent", "upgraded": "Delighted  /  another piece of home restored"}
 		robot_mood.text = descriptions[ship_view.expression()]
 
 func build_ship_explorer() -> void:

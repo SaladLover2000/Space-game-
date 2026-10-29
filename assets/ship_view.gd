@@ -22,6 +22,7 @@ var hovered_room: String = ""
 var camera := Rect2(-70, -45, 420, 240)
 var camera_tween: Tween
 var preview_expansion: String = ""
+var manual_task: String = ""
 var manual_hold: float = 5.0
 var autonomous_activity: String = "resting"
 var activity_clock: float = 0.0
@@ -168,8 +169,10 @@ func follow_robot(id: String) -> void:
 		stand_up()
 		var item: Dictionary = Game.catalog_item(Game.expansion_catalog,id)
 		set_robot_route(Vector2(item.anchor[0],item.anchor[1]))
+	manual_task = "maintenance" if id in ["cockpit","engine","lab","fabrication"] else ""
 
 func request_sit() -> void:
+	manual_task = "navigation"
 	manual_hold = 120.0
 	robot_seated = false
 	seat_requested = true
@@ -177,6 +180,7 @@ func request_sit() -> void:
 	seating_changed.emit(false)
 
 func stand_up() -> void:
+	manual_task = ""
 	manual_hold = 60.0
 	robot_seated = false
 	seat_requested = false
@@ -350,6 +354,9 @@ func draw_interior_selection() -> void:
 		draw_rect(object_bounds(selected_room, index).grow(1), Color("f8d58d"), false, 1)
 
 func expression() -> String:
+	if reaction_left > 0: return "upgraded" if upgrade_reaction else "happy"
+	if robot_seated and manual_task == "navigation": return "working"
+	if manual_hold > 0 and manual_task == "maintenance" and robot_position.distance_to(robot_destination) < 0.1 and robot_route.is_empty(): return "working"
 	if manual_hold <= 0 and autonomous_activity in ["maintenance","field_repair"]:
 		return "working"
 	if manual_hold <= 0 and autonomous_activity == "sleeping":
@@ -410,9 +417,9 @@ func draw_interior() -> void:
 	interior_art.draw_doors(self, door_progress)
 	draw_interior_selection()
 	if robot_seated:
-		robot_art.draw(self,seated_origin(),clock,expression(),false,equipment(),true)
+		robot_art.draw(self,seated_origin(),clock,expression(),false,equipment(),true,3)
 	else:
-		robot_art.draw(self,robot_position,clock,expression(),robot_walking,equipment())
+		robot_art.draw(self,robot_position,clock,expression(),robot_walking,equipment(),false,1 if expression() == "working" else 1 if robot_walking and robot_destination.x > robot_position.x else 3 if robot_walking else 0)
 
 func fitted_camera() -> Rect2:
 	if "habitat" in Game.state.expansions or preview_expansion == "habitat":

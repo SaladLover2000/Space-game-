@@ -17,7 +17,7 @@ def main():
     parser.add_argument("--graphical", action="store_true")
     parser.add_argument("--report", type=Path)
     args = parser.parse_args()
-    suites = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop"]
+    suites = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop", "test_visual_rebuild"]
     results = []
     for suite in ["import"] + suites:
         cmd = [args.godot, "--windowed", "--path", str(args.project.resolve())]
@@ -27,7 +27,7 @@ def main():
             if not args.graphical or suite in ["test_game", "test_ui"]:
                 cmd += ["--headless"]
             cmd += ["--script", f"res://tests/{suite}.gd"]
-            if args.graphical and suite in ["test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop"]:
+            if args.graphical and suite in ["test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop", "test_visual_rebuild"]:
                 cmd += ["--", "--capture"]
         try:
             run = subprocess.run(cmd, capture_output=True, text=True, timeout=45)

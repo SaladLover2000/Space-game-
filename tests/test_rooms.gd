@@ -58,6 +58,7 @@ func run() -> void:
 	scene.select_room("")
 	await create_timer(0.55).timeout
 	await capture("prototype")
+	view.stand_up() # End the previous explicit maintenance command before testing dock moods.
 	game.start_session(25)
 	var session_id: String = game.active.id
 	check(view.expression() == "charging", "running study animates charging dock")
@@ -103,7 +104,7 @@ func run() -> void:
 	game.finish_session()
 	check(view.expression() == "happy", "completed session starts celebration")
 	view.reaction_left = 0
-	check(view.expression() == "idle", "celebration ends in recharged idle expression")
+	check(view.expression() == "working" and view.manual_task == "maintenance", "celebration ends by returning to the selected maintenance task")
 	scene.show_page("robot")
 	await process_frame
 	check(is_instance_valid(scene.workshop) and scene.workshop.selected_slot == "robot_shell", "robot tab opens the robot upgrade workshop")
@@ -119,3 +120,4 @@ func run() -> void:
 	await process_frame
 	print("ROOM RESULT: ", failures, " failures")
 	quit(0 if failures == 0 else 1)
+

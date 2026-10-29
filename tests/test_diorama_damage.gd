@@ -24,7 +24,8 @@ func run() -> void:
 	var art: RefCounted = viewer.diorama_art
 	check(not viewer.pixel_style and viewer.viewport_container.visible,"3D tab opens real mesh rendering by default")
 	var finish: ImageTexture = viewer.panel_texture(Color.WHITE)
-	check(finish.get_width() == 260 and finish.get_height() == 170,"solid model uses a UV-mapped metal finish sampled from the approved pixel artwork")
+	check(finish.get_width() == 32 and finish.get_height() == 32 and viewer.viewport_container.stretch_shrink == 2,"solid model uses authored pixel-scale panels and a nearest-filtered reduced-resolution viewport")
+	check(viewer.call("material","2b7e9b").albedo_texture == null and viewer.call("material","bd9766").albedo_texture == null and viewer.call("material","c4c7bd").albedo_texture != null,"canopy glass and brass mechanisms retain their own materials instead of repeating armor panels")
 	var shell: MeshInstance3D = viewer.model.get_child(0)
 	var arrays: Array = shell.mesh.surface_get_arrays(0)
 	check(arrays[Mesh.ARRAY_TEX_UV].size() == arrays[Mesh.ARRAY_VERTEX].size(),"hull faces carry actual surface UVs instead of a flat ship billboard")
