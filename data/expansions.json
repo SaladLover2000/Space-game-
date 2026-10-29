@@ -1,0 +1,69 @@
+[
+  {
+    "id": "lab",
+    "name": "Research laboratory",
+    "price": 150,
+    "xp": 40,
+    "requires": [
+      "quarters"
+    ],
+    "bounds": [
+      88,
+      184,
+      84,
+      64
+    ],
+    "anchor": [
+      130,
+      240
+    ],
+    "parent": "quarters",
+    "column": 0,
+    "description": "Adds a connected lower-deck lab beneath the living cabin, reached by the central lift."
+  },
+  {
+    "id": "fabrication",
+    "name": "Fabrication workshop",
+    "price": 120,
+    "xp": 60,
+    "requires": [
+      "lab"
+    ],
+    "bounds": [
+      178,
+      184,
+      84,
+      64
+    ],
+    "anchor": [
+      220,
+      240
+    ],
+    "parent": "lab",
+    "column": 1,
+    "description": "Extends the lower deck beside the lab with a robot fabrication bench and printer."
+  },
+  {
+    "id": "habitat",
+    "name": "Hydroponics habitat",
+    "price": 180,
+    "xp": 90,
+    "requires": [
+      "lab",
+      "habitat_systems"
+    ],
+    "bounds": [
+      88,
+      260,
+      84,
+      64
+    ],
+    "anchor": [
+      130,
+      316
+    ],
+    "parent": "lab",
+    "column": 2,
+    "description": "Adds a second lower level under the lab, with grow racks, irrigation and a quiet bench."
+  }
+]

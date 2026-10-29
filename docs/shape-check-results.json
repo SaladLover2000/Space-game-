@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "assertions": 101,
+  "suites": [
+    {
+      "suite": "import",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 0,
+      "script_errors": []
+    },
+    {
+      "suite": "test_game",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 25,
+      "script_errors": []
+    },
+    {
+      "suite": "test_ui",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 10,
+      "script_errors": []
+    },
+    {
+      "suite": "test_rooms",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 35,
+      "script_errors": []
+    },
+    {
+      "suite": "test_interior",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 16,
+      "script_errors": []
+    },
+    {
+      "suite": "test_drift",
+      "passed": true,
+      "exit_code": 0,
+      "assertions": 15,
+      "script_errors": []
+    }
+  ]
+}

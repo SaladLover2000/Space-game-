@@ -1,0 +1,587 @@
+[
+  {
+    "id": "engine_stock",
+    "slot": "engine",
+    "name": "Original twin engines",
+    "description": "Keep the familiar twin pods and soft white exhaust.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "engine_hauler",
+    "slot": "engine",
+    "name": "Hauler engine housings",
+    "description": "Wide reinforced engine collars and visible cooling fins. Requires a complete engine overhaul.",
+    "price": 80,
+    "xp": 0,
+    "requires": "engine",
+    "effects": {
+      "repair_percent": 20
+    }
+  },
+  {
+    "id": "engine_ion",
+    "slot": "engine",
+    "name": "Ion engine array",
+    "description": "Longer cyan-lit engine shrouds. Keeps the peaceful white exhaust effect.",
+    "price": 120,
+    "xp": 60,
+    "requires": "engine",
+    "effects": {
+      "cruise_percent": 15
+    }
+  },
+  {
+    "id": "hull_stock",
+    "slot": "hull",
+    "name": "Original hull plates",
+    "description": "The ship's original chamfered pressure hull.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "hull_ribs",
+    "slot": "hull",
+    "name": "Ribbed cargo armor",
+    "description": "External structural ribs and reinforced belly panels.",
+    "price": 75,
+    "xp": 0,
+    "effects": {
+      "damage_reduction": 1
+    }
+  },
+  {
+    "id": "hull_shielded",
+    "slot": "hull",
+    "name": "Ceramic hull cladding",
+    "description": "Layered ceramic armor tiles with repair access channels.",
+    "price": 140,
+    "xp": 80,
+    "effects": {
+      "damage_reduction": 1,
+      "repair_percent": 10
+    }
+  },
+  {
+    "id": "wings_stock",
+    "slot": "wings",
+    "name": "Original stabilizers",
+    "description": "Keep the starter fins.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "wings_swept",
+    "slot": "wings",
+    "name": "Swept stabilizer kit",
+    "description": "Longer swept upper and lower fin extensions.",
+    "price": 70,
+    "xp": 0,
+    "effects": {
+      "cruise_percent": 8
+    }
+  },
+  {
+    "id": "wings_solar",
+    "slot": "wings",
+    "name": "Solar fin arrays",
+    "description": "Blue photovoltaic panels mounted along the stabilizers.",
+    "price": 120,
+    "xp": 60,
+    "effects": {
+      "battery_percent": 10
+    }
+  },
+  {
+    "id": "paint_stock",
+    "slot": "paint",
+    "name": "Original steel & copper",
+    "description": "The starter steel hull with copper trim.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_cobalt",
+    "slot": "paint",
+    "name": "Cobalt livery",
+    "description": "Deep blue hull accents and ice-blue stripes.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_copper",
+    "slot": "paint",
+    "name": "Warm copper livery",
+    "description": "Warm copper panels with cream markings.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "antenna_stock",
+    "slot": "antenna",
+    "name": "Original communications dish",
+    "description": "Keep the starter dish and mast.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "antenna_dish",
+    "slot": "antenna",
+    "name": "Baffled star tracker",
+    "description": "Optical star camera with a stray-light baffle and attitude electronics. Helps navigation research.",
+    "price": 50,
+    "xp": 0,
+    "effects": {
+      "xp_percent": 2
+    }
+  },
+  {
+    "id": "antenna_sensor",
+    "slot": "antenna",
+    "name": "Docking LiDAR package",
+    "description": "Paired ranging apertures and gimbaled housing for station approach. Detects docking contacts earlier.",
+    "price": 90,
+    "xp": 50,
+    "effects": {
+      "xp_percent": 3
+    }
+  },
+  {
+    "id": "lights_stock",
+    "slot": "lights",
+    "name": "Original marker lamps",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "lights_teal",
+    "slot": "lights",
+    "name": "Turquoise marker fixtures",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
+    "price": 30,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "lights_violet",
+    "slot": "lights",
+    "name": "Lavender marker fixtures",
+    "description": "Coordinated exterior marker fixtures along upper and lower hull. Interior cabin lighting stays unchanged.",
+    "price": 30,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "interior_stock",
+    "slot": "interior",
+    "name": "Industrial steel interior",
+    "description": "Original steel bulkheads and a clear side-on maintenance deck.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "interior_habitat",
+    "slot": "interior",
+    "name": "Warm habitat interior",
+    "description": "Warm bronze bulkheads, amber lamps and a cozy deck palette.",
+    "price": 60,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "interior_lab",
+    "slot": "interior",
+    "name": "Cyan laboratory interior",
+    "description": "Deep navy walls, cool silver equipment and cyan lighting.",
+    "price": 90,
+    "xp": 40,
+    "effects": {}
+  },
+  {
+    "id": "robot_shell_stock",
+    "slot": "robot_shell",
+    "name": "Compact service chassis",
+    "price": 0,
+    "xp": 0,
+    "description": "A compact, tapered service body with warm white armor. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
+  },
+  {
+    "id": "robot_shell_copper",
+    "slot": "robot_shell",
+    "name": "Salvage chassis",
+    "price": 35,
+    "xp": 0,
+    "description": "A rounded ceramic salvage body with a wider chest and shoulder sockets. Changes the assembled silhouette. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 10
+    }
+  },
+  {
+    "id": "robot_shell_cobalt",
+    "slot": "robot_shell",
+    "name": "Survey chassis",
+    "price": 70,
+    "xp": 35,
+    "description": "A narrow elongated metal body with exposed mechanical ribs. Adds torso height. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 2
+    }
+  },
+  {
+    "id": "robot_visor_stock",
+    "slot": "robot_visor",
+    "name": "Twin-eye service head",
+    "price": 0,
+    "xp": 0,
+    "description": "A compact chamfered head with expressive bright optics and antennae. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
+  },
+  {
+    "id": "robot_visor_wide",
+    "slot": "robot_visor",
+    "name": "Dome visor head",
+    "price": 30,
+    "xp": 0,
+    "description": "A low rounded salvage head with a broad cyan visor. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "work_lamp": 1
+    }
+  },
+  {
+    "id": "robot_visor_amber",
+    "slot": "robot_visor",
+    "name": "Twin sensor head",
+    "price": 55,
+    "xp": 25,
+    "description": "A taller cylindrical head with sensor survey lenses and aerials. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 5,
+      "work_lamp": 1
+    }
+  },
+  {
+    "id": "robot_arms_stock",
+    "slot": "robot_arms",
+    "name": "Service claw arms",
+    "price": 0,
+    "xp": 0,
+    "description": "Articulated slim arms with shoulder bearings and small fingers. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
+  },
+  {
+    "id": "robot_arms_utility",
+    "slot": "robot_arms",
+    "name": "Heavy salvage arms",
+    "price": 45,
+    "xp": 0,
+    "description": "Wider lifter arms, heavy elbow joints and large articulated grippers. Increases total span. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 20
+    }
+  },
+  {
+    "id": "robot_arms_precision",
+    "slot": "robot_arms",
+    "name": "Long precision arms",
+    "price": 85,
+    "xp": 50,
+    "description": "Longer survey arms with exposed actuators and fine-tipped fingers. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 3
+    }
+  },
+  {
+    "id": "robot_legs_stock",
+    "slot": "robot_legs",
+    "name": "Service piston legs",
+    "price": 0,
+    "xp": 0,
+    "description": "Standard piston legs, knee bearings and metal deck shoes. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
+  },
+  {
+    "id": "robot_legs_boots",
+    "slot": "robot_legs",
+    "name": "Short magnetic legs",
+    "price": 40,
+    "xp": 0,
+    "description": "A lower, broader stance with reinforced magnetic boots. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "repair_percent": 5
+    }
+  },
+  {
+    "id": "robot_legs_strider",
+    "slot": "robot_legs",
+    "name": "Tall survey legs",
+    "price": 80,
+    "xp": 40,
+    "description": "Long spring-and-piston legs raise the body and change standing height. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "move_percent": 20
+    }
+  },
+  {
+    "id": "robot_core_stock",
+    "slot": "robot_core",
+    "name": "Chest battery cartridge",
+    "price": 0,
+    "xp": 0,
+    "description": "A compact cyan power cartridge that attaches to the current chassis. Interchangeable hardware; finish is selected separately.",
+    "effects": {}
+  },
+  {
+    "id": "robot_core_beacon",
+    "slot": "robot_core",
+    "name": "Salvage beacon module",
+    "price": 50,
+    "xp": 0,
+    "description": "A larger reinforced service beacon mounted on the chest. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "xp_percent": 2
+    }
+  },
+  {
+    "id": "robot_core_solar",
+    "slot": "robot_core",
+    "name": "Solar survey backpack",
+    "price": 100,
+    "xp": 60,
+    "description": "A separate backpack with ceramic solar fins, visible behind the shoulders. Interchangeable hardware; finish is selected separately.",
+    "effects": {
+      "battery_percent": 10
+    }
+  },
+  {
+    "id": "robot_visor_explorer",
+    "slot": "robot_visor",
+    "name": "Explorer binocular head",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 45,
+    "xp": 10,
+    "effects": {
+      "xp_percent": 3
+    }
+  },
+  {
+    "id": "robot_shell_explorer",
+    "slot": "robot_shell",
+    "name": "Explorer barrel chassis",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 45,
+    "xp": 10,
+    "effects": {
+      "move_percent": 5
+    }
+  },
+  {
+    "id": "robot_arms_explorer",
+    "slot": "robot_arms",
+    "name": "Explorer claw arms",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 45,
+    "xp": 10,
+    "effects": {
+      "repair_percent": 10
+    }
+  },
+  {
+    "id": "robot_legs_explorer",
+    "slot": "robot_legs",
+    "name": "Explorer spring legs",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 45,
+    "xp": 10,
+    "effects": {
+      "move_percent": 12
+    }
+  },
+  {
+    "id": "robot_core_explorer",
+    "slot": "robot_core",
+    "name": "Medical scanner module",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 45,
+    "xp": 10,
+    "effects": {
+      "xp_percent": 3
+    }
+  },
+  {
+    "id": "robot_visor_loader",
+    "slot": "robot_visor",
+    "name": "Loader camera head",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 85,
+    "xp": 30,
+    "effects": {
+      "repair_percent": 10,
+      "work_lamp": 1
+    }
+  },
+  {
+    "id": "robot_shell_loader",
+    "slot": "robot_shell",
+    "name": "Loader armored chassis",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 85,
+    "xp": 30,
+    "effects": {
+      "repair_percent": 15
+    }
+  },
+  {
+    "id": "robot_arms_loader",
+    "slot": "robot_arms",
+    "name": "Loader hydraulic fists",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 85,
+    "xp": 30,
+    "effects": {
+      "repair_percent": 25
+    }
+  },
+  {
+    "id": "robot_legs_loader",
+    "slot": "robot_legs",
+    "name": "Loader piston boots",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 85,
+    "xp": 30,
+    "effects": {
+      "repair_percent": 10
+    }
+  },
+  {
+    "id": "robot_core_loader",
+    "slot": "robot_core",
+    "name": "Twin-cylinder reactor pack",
+    "description": "Interchangeable neutral-metal hardware. Uses your independently selected robot finish. Interchangeable hardware; finish is selected separately.",
+    "price": 85,
+    "xp": 30,
+    "effects": {
+      "repair_percent": 20
+    }
+  },
+  {
+    "id": "robot_paint_stock",
+    "slot": "robot_paint",
+    "name": "Warm white ceramic",
+    "description": "Ivory-white armor over dark mechanical joints. Shared by all mixed modules.",
+    "price": 0,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "robot_paint_sand",
+    "slot": "robot_paint",
+    "name": "Sand ceramic",
+    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "robot_paint_cobalt",
+    "slot": "robot_paint",
+    "name": "Cobalt blue",
+    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "robot_paint_sage",
+    "slot": "robot_paint",
+    "name": "Sage green",
+    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "robot_paint_crimson",
+    "slot": "robot_paint",
+    "name": "Crimson enamel",
+    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "robot_paint_gold",
+    "slot": "robot_paint",
+    "name": "Warm brass",
+    "description": "One coordinated finish across every head, chassis, arm, leg and pack. Does not change the hardware.",
+    "price": 20,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "antenna_radar",
+    "slot": "antenna",
+    "name": "Rendezvous radar",
+    "description": "Gimbaled dish and radio feed for relative station range. Enables docking clearance.",
+    "price": 140,
+    "xp": 80,
+    "effects": {
+      "cruise_percent": 5
+    }
+  },
+  {
+    "id": "paint_ivory",
+    "slot": "paint",
+    "name": "Ivory expedition",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_crimson",
+    "slot": "paint",
+    "name": "Crimson rescue",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_sage",
+    "slot": "paint",
+    "name": "Sage survey",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_violet",
+    "slot": "paint",
+    "name": "Violet nebula",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  },
+  {
+    "id": "paint_charcoal",
+    "slot": "paint",
+    "name": "Charcoal stealth",
+    "description": "Coordinated armor panels across the full hull and fitted components; mechanisms and glass retain their materials. Add an independent spray stencil or personal PNG design.",
+    "price": 25,
+    "xp": 0,
+    "effects": {}
+  }
+]

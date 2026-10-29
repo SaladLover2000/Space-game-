@@ -1,0 +1,140 @@
+{
+  "cockpit": {
+    "name": "Cockpit",
+    "bounds": [
+      0,
+      55,
+      93,
+      48
+    ],
+    "damaged": "Dust dims the glass. The navigation console has only a little power.",
+    "restored": "Clean glass and steady instruments. A brighter view of the journey ahead.",
+    "objects": [
+      "Navigation console",
+      "Observation window",
+      "Pilot seat"
+    ],
+    "damaged_objects": [
+      "Burnt display pixels; guidance is offline.",
+      "A film of dust catches the starlight.",
+      "Worn padding, still a place to rest."
+    ],
+    "restored_objects": [
+      "The repaired console traces a quiet star map.",
+      "Freshly cleaned glass frames the stars.",
+      "New teal padding makes a comfortable perch."
+    ],
+    "object_bounds": [
+      [
+        17,
+        79,
+        28,
+        15
+      ],
+      [
+        35,
+        59,
+        37,
+        19
+      ],
+      [
+        55,
+        74,
+        19,
+        25
+      ]
+    ]
+  },
+  "quarters": {
+    "name": "Companion quarters",
+    "bounds": [
+      97,
+      56,
+      73,
+      46
+    ],
+    "damaged": "An old charging cradle and loose cables need attention. The tall locker stores robot tools and parts.",
+    "restored": "Clean charging contacts, repaired power lines and a stocked robot service locker.",
+    "objects": [
+      "Charging cradle",
+      "Electronics workbench",
+      "Robot parts locker"
+    ],
+    "damaged_objects": [
+      "Worn contacts. Complete focus sessions to replenish battery.",
+      "Dusty maintenance supplies.",
+      "Open the workshop to service and customize the robot."
+    ],
+    "restored_objects": [
+      "Serviced cradle. Battery comes from completed focus sessions.",
+      "Organized maintenance supplies.",
+      "Robot service locker and workshop access."
+    ],
+    "object_bounds": [
+      [
+        99,
+        65,
+        35,
+        39
+      ],
+      [
+        132,
+        53,
+        25,
+        12
+      ],
+      [
+        152,
+        65,
+        16,
+        37
+      ]
+    ]
+  },
+  "engine": {
+    "name": "Engine room",
+    "bounds": [
+      174,
+      56,
+      62,
+      46
+    ],
+    "damaged": "Turbopump, injector and cooling faults. Open the engine bay to inspect and repair.",
+    "restored": "Coolant flows and the coils glow. The ship finally has a heartbeat.",
+    "objects": [
+      "Main engine",
+      "Coolant manifold",
+      "Service panel"
+    ],
+    "damaged_objects": [
+      "Burnt coils need a careful replacement.",
+      "The coolant line is dark and silent.",
+      "A loose cover and a few rusty fasteners."
+    ],
+    "restored_objects": [
+      "Fresh coils produce a steady turquoise glow.",
+      "A gentle pulse follows the repaired coolant line.",
+      "Clean fasteners hold the panel securely in place."
+    ],
+    "object_bounds": [
+      [
+        185,
+        67,
+        34,
+        31
+      ],
+      [
+        221,
+        60,
+        7,
+        34
+      ],
+      [
+        175,
+        82,
+        9,
+        15
+      ]
+    ]
+  }
+}

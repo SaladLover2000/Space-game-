@@ -1,0 +1,19 @@
+Use case: stylized-concept.
+Asset type: TRANSPARENT MODULAR ROBOT PARTS ATLAS for a real 2D game, not a character poster.
+Rich original hand-authored 16-bit pixel art, the same densely shaded gunmetal, brass, painted metal, dark outlines, beveled highlights and fine mechanical detail as the ship asset. Friendly little industrial study companion, with expressive cyan optics. Flat front-facing 2D elevation, slight visible bevels but no isometric angle. Clearly recognizable rounded machinery, hydraulic joints and articulated fingers.
+
+STRICT SHEET LAYOUT: landscape canvas 1536x1024, EXACTLY FIVE equal columns and THREE equal rows, creating FIFTEEN separate transparent cells. Each cell has generous empty transparent margins. No borders, lines, labels or grid background. Nothing crosses cell boundaries. Center every component in its own cell. This image is DISASSEMBLED PARTS; do not draw any complete robots.
+
+COLUMNS (left to right):
+1. HEAD ONLY including a short neck plug. No body, arms or legs.
+2. TORSO ONLY including a short waist/hip coupling. No head, arms or legs. Exposed circular shoulder sockets on both sides.
+3. A MATCHING PAIR OF DETACHED ARMS, one on left half of cell, one on right half, separated by a wide transparent vertical gap. Each arm includes shoulder ball joint at top, elbow piston, forearm housing and articulated hand below. Arms hang vertically in a relaxed neutral pose. No torso.
+4. A MATCHING PAIR OF DETACHED LEGS, one on left half and one on right half, separated by a wide transparent gap. Each includes hip plug at top, knee hinge and foot at bottom. Both soles on same baseline. No pelvis or body.
+5. CHEST MODULE / BACKPACK ONLY, compact attachable equipment with exposed mounting tabs. No body or limbs.
+
+ROWS (top to bottom), three different shape families:
+ROW 1: COMPACT SERVICE ROBOT. Blue-gray brushed metal, cream trim, small cyan lights. Squarish softly chamfered head with twin expressive cyan eyes; compact tapered rectangular torso; slim articulated claw arms; short piston legs with modest feet; small circular chest battery cartridge.
+ROW 2: STOUT SALVAGE ROBOT. Warm ochre-yellow and copper with graphite joints. Low rounded dome head with a single wide cyan visor; wide rounded barrel torso, substantially wider than row 1 with curved armor and bolts; chunky heavy lifter arms with large multi-finger grippers; short thick legs and broad magnetic boots; a large circular cyan beacon chest housing with metal mounting brackets.
+ROW 3: TALL SURVEY ROBOT. Deep cobalt and silver armor, amber details. Tall cylindrical head with twin amber survey lenses and antenna; narrow elongated torso with vented sides and recessed mechanical ribs; long slim precision arms with small dexterous hands; long spring/piston legs and narrow feet; a compact backpack with two small folded blue solar fins. Solar fins may extend sideways but stay within this cell.
+
+All five rows/columns must be represented exactly as specified. Every component is whole, uncropped and isolated on true alpha transparency. No floor shadows, smoke, particles, backdrop, stars, text, numbers, watermarks, tools or additional loose pieces. Do not draw sample assembled characters. Consistent front-facing lighting from upper left, crisp pixel clusters, visually rich game-ready surfaces, not smooth flat vector boxes.

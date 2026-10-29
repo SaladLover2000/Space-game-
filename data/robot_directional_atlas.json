@@ -1,0 +1,526 @@
+{
+  "side": {
+    "robot_visor_stock": {
+      "source": [
+        54,
+        26,
+        152,
+        189
+      ]
+    },
+    "robot_shell_stock": {
+      "source": [
+        270,
+        24,
+        172,
+        207
+      ]
+    },
+    "robot_arms_stock": {
+      "left": [
+        523,
+        24,
+        89,
+        211
+      ],
+      "right": [
+        643,
+        25,
+        76,
+        208
+      ]
+    },
+    "robot_legs_stock": {
+      "left": [
+        794,
+        13,
+        84,
+        223
+      ],
+      "right": [
+        878,
+        13,
+        125,
+        223
+      ]
+    },
+    "robot_core_stock": {
+      "source": [
+        1003,
+        34,
+        216,
+        201
+      ]
+    },
+    "robot_visor_wide": {
+      "source": [
+        33,
+        265,
+        192,
+        198
+      ]
+    },
+    "robot_shell_copper": {
+      "source": [
+        261,
+        255,
+        208,
+        247
+      ]
+    },
+    "robot_arms_utility": {
+      "left": [
+        517,
+        259,
+        102,
+        222
+      ],
+      "right": [
+        646,
+        259,
+        87,
+        222
+      ]
+    },
+    "robot_legs_boots": {
+      "left": [
+        767,
+        263,
+        111,
+        239
+      ],
+      "right": [
+        878,
+        263,
+        125,
+        239
+      ]
+    },
+    "robot_core_beacon": {
+      "source": [
+        1003,
+        267,
+        228,
+        204
+      ]
+    },
+    "robot_visor_amber": {
+      "source": [
+        60,
+        510,
+        151,
+        226
+      ]
+    },
+    "robot_shell_cobalt": {
+      "source": [
+        295,
+        502,
+        139,
+        250
+      ]
+    },
+    "robot_arms_precision": {
+      "left": [
+        532,
+        502,
+        70,
+        239
+      ],
+      "right": [
+        643,
+        504,
+        79,
+        240
+      ]
+    },
+    "robot_legs_strider": {
+      "left": [
+        786,
+        502,
+        92,
+        248
+      ],
+      "right": [
+        878,
+        502,
+        125,
+        248
+      ]
+    },
+    "robot_core_solar": {
+      "source": [
+        1003,
+        515,
+        239,
+        235
+      ]
+    },
+    "robot_visor_explorer": {
+      "source": [
+        43,
+        805,
+        186,
+        165
+      ]
+    },
+    "robot_shell_explorer": {
+      "source": [
+        266,
+        752,
+        195,
+        251
+      ]
+    },
+    "robot_arms_explorer": {
+      "left": [
+        515,
+        770,
+        104,
+        233
+      ],
+      "right": [
+        635,
+        770,
+        89,
+        233
+      ]
+    },
+    "robot_legs_explorer": {
+      "left": [
+        773,
+        767,
+        105,
+        236
+      ],
+      "right": [
+        878,
+        766,
+        125,
+        237
+      ]
+    },
+    "robot_core_explorer": {
+      "source": [
+        1003,
+        780,
+        220,
+        223
+      ]
+    },
+    "robot_visor_loader": {
+      "source": [
+        37,
+        1013,
+        214,
+        203
+      ]
+    },
+    "robot_shell_loader": {
+      "source": [
+        251,
+        1003,
+        251,
+        228
+      ]
+    },
+    "robot_arms_loader": {
+      "left": [
+        502,
+        1003,
+        125,
+        221
+      ],
+      "right": [
+        627,
+        1003,
+        119,
+        226
+      ]
+    },
+    "robot_legs_loader": {
+      "left": [
+        764,
+        1003,
+        114,
+        222
+      ],
+      "right": [
+        878,
+        1003,
+        125,
+        222
+      ]
+    },
+    "robot_core_loader": {
+      "source": [
+        1003,
+        1003,
+        222,
+        222
+      ]
+    }
+  },
+  "back": {
+    "robot_visor_stock": {
+      "source": [
+        48,
+        53,
+        169,
+        171
+      ]
+    },
+    "robot_shell_stock": {
+      "source": [
+        294,
+        20,
+        184,
+        208
+      ]
+    },
+    "robot_arms_stock": {
+      "left": [
+        546,
+        34,
+        65,
+        202
+      ],
+      "right": [
+        643,
+        34,
+        65,
+        202
+      ]
+    },
+    "robot_legs_stock": {
+      "left": [
+        787,
+        19,
+        68,
+        216
+      ],
+      "right": [
+        890,
+        19,
+        66,
+        216
+      ]
+    },
+    "robot_core_stock": {
+      "source": [
+        1038,
+        36,
+        194,
+        180
+      ]
+    },
+    "robot_visor_wide": {
+      "source": [
+        25,
+        269,
+        213,
+        233
+      ]
+    },
+    "robot_shell_copper": {
+      "source": [
+        271,
+        257,
+        226,
+        245
+      ]
+    },
+    "robot_arms_utility": {
+      "left": [
+        514,
+        265,
+        100,
+        206
+      ],
+      "right": [
+        640,
+        266,
+        100,
+        205
+      ]
+    },
+    "robot_legs_boots": {
+      "left": [
+        783,
+        260,
+        95,
+        242
+      ],
+      "right": [
+        878,
+        260,
+        109,
+        242
+      ]
+    },
+    "robot_core_beacon": {
+      "source": [
+        1029,
+        263,
+        212,
+        205
+      ]
+    },
+    "robot_visor_amber": {
+      "source": [
+        73,
+        502,
+        118,
+        228
+      ]
+    },
+    "robot_shell_cobalt": {
+      "source": [
+        288,
+        502,
+        179,
+        239
+      ]
+    },
+    "robot_arms_precision": {
+      "left": [
+        552,
+        503,
+        59,
+        238
+      ],
+      "right": [
+        642,
+        503,
+        60,
+        238
+      ]
+    },
+    "robot_legs_strider": {
+      "left": [
+        802,
+        502,
+        63,
+        242
+      ],
+      "right": [
+        891,
+        502,
+        63,
+        242
+      ]
+    },
+    "robot_core_solar": {
+      "source": [
+        1031,
+        535,
+        209,
+        195
+      ]
+    },
+    "robot_visor_explorer": {
+      "source": [
+        42,
+        782,
+        180,
+        221
+      ]
+    },
+    "robot_shell_explorer": {
+      "source": [
+        281,
+        765,
+        191,
+        238
+      ]
+    },
+    "robot_arms_explorer": {
+      "left": [
+        528,
+        766,
+        85,
+        237
+      ],
+      "right": [
+        640,
+        766,
+        83,
+        237
+      ]
+    },
+    "robot_legs_explorer": {
+      "left": [
+        785,
+        763,
+        93,
+        240
+      ],
+      "right": [
+        889,
+        763,
+        92,
+        240
+      ]
+    },
+    "robot_core_explorer": {
+      "source": [
+        1052,
+        784,
+        167,
+        219
+      ]
+    },
+    "robot_visor_loader": {
+      "source": [
+        48,
+        1003,
+        203,
+        198
+      ]
+    },
+    "robot_shell_loader": {
+      "source": [
+        251,
+        1003,
+        247,
+        227
+      ]
+    },
+    "robot_arms_loader": {
+      "left": [
+        508,
+        1003,
+        111,
+        229
+      ],
+      "right": [
+        635,
+        1003,
+        111,
+        229
+      ]
+    },
+    "robot_legs_loader": {
+      "left": [
+        771,
+        1003,
+        105,
+        229
+      ],
+      "right": [
+        894,
+        1003,
+        104,
+        229
+      ]
+    },
+    "robot_core_loader": {
+      "source": [
+        1030,
+        1003,
+        205,
+        225
+      ]
+    }
+  }
+}

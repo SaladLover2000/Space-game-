@@ -1,0 +1,62 @@
+[
+  {
+    "id": "pump",
+    "name": "Turbopump assembly",
+    "price": [
+      35,
+      90,
+      160
+    ],
+    "xp": [
+      0,
+      30,
+      70
+    ],
+    "description": "Pumps fuel and oxidizer through staged impellers. Higher tiers stabilize powered cruise."
+  },
+  {
+    "id": "injector",
+    "name": "Injector and chamber",
+    "price": [
+      30,
+      80,
+      150
+    ],
+    "xp": [
+      0,
+      30,
+      70
+    ],
+    "description": "Metered injector plate and insulated combustion chamber. Required for sustained high thrust."
+  },
+  {
+    "id": "cooling",
+    "name": "Regenerative cooling",
+    "price": [
+      30,
+      90,
+      170
+    ],
+    "xp": [
+      0,
+      35,
+      75
+    ],
+    "description": "Copper coolant channels, heat exchanger and thermal shielding around the chamber."
+  },
+  {
+    "id": "nozzle",
+    "name": "Expansion nozzle",
+    "price": [
+      35,
+      100,
+      180
+    ],
+    "xp": [
+      0,
+      35,
+      80
+    ],
+    "description": "Converging-diverging nozzle and reinforced bell. Converts chamber pressure into exhaust velocity."
+  }
+]
