@@ -7,6 +7,7 @@ var note: Label
 var upgrade_buttons: Dictionary = {}
 var flight_buttons: Dictionary = {}
 var preview_buttons: Dictionary = {}
+var assembly_button: Button
 func text(parent: Node,value: String) -> Label:
 	var label := Label.new()
 	label.text = value
@@ -29,6 +30,9 @@ func _ready() -> void:
 	stage.add_child(view)
 	button(stage,"Exit engine bay / Return to ship",func(): exit_requested.emit())
 	note = text(stage,"")
+	view.service_note.connect(func(value: String): note.text = value)
+	assembly_button = button(stage,"Assemble installed engine parts / Free",func(): view.begin_assembly())
+	button(stage,"Return to maintenance",func(): view.assembly_mode = false; view.queue_redraw())
 	var tasks := HFlowContainer.new()
 	stage.add_child(tasks)
 	for index in range(3):
@@ -67,7 +71,10 @@ func refresh() -> void:
 		crop.custom_minimum_size = Vector2(100,100)
 		sidebar.add_child(crop)
 		preview_buttons[id] = button(sidebar,"Preview next assembly",func(): view.preview_tiers = {id:mini(3,tier+1)}; view.queue_redraw(); note.text = "Preview only / no credits spent.")
-		var action := button(sidebar,"Maximum tier" if tier == 3 else "Upgrade / %d credits / %d XP" % [item.price[tier],item.xp[tier]],func(): view.preview_tiers.clear(); note.text = Game.upgrade_engine_module(id).message)
+		var action := button(sidebar,"Maximum tier" if tier == 3 else "Upgrade / %d credits / %d XP" % [item.price[tier],item.xp[tier]],func():
+			var result: Dictionary = Game.upgrade_engine_module(id)
+			note.text = result.message
+			if result.ok: view.begin_assembly(id))
 		action.disabled = tier == 3
 		upgrade_buttons[id] = action
 	button(sidebar,"Show installed machinery",func(): view.preview_tiers.clear(); view.queue_redraw())

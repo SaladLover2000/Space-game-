@@ -32,8 +32,6 @@ func _init() -> void:
 				color = Color("10232d")
 			if field > 0.4 and x < 165:
 				color = Color("19303a")
-			if (x * 73 + y * 31) % 7 == 0:
-				color = color.lightened(0.07)
 			image.set_pixel(x, y, color)
 	nebula = ImageTexture.create_from_image(image)
 	for index in range(3):

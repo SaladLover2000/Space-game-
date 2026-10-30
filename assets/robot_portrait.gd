@@ -31,7 +31,7 @@ func _draw() -> void:
 	if service_mode:
 		draw_texture_rect(preload("res://assets/art/robot-workshop-v1.png"),Rect2(Vector2.ZERO,size),false)
 	else: draw_rect(Rect2(Vector2.ZERO,size),Color("101923"))
-	if service_mode: service_art.draw(self,"spares",Rect2(size*Vector2(0.76,0.78),size*Vector2(0.19,0.19)))
+	if service_mode: preload("res://assets/pixel_props.gd").new().draw_rack(self,Rect2(size*Vector2(0.75,0.66),size*Vector2(0.23,0.28)))
 	var outfit: Dictionary = Game.state.equipped
 	var mood: String = "idle"
 	var time: float = clock

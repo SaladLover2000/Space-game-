@@ -13,8 +13,8 @@ import re
 import subprocess
 
 
-SUITES = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop", "test_visual_rebuild", "test_immersive_progression", "test_structure"]
-HEADLESS_ONLY = {"test_game", "test_ui", "test_structure"}
+SUITES = ["test_game", "test_ui", "test_rooms", "test_interior", "test_drift", "test_usability", "test_workshop", "test_robot_store", "test_pixel_art", "test_modular_robot", "test_seat_pan", "test_expedition", "test_focus_cruise", "test_diorama_damage", "test_robot_service", "test_component_workshop", "test_visual_rebuild", "test_immersive_progression", "test_structure", "test_visual_actions"]
+HEADLESS_ONLY = {"test_game", "test_ui", "test_structure", "test_visual_actions"}
 
 
 def main():

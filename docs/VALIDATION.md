@@ -1,3 +1,12 @@
+# Current validation - room and robot actions, 2026-10-29
+
+The strict background runner passed headless editor import plus **550 assertions across 20 suites**, with no GDScript compile/runtime errors. See [VISUAL-ACTIONS.md](VISUAL-ACTIONS.md) and [visual-actions-check-results.json](visual-actions-check-results.json).
+
+The 51 new checks exercise actual sky pixels, all five walking leg designs, joint/sole contact, static charging geometry, optics layout, window clipping and travel motion, typing visibility, console reach, sorting transfers, real assembly mouse drops, upgrade staging and hull attachment. Existing economy, focus, purchase, backup, reload and progression suites remain green. Saves, prices, rules and the save schema are unchanged.
+
+All checks used isolated saves and headless Godot. No visible game/editor was opened or closed. The new software preview is a texture/geometry composition, not a gameplay screenshot; final GPU appearance, motion comfort and desktop interaction remain player review items.
+
+---
 # Current validation - structural refactor, 2026-10-29
 
 The strict background runner passed headless editor import and **499 assertions across 19 suites**, with no GDScript compile/runtime errors. See [structure-check-results.json](structure-check-results.json) and [STRUCTURE.md](STRUCTURE.md).

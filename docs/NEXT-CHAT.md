@@ -19,3 +19,7 @@ The Ship view leads to the bridge, quarters, charging cradle and engine bay. Clo
 Game owns state/signals and delegates domain operations to services. Pages use a shared lifetime/teardown base. Prices come from balance data. See STRUCTURE.md for boundaries and testing instructions.
 
 Software previews in `docs/previews/` compose real assets and pose data. They are not gameplay screenshots. Final GPU appearance, animation comfort and desktop layout still require player review.
+
+## Latest visual/action milestone
+
+Read [VISUAL-ACTIONS.md](VISUAL-ACTIONS.md) before modifying the room or robot rendering. Current strict background validation is 550 assertions across 20 suites. The new engine assembly bench is optional and free, using already-installed hardware without new save fields or progression changes. New profile-head crops and a cleared engine-room backplate are integrated; all other fixes use code/material geometry. The software preview is not a gameplay screenshot. Continue from player feedback; do not restart the project or launch a visible editor/game without permission.

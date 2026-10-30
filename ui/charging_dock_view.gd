@@ -16,7 +16,7 @@ func _process(delta: float) -> void:
 	clock += delta
 	thought.room = "charging" if mode == "charging" else "quarters"
 	thought.follow(size*Vector2(0.48,0.20),size,clock)
-	thought.visible = thought.visible and actor_present
+	thought.visible = thought.visible and actor_present and mode != "charging"
 	queue_redraw()
 func charging_mood() -> String:
 	if mode != "charging": return "inspecting" if fposmod(clock,12) < 5 else "working"
@@ -32,7 +32,13 @@ func _draw() -> void:
 	cabin.service.draw_cabin(self,"bench",Rect2(36,0,34,46))
 	cabin.draw_decor(self,Rect2(0,0,77,49))
 	if "quarters" not in Game.state.owned: cabin.service.draw(self,"spares",Rect2(63,42,13,6))
+	draw_set_transform(Vector2.ZERO,0,Vector2.ONE)
 	if actor_present:
-		art.draw(self,Vector2(18 if mode == "charging" else 58,46),clock,charging_mood(),false,Game.state.equipped,false,0 if mode == "charging" else 3)
-		if mode != "charging" and fposmod(clock,8) > 3 and fposmod(clock,8) < 5:
-			draw_line(Vector2(49,21),Vector2(50,20),Color("f0bd61"),0.35)
+		var actor := actor_state()
+		draw_set_transform(actor.feet,0,Vector2.ONE*actor.scale)
+		art.draw(self,Vector2.ZERO,clock,charging_mood(),false,Game.state.equipped,false,0 if mode == "charging" else 3)
+
+func actor_state() -> Dictionary:
+	var floor_fraction := 0.77 if mode == "charging" else 0.89
+	var scale_factor := minf(size.x/77.0,size.y/49.0)*0.70
+	return {"feet":size*Vector2(18.0/77.0 if mode == "charging" else 58.0/77.0,floor_fraction),"scale":scale_factor}

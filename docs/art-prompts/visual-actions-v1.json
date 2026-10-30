@@ -1,0 +1,23 @@
+[
+  {
+    "tool": "built-in image_gen",
+    "output": "assets/art/robot-profile-heads-v3.png",
+    "references": [
+      "assets/art/robot-modules-side-v2.png",
+      "assets/art/robot-modules-white-v1.png",
+      "assets/art/robot-modules-white-v2.png"
+    ],
+    "transparent_background": true,
+    "prompt": "Use case: precise-object-edit. Edit target is image 1, a 1280 x1280 transparent side-profile robot sprite atlas. Images 2 and 3 are FRONT DESIGN REFERENCES only. Preserve image 1 canvas size, its 5-row grid, and EVERY body, arm, leg and backpack sprite exactly. Change ONLY the five HEAD sprites in the leftmost column x=20..240. Make each a genuine right-facing SIDE PROFILE of its corresponding front design, with the neck attachment unchanged and within the same existing head bounds. Row1 matches image2 top head: ivory box with TWO SIDE-BY-SIDE eyes on FRONT face, so profile shows ONE near eye circular cyan lens facing RIGHT, NOT vertically stacked eyes. Row2 matches image2 middle rounded dome visor head, row3 matches image2 bottom tall staggered sensor head, row4 matches image3 top wide binocular explorer, so in profile only ONE near lens facing right rather than both lenses side by side. Row5 matches image3 bottom loader head with two separate square stalk cameras, viewed in profile with far stalk behind near. Strict detailed cream-white ceramic, navy mechanical joints, brass bolts, chiseled pixel-art edges, restrained wear, no whole-image color change, no glow haze. Transparent pixels around each sprite. Do not add text or scenery. All heads must be strict side view not front or three-quarter. Keep all cells registration and other sprites unchanged.",
+    "integration": "Only head crops from this sheet are consumed. Existing body/limb/backpack artwork still comes from the original side sheet."
+  },
+  {
+    "tool": "built-in image_gen",
+    "output": "assets/art/engine-bay-clear-deck-v2.png",
+    "references": [
+      "assets/art/engine-bay-mounts-v1.png"
+    ],
+    "transparent_background": false,
+    "prompt": "Use case precise-object-edit. Edit this exact 1536x1024 game room backplate. Preserve the ceiling, wall panels, rails, lamps, left control console, and all perspective and cream-white/navy/brass high-detail pixel-art styling. Change ONLY the lower-right floor area (x1000..1536 y700..1024): REMOVE the two loose circular turbine-photo-like spare parts, small oil can and their individual pallets and tall loose cylinder. Continue the existing grated deck perspective and yellow floor safety lines into their place, leaving empty walkable deck with no loose objects. Keep the small navy wall cabinet at far right if possible; no new big objects. This is a clean room background for separate interactive pixel-art sorting racks to be drawn by the game. No new machinery on the central wall, no robot, no text, no effects, no haze, no scanlines. Preserve the left console and rest of room exactly; keep output size1536x1024."
+  }
+]

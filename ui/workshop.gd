@@ -9,6 +9,8 @@ var graffiti_panel: VBoxContainer
 var graffiti_picker: OptionButton
 var callsign_input: LineEdit
 var graffiti_dialog: FileDialog
+var optics_row: HBoxContainer
+var optics_picker: OptionButton
 var robot_tabs: GridContainer
 var turn_buttons: Array[Button] = []
 var hull_patch_button: Button
@@ -115,15 +117,22 @@ func _ready() -> void:
 		var tab_slot: String = slot
 		category_buttons[slot] = button(robot_tabs,{"robot_visor":"Heads","robot_shell":"Chassis","robot_arms":"Arms","robot_legs":"Legs","robot_core":"Packs","robot_paint":"Paint"}[slot],func(): select_slot(tab_slot))
 	robot_tabs.hide()
-	var light_row := HBoxContainer.new()
-	robot_tabs.add_child(light_row)
-	text(light_row,"Optics",13)
-	var light_picker := OptionButton.new()
+	optics_row = HBoxContainer.new()
+	optics_row.add_theme_constant_override("separation",12)
+	sidebar.add_child(optics_row)
+	text(optics_row,"Optics",15)
+	optics_picker = OptionButton.new()
+	optics_picker.custom_minimum_size = Vector2(160,40)
+	optics_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var colors := ["cyan","blue","green","violet","white"]
-	for color in colors: light_picker.add_item(color.capitalize())
-	light_picker.select(maxi(0,colors.find(Game.state.robot_light)))
-	light_picker.item_selected.connect(func(index): Game.set_robot_light(colors[index]); robot_preview.queue_redraw())
-	light_row.add_child(light_picker)
+	for color in colors: optics_picker.add_item(color.capitalize())
+	optics_picker.select(maxi(0,colors.find(Game.state.robot_light)))
+	optics_picker.item_selected.connect(func(index):
+		if not Game.set_robot_light(colors[index]):
+			optics_picker.select(maxi(0,colors.find(Game.state.robot_light)))
+			feedback.text = Game.last_error
+		robot_preview.queue_redraw())
+	optics_row.add_child(optics_picker)
 
 	detail = text(sidebar,"",17)
 	engine_title = text(sidebar,"Engine condition",14)
@@ -187,6 +196,7 @@ func select_slot(slot: String) -> void:
 	ship_view.selected_slot = slot
 	robot_preview.visible = slot.begins_with("robot_")
 	robot_tabs.visible = robot_preview.visible
+	optics_row.visible = robot_preview.visible
 	ship_view.visible = not robot_preview.visible
 	rack_button.visible = robot_preview.visible
 	rack_status.visible = robot_preview.visible

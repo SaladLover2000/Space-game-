@@ -82,7 +82,7 @@ func draw_scuffs(canvas: CanvasItem) -> void:
 func skin_regions(equipment: Dictionary) -> Array[Rect2]:
 	if equipment.get("engine","engine_stock") == "engine_stock": return [SPRITE_RECT]
 	# Mount socket is x252; only those two old engine pods are removed.
-	return [Rect2(-33,-39,285,228),Rect2(252,-39,48,87),Rect2(252,114,48,75)]
+	return [Rect2(-33,-39,271,228),Rect2(238,-39,62,74),Rect2(238,129,62,60)]
 func draw_skin(canvas: CanvasItem, texture: Texture2D, equipment: Dictionary) -> void:
 	for rect in skin_regions(equipment):
 		var uv := Rect2((rect.position-SPRITE_RECT.position)/SPRITE_RECT.size*SOURCE_SIZE,rect.size/SPRITE_RECT.size*SOURCE_SIZE)
